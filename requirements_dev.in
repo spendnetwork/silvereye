@@ -1,18 +1,9 @@
--r requirements.in
-
-flake8
-pytest
-pytest-django
-pytest-cov
-pytest-localserver
-pytest-xdist
+-r requirements.txt
 coveralls
+pytest
+pytest-cov
+pytest-django
+flake8
+pytest-localserver
 selenium
 transifex-client
-libsass
-Sphinx
-recommonmark
-sphinx_rtd_theme
-# Lock as later versions have a problem with slow generation of data
-hypothesis==3.52.3
-

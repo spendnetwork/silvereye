@@ -3,11 +3,13 @@ from cove import settings
 import os
 import environ
 
+# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 env = environ.Env(  # set default values and casting
     DB_NAME=(str, os.path.join(BASE_DIR, 'db.sqlite3')),
 )
+
 
 PIWIK = settings.PIWIK
 GOOGLE_ANALYTICS_ID = settings.GOOGLE_ANALYTICS_ID
@@ -22,9 +24,43 @@ DEALER_TYPE = settings.DEALER_TYPE
 SECRET_KEY = settings.SECRET_KEY
 DEBUG = settings.DEBUG
 ALLOWED_HOSTS = settings.ALLOWED_HOSTS
-MIDDLEWARE_CLASSES = settings.MIDDLEWARE_CLASSES
-ROOT_URLCONF = settings.ROOT_URLCONF
+
+# Application definition
+
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'bootstrap3',
+    'cove',
+    'cove.input',
+    'cove_ocds',
+]
+
+
+MIDDLEWARE_CLASSES = (
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'dealer.contrib.django.Middleware',
+    'cove.middleware.CoveConfigCurrentApp',
+)
+
+
+ROOT_URLCONF = 'cove_project.urls'
+
 TEMPLATES = settings.TEMPLATES
+
+WSGI_APPLICATION = 'cove_project.wsgi.application'
 
 # We can't take DATABASES from cove settings,
 # ... otherwise the files appear under the BASE_DIR that is the Cove library install.
@@ -36,11 +72,40 @@ DATABASES = {
     }
 }
 
+# Password validation
+# https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+
+# Internationalization
+# https://docs.djangoproject.com/en/2.1/topics/i18n/
+
 LANGUAGE_CODE = settings.LANGUAGE_CODE
 TIME_ZONE = settings.TIME_ZONE
 USE_I18N = settings.USE_I18N
 USE_L10N = settings.USE_L10N
 USE_TZ = settings.USE_TZ
+
+LANGUAGES = settings.LANGUAGES
+
+LOCALE_PATHS = (os.path.join(BASE_DIR, 'cove_ocds', 'locale'),)
+
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/2.1/howto/static-files/
 
 # We can't take STATIC_URL and STATIC_ROOT from cove settings,
 # ... otherwise the files appear under the BASE_DIR that is the Cove library install.
@@ -48,18 +113,12 @@ USE_TZ = settings.USE_TZ
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-LANGUAGES = settings.LANGUAGES
-LOCALE_PATHS = settings.LOCALE_PATHS
-LOCALE_PATHS += os.path.join(BASE_DIR, 'cove_ocds', 'locale'),
+# Misc
 
 LOGGING = settings.LOGGING
 
-if getattr(settings, 'RAVEN_CONFIG', None):
-    RAVEN_CONFIG = settings.RAVEN_CONFIG
+# OCDS Config
 
-INSTALLED_APPS = settings.INSTALLED_APPS + ('cove_ocds', )
-WSGI_APPLICATION = 'cove_ocds.wsgi.application'
-ROOT_URLCONF = 'cove_ocds.urls'
 COVE_CONFIG = {
     'app_name': 'cove_ocds',
     'app_base_template': 'cove_ocds/base.html',
@@ -82,11 +141,7 @@ COVE_CONFIG = {
     'support_email': 'data@open-contracting.org'
 }
 
-# Set default schema version to the latest version
-COVE_CONFIG['schema_version'] = list(COVE_CONFIG['schema_version_choices'].keys())[-1]
-
 # https://github.com/OpenDataServices/cove/issues/1098
 FILE_UPLOAD_PERMISSIONS = 0o644
 
-# Because of how the standard site proxies traffic, we want to use this
-USE_X_FORWARDED_HOST = True
+URL_PREFIX = r'review/'
