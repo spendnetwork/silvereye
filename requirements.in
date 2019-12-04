@@ -1,5 +1,25 @@
-# Lock this version of dealer because later versions have a problem - middleware is of wrong style to use with MIDDLEWARE_CLASSES
-dealer==2.0.5
+pip
 Django<1.12
-libcoveocds
--e git+https://github.com/OpenDataServices/lib-cove-web.git@v0.9.2#egg=libcoveweb
+#^^ rq.filter: <1.12
+-e git+https://github.com/OpenDataServices/flatten-tool.git@v0.9.0#egg=flattentool
+-e git+https://github.com/open-contracting/lib-cove-ocds.git@0.7.4#egg=libcoveocds
+-e git+https://github.com/OpenDataServices/lib-cove-web.git@v0.10.0#egg=libcoveweb
+-e git+https://github.com/OpenDataServices/lib-cove.git@v0.12.2#egg=libcove
+django-bootstrap3
+django-debug-toolbar
+requests
+cached-property
+dealer==2.0.5
+django-environ
+jsonschema
+json-merge-patch
+python-dateutil
+raven
+strict-rfc3339
+rfc3987
+rfc6266
+CommonMark
+bleach
+xmltodict
+rangedict
+openpyxl<3.0
