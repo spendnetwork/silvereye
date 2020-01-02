@@ -2,5 +2,7 @@
 /.ve
 *.pyc
 *.mo
+.coverage
 __pycache__
 /media
+docs/_build
