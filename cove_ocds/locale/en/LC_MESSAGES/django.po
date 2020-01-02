@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-12-04 16:41+0000\n"
+"POT-Creation-Date: 2020-01-02 14:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -21,29 +21,29 @@ msgstr ""
 msgid "Unrecognised version of the schema"
 msgstr ""
 
-#: cove_ocds/lib/exceptions.py:11 cove_ocds/lib/exceptions.py:24
-#: cove_ocds/lib/exceptions.py:40 cove_ocds/lib/exceptions.py:53
-#: cove_ocds/views.py:72 cove_ocds/views.py:83
+#: cove_ocds/lib/exceptions.py:11 cove_ocds/lib/exceptions.py:31
+#: cove_ocds/lib/exceptions.py:54 cove_ocds/lib/exceptions.py:74
+#: cove_ocds/views.py:80 cove_ocds/views.py:98
 msgid "Try Again"
 msgstr ""
 
-#: cove_ocds/lib/exceptions.py:16 cove_ocds/lib/exceptions.py:32
+#: cove_ocds/lib/exceptions.py:21 cove_ocds/lib/exceptions.py:44
 msgid "{} is not a known schema version"
 msgstr ""
 
-#: cove_ocds/lib/exceptions.py:22
+#: cove_ocds/lib/exceptions.py:29
 msgid "Version format does not comply with the schema"
 msgstr ""
 
-#: cove_ocds/lib/exceptions.py:38
+#: cove_ocds/lib/exceptions.py:52
 msgid "JSON reference error"
 msgstr ""
 
-#: cove_ocds/lib/exceptions.py:45
+#: cove_ocds/lib/exceptions.py:64
 msgid "{}"
 msgstr ""
 
-#: cove_ocds/lib/exceptions.py:51 cove_ocds/lib/exceptions.py:64
+#: cove_ocds/lib/exceptions.py:72 cove_ocds/lib/exceptions.py:89
 msgid "Missing OCDS package"
 msgstr ""
 
@@ -1054,11 +1054,11 @@ msgstr ""
 msgid "Line:"
 msgstr ""
 
-#: cove_ocds/views.py:70 cove_ocds/views.py:81
+#: cove_ocds/views.py:78 cove_ocds/views.py:96
 msgid "Sorry, we can't process that data"
 msgstr ""
 
-#: cove_ocds/views.py:84
+#: cove_ocds/views.py:100
 msgid ""
 "OCDS JSON should have an object as the top level, the JSON you supplied does "
 "not."

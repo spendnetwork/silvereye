@@ -48,3 +48,33 @@ $ python manage.py ocds_cli [-h]
 ## Development
 
 Please see the [Developer Documentation](#).
+
+## Translations
+
+For more information about Django's translation framework, see https://docs.djangoproject.com/en/1.8/topics/i18n/translation/
+
+If you add new text to the interface, ensure to wrap it in the relevant gettext blocks/functions.
+
+In order to generate messages and post them on Transifex:
+
+First check the `Transifex lock <https://opendataservices.plan.io/projects/co-op/wiki/CoVE_Transifex_lock>`, because only one branch can be translated on Transifex at a time.
+
+Then:
+
+    python manage.py makemessages -l en
+    tx push -s
+
+In order to fetch messages from transifex:
+
+    tx pull -a
+
+In order to compile them:
+
+    python manage.py compilemessages
+
+Keep the makemessages and pull messages steps in thier own commits seperate from the text changes.
+
+To check that all new text is written so that it is able to be translated you could install and run `django-template-i18n-lint`
+
+    pip install django-template-i18n-lint
+    django-template-i18n-lint cove
