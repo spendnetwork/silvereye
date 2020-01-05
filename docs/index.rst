@@ -11,6 +11,13 @@ This documentation is for people who wish to contribute to or modify the DRT.
    :maxdepth: 2
    :caption: Contents:
 
+   architecture
+   template-structure
+   translations
+   how-to-add-a-validation-check
+   tests
+   ocds-show
+
 Running it locally
 ------------------
 
