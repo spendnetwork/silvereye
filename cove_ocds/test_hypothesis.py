@@ -36,7 +36,7 @@ def test_get_releases_aggregates_dict(json_data):
 
 @pytest.mark.xfail
 @pytest.mark.django_db
-@pytest.mark.parametrize("current_app", ["cove-ocds"])  # , 'cove-360'])
+@pytest.mark.parametrize("current_app", ["cove-ocds"])
 @given(
     general_json
     | st.fixed_dictionaries({"releases": general_json})
@@ -51,7 +51,7 @@ def test_explore_page(client, current_app, json_data):
 
 
 @pytest.mark.django_db
-@pytest.mark.parametrize("current_app", ["cove-ocds"])  # , 'cove-360'])
+@pytest.mark.parametrize("current_app", ["cove-ocds"])
 @given(general_json)
 @example(1)
 @settings(max_examples=50, deadline=None)
