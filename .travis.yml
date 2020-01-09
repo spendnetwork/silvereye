@@ -35,7 +35,7 @@ script:
   - curl -s -S --retry 3 $BASEDIR/tests/script.sh | bash -
   - "google-chrome --version"
   - "google-chrome &"
-  - python -m coverage run --source cove_ocds,cove_project manage.py test
+  - coverage run --source cove_ocds,cove_project manage.py test
   - DJANGO_SETTINGS_MODULE=cove_project.settings pytest --cov cove_ocds --cov cove_project
 
 after_success:
