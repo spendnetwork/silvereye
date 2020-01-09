@@ -7,3 +7,7 @@ flake8
 pytest-localserver
 selenium
 transifex-client
+# Lock as later versions have a problem with slow generation of data
+hypothesis==3.52.3
+# Lock as coverage 5 breaks hypothesis tests?
+coverage<=4.5.4
