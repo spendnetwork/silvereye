@@ -1,5 +1,6 @@
 /*.sqlite3
 /.ve
+.coverage
 *.pyc
 *.mo
 .coverage
