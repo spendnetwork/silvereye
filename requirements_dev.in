@@ -5,7 +5,6 @@ pytest
 pytest-cov
 pytest-django
 flake8
-hypothesis
 pytest-localserver
 selenium
 transifex-client
