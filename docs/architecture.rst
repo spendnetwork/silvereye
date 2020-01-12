@@ -55,3 +55,4 @@ Path through the code
   * The results of the various stages of validation are added to the context so they can be displayed on the frontend. The JSON schema error messages are currently set in lib-cove and OCDS schema specific messages are set in lib-cove-ocds or in this repo (``cove_ocds/lib/exeptions.py``).
   * It uses flattentool to convert the input JSON data into XLSX, or vice versa.
 3. The results of the validation, as well as some basic statistics on the data, are output to the ``explore_record`` and ``explore_release`` html templates in ``cove_ocds/templates``.
+
