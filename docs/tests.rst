@@ -3,7 +3,7 @@ Tests
 
 Run the tests with:
 
-..code:: bash
+.. code:: bash
 
     DJANGO_SETTINGS_MODULE=cove_project.settings pytest --cov cove_ocds --cov cove_project
 

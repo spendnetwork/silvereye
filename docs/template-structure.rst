@@ -19,11 +19,11 @@ In cove-ocds (this repo) you will find specialisations of these, either some blo
 Translating template strings
 ----------------------------
 
-For more about translation in general, see translations_.
+For more about translation in general, see :doc:`translations`.
 
 Some of the templates include variables for the translation of generic terms so that they can easily be reused. For example, in ``explore.html`` (lib-cove-web) you will find:
 
-..code:: html
+.. code:: html
 
   {% trans 'Converted from Original' as converted %}
   {% trans 'Original' as original %}
@@ -36,6 +36,6 @@ Some of the templates include variables for the translation of generic terms so 
 
 Which means that in templates that override or are included in ``explore.html`` you can simply use, for example:
 
-..code:: html
+.. code:: html
 
     <p>{{ xlsx_titles }}</p>
