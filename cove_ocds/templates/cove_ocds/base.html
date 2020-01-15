@@ -145,3 +145,13 @@
 {% block bottomcontent3 %}	
 {% include "cove_ocds/more_info.html" %}
 {% endblock %}
+
+{% block about %}
+<li>{% trans "Built by" %} <a href="http://opendataservices.coop/">{% trans "Open Data Services" %}</a></li>
+<li>{% trans "The code for this site is available on" %}<br>{% trans "GitHub" %}: <a href="https://github.com/open-contracting/cove-ocds/">cove-ocds</a><br>{% trans "Licence" %}: <a href="https://www.gnu.org/licenses/agpl-3.0.html">{% trans "AGPLv3" %}</a><br>{% trans "Report/View issues" %}: <a href="https://github.com/open-contracting/cove-ocds/issues">{% trans "cove-ocds issues" %}</a>
+</li>
+{% endblock %}
+
+{% block version_link %}
+<p class="text-muted">{% blocktrans %}Running version {% endblocktrans %}<a href="https://github.com/open-contracting/cove-ocds/tree/{{request.tag}}">{{request.tag}}</a></p>
+{% endblock %}
