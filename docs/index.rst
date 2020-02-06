@@ -34,7 +34,7 @@ Running it locally
 
     git clone https://github.com/open-contracting/cove-ocds.git
     cd cove-ocds
-    virtualenv .ve --python=/usr/bin/python3
+    python3 -m venv .ve
     source .ve/bin/activate
     pip install -r requirements_dev.txt
     python manage.py migrate
