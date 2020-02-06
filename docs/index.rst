@@ -39,8 +39,13 @@ Running it locally
     pip install -r requirements_dev.txt
     python manage.py migrate
     python manage.py compilemessages
-    python manage.py runserver 0.0.0.0:8000
+    python manage.py runserver
 
+This will make the test site available on the local machine only. If you are running in some kind of container, you may need to do:
+
+.. code:: bash
+
+    python manage.py runserver 0.0.0.0:8000
 
 Commandline interface
 ---------------------
