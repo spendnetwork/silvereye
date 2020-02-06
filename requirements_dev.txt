@@ -5,7 +5,9 @@
 #    pip-compile requirements_dev.in
 #
 -e git+https://github.com/OpenDataServices/lib-cove-web.git@v0.10.0#egg=libcoveweb
+alabaster==0.7.12         # via sphinx
 attrs==19.3.0
+babel==2.8.0              # via sphinx
 bleach==3.1.0
 cached-property==1.5.1
 certifi==2019.11.28
@@ -21,14 +23,17 @@ django-debug-toolbar==2.1
 django-environ==0.4.5
 django==1.11.27
 docopt==0.6.2             # via coveralls
+docutils==0.15.2          # via sphinx
 entrypoints==0.3          # via flake8
 et-xmlfile==1.0.1
 flake8==3.7.9
 flattentool==0.9.0
 hypothesis==3.52.3
 idna==2.8
+imagesize==1.2.0          # via sphinx
 importlib-metadata==1.3.0
 jdcal==1.4.1
+jinja2==2.10.3            # via sphinx
 json-merge-patch==0.2
 jsonref==0.2
 jsonschema==3.2.0
@@ -36,15 +41,17 @@ lepl==5.1.3
 libcove==0.13.0
 libcoveocds==0.7.4
 lxml==4.4.2
+markupsafe==1.1.1         # via jinja2
 mccabe==0.6.1             # via flake8
 more-itertools==8.0.2
 openpyxl==2.6.4
-packaging==20.0           # via pytest
+packaging==20.0           # via pytest, sphinx
 pip-tools==4.3.0
 pluggy==0.13.1            # via pytest
 py==1.8.1                 # via pytest
 pycodestyle==2.5.0        # via flake8
 pyflakes==2.1.1           # via flake8
+pygments==2.5.2           # via sphinx
 pyparsing==2.4.6          # via packaging
 pyrsistent==0.15.7
 pytest-cov==2.8.1
@@ -62,6 +69,15 @@ rfc6266==0.0.4
 schema==0.7.1
 selenium==3.141.0
 six==1.13.0
+snowballstemmer==2.0.0    # via sphinx
+sphinx-rtd-theme==0.4.3
+sphinx==2.3.1
+sphinxcontrib-applehelp==1.0.1  # via sphinx
+sphinxcontrib-devhelp==1.0.1  # via sphinx
+sphinxcontrib-htmlhelp==1.0.2  # via sphinx
+sphinxcontrib-jsmath==1.0.1  # via sphinx
+sphinxcontrib-qthelp==1.0.2  # via sphinx
+sphinxcontrib-serializinghtml==1.1.3  # via sphinx
 sqlparse==0.3.0
 strict-rfc3339==0.7
 transifex-client==0.13.7
