@@ -7,7 +7,7 @@ When new strings are added or existing ones edited, extract them and push them t
 
 .. code:: bash
 
-    python manage.py makemessages -l en
+    python manage.py makemessages -l en --ignore "docs"
     tx push -s
 
 In order to fetch translated strings from transifex:
