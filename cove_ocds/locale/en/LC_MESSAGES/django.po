@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-02 14:10+0000\n"
+"POT-Creation-Date: 2020-02-11 11:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -186,6 +186,42 @@ msgid ""
 "source_url=https://raw.githubusercontent.com/open-contracting/sample-data/"
 "master/fictional-example/1.1/ocds-213czf-000-00001-02-tender.json\"> loading "
 "some sample data. </a>"
+msgstr ""
+
+#: cove_ocds/templates/cove_ocds/base.html:150
+msgid "Built by"
+msgstr ""
+
+#: cove_ocds/templates/cove_ocds/base.html:150
+msgid "Open Data Services"
+msgstr ""
+
+#: cove_ocds/templates/cove_ocds/base.html:151
+msgid "The code for this site is available on"
+msgstr ""
+
+#: cove_ocds/templates/cove_ocds/base.html:151
+msgid "GitHub"
+msgstr ""
+
+#: cove_ocds/templates/cove_ocds/base.html:151
+msgid "Licence"
+msgstr ""
+
+#: cove_ocds/templates/cove_ocds/base.html:151
+msgid "AGPLv3"
+msgstr ""
+
+#: cove_ocds/templates/cove_ocds/base.html:151
+msgid "Report/View issues"
+msgstr ""
+
+#: cove_ocds/templates/cove_ocds/base.html:151
+msgid "cove-ocds issues"
+msgstr ""
+
+#: cove_ocds/templates/cove_ocds/base.html:156
+msgid "Running version "
 msgstr ""
 
 #: cove_ocds/templates/cove_ocds/deprecated_fields_table.html:7
