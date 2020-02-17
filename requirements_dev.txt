@@ -27,7 +27,7 @@ docutils==0.15.2          # via sphinx
 entrypoints==0.3          # via flake8
 et-xmlfile==1.0.1
 flake8==3.7.9
-flattentool==0.9.0
+flattentool==0.10.0
 hypothesis==3.52.3
 idna==2.8
 imagesize==1.2.0          # via sphinx
