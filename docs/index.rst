@@ -1,9 +1,8 @@
 OCDS Data Review Tool: Developer Documentation
 ==============================================
 
-The DRT is a web application that allows you to review Open Contracting data, validate it against the Open Contracting Data Standard, and review it for errors or places for improvement. You can also use it to covert data between JSON and Excel spreadsheet formats.
+.. include:: ../README.rst
 
-It runs at `standard.open-contracting.org/review/ <https://standard.open-contracting.org/review/>`_.
 
 This documentation is for people who wish to contribute to or modify the DRT.
 
@@ -34,13 +33,18 @@ Running it locally
 
     git clone https://github.com/open-contracting/cove-ocds.git
     cd cove-ocds
-    virtualenv .ve --python=/usr/bin/python3
+    python3 -m venv .ve
     source .ve/bin/activate
     pip install -r requirements_dev.txt
     python manage.py migrate
     python manage.py compilemessages
-    python manage.py runserver 0.0.0.0:8000
+    python manage.py runserver
 
+This will make the test site available on the local machine only. If you are running in some kind of container, you may need to do:
+
+.. code:: bash
+
+    python manage.py runserver 0.0.0.0:8000
 
 Commandline interface
 ---------------------
