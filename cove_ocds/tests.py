@@ -1290,6 +1290,7 @@ def test_ocds_json_output_bad_data(json_data):
                 "results.json",
                 "tenders_releases_2_releases.json",
                 "flattened.xlsx",
+                "flattened.ods",
                 "flattened",
             ],
         ),
