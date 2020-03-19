@@ -49,7 +49,7 @@ def url_input_browser(request, server_url, browser, httpserver):
         if "CUSTOM_SERVER_URL" in os.environ:
             # Use urls pointing to GitHub if we have a custom (probably non local) server URL
             source_url = (
-                "https://raw.githubusercontent.com/OpenDataServices/cove/master/cove_ocds/fixtures/"
+                "https://raw.githubusercontent.com/open-contracting/cove-ocds/master/cove_ocds/fixtures/"
                 + source_filename
             )
         else:
@@ -739,7 +739,7 @@ def test_flattentool_warnings(
     if "CUSTOM_SERVER_URL" in os.environ:
         # Use urls pointing to GitHub if we have a custom (probably non local) server URL
         source_url = (
-            "https://raw.githubusercontent.com/OpenDataServices/cove/master/cove_ocds/fixtures/"
+            "https://raw.githubusercontent.com/open-contracting/cove-ocds/master/cove_ocds/fixtures/"
             + source_filename
         )
     else:
