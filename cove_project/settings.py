@@ -32,7 +32,7 @@ MEDIA_URL = "/media/"
 DEALER_TYPE = settings.DEALER_TYPE
 SECRET_KEY = settings.SECRET_KEY
 DEBUG = settings.DEBUG
-ALLOWED_HOSTS = settings.ALLOWED_HOSTS
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
 # Application definition
 
