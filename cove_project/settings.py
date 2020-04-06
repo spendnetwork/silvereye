@@ -80,7 +80,7 @@ WSGI_APPLICATION = "cove_project.wsgi.application"
 # ... otherwise the files appear under the BASE_DIR that is the Cove library install.
 # That could get messy. We want them to appear in our directory.
 DATABASES = {
-    "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": env("DB_NAME")}
+    'default': env.db()
 }
 
 # Password validation
