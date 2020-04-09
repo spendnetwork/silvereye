@@ -6,7 +6,7 @@
 #
 -e git+https://github.com/OpenDataServices/lib-cove-web.git@v0.11.0#egg=libcoveweb
 attrs==19.3.0             # via jsonschema
-bleach==3.1.1
+bleach==3.1.4
 cached-property==1.5.1
 certifi==2019.11.28       # via requests
 chardet==3.0.4            # via requests
