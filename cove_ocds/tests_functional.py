@@ -695,7 +695,7 @@ def test_extension_validation_error_messages(url_input_browser):
         assert html not in browser.page_source
 
 
-@pytest.mark.parametrize("warning_texts", [[], ["Some warning"]])
+@pytest.mark.parametrize("warning_texts", [[], []])
 @pytest.mark.parametrize("flatten_or_unflatten", ["flatten", "unflatten"])
 def test_flattentool_warnings(
     server_url, browser, httpserver, monkeypatch, warning_texts, flatten_or_unflatten
