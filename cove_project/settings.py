@@ -9,18 +9,18 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 env = environ.Env(  # set default values and casting
     DB_NAME=(str, os.path.join(BASE_DIR, "db.sqlite3")),
-    HOTJAR_ID=(str, ''),
-    HOTJAR_SV=(str, ''),
-    HOTJAR_DATE_INFO=(str, ''),
+    HOTJAR_ID=(str, ""),
+    HOTJAR_SV=(str, ""),
+    HOTJAR_DATE_INFO=(str, ""),
 )
 
 
 PIWIK = settings.PIWIK
 GOOGLE_ANALYTICS_ID = settings.GOOGLE_ANALYTICS_ID
 HOTJAR = {
-    'id': env('HOTJAR_ID'),
-    'sv': env('HOTJAR_SV'),
-    'date_info': env('HOTJAR_DATE_INFO'),
+    "id": env("HOTJAR_ID"),
+    "sv": env("HOTJAR_SV"),
+    "date_info": env("HOTJAR_DATE_INFO"),
 }
 
 # We can't take MEDIA_ROOT and MEDIA_URL from cove settings,
@@ -68,8 +68,10 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = "cove_project.urls"
 
 TEMPLATES = settings.TEMPLATES
-TEMPLATES[0]['DIRS'] = [os.path.join(BASE_DIR, 'cove_project', 'templates')]
-TEMPLATES[0]['OPTIONS']['context_processors'].append('cove_project.context_processors.analytics')
+TEMPLATES[0]["DIRS"] = [os.path.join(BASE_DIR, "cove_project", "templates")]
+TEMPLATES[0]["OPTIONS"]["context_processors"].append(
+    "cove_project.context_processors.analytics"
+)
 
 WSGI_APPLICATION = "cove_project.wsgi.application"
 
@@ -118,6 +120,13 @@ STATIC_ROOT = os.path.join(BASE_DIR, "static")
 # Misc
 
 LOGGING = settings.LOGGING
+LOGGING["handlers"]["null"] = {
+    "class": "logging.NullHandler",
+}
+LOGGING["loggers"]["django.security.DisallowedHost"] = {
+    "handlers": ["null"],
+    "propagate": False,
+}
 
 # OCDS Config
 
