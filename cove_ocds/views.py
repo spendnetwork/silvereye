@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import re
+import warnings
 from collections import OrderedDict
 from decimal import Decimal
 
@@ -137,12 +138,14 @@ def explore_ocds(request, pk):
             if "records" in json_data:
                 context["conversion"] = None
             else:
-
                 # Replace the spreadsheet conversion only if it exists already.
                 converted_path = os.path.join(upload_dir, "flattened")
                 replace_converted = replace and os.path.exists(converted_path + ".xlsx")
-                context.update(
-                    convert_json(
+
+                with warnings.catch_warnings():
+                    warnings.filterwarnings('ignore')  # flattentool uses UserWarning, so can't set a specific category
+
+                    convert_json_context = convert_json(
                         upload_dir,
                         upload_url,
                         file_name,
@@ -152,7 +155,8 @@ def explore_ocds(request, pk):
                         request=request,
                         flatten=request.POST.get("flatten"),
                     )
-                )
+
+                context.update(convert_json_context)
 
     else:
         # Use the lowest release pkg schema version accepting 'version' field
