@@ -1,6 +1,5 @@
 pip
-Django<1.12
-#^^ rq.filter: <1.12
+Django>2.2<2.3
 flattentool>=0.10.0
 libcoveocds>=0.7.4
 libcove>=0.13.0
@@ -9,7 +8,7 @@ django-bootstrap3
 django-debug-toolbar
 requests
 cached-property
-dealer==2.0.5
+dealer
 django-environ
 jsonschema
 json-merge-patch
