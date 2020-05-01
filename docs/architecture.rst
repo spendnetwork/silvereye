@@ -23,6 +23,8 @@ lib-cove-ocds
 
 lib-cove-ocds contains OCDS data specific functions, but in a way that means they can be reused by other software and scripts without having to import the whole of the DRT to do so. It includes the OCDSSchema object. Most of the validation checks for OCDS data are here.
 
+lib-cove-ocds produces results in the form of dictionaries with meaningful keys. cove-ocds is responsible for mapping these keys onto a suitable UI. It's worth noting that cove-ocds is not the only tool that consumes the output of lib-cove-ocds. Different tools can produce the best UI for their particular context, so any UI or display work is done in the tool and not in the underlying library. This also means that the respective UIs can be translated or localised independantly, according to the needs or usage of the tools. Having machine readable output from the library also means that we can take a database of output and easily parse it to create statistics about results or errors, etc.
+
 External libraries
 ------------------
 
