@@ -8,7 +8,7 @@
 alabaster==0.7.12         # via sphinx
 attrs==19.3.0             # via -r requirements.txt, hypothesis, jsonschema, pytest
 babel==2.8.0              # via sphinx
-bleach==3.1.4             # via -r requirements.txt, libcove, libcoveocds
+bleach==3.1.5             # via -r requirements.txt, libcove, libcoveocds
 cached-property==1.5.1    # via -r requirements.txt, libcove, libcoveocds, libcoveweb
 certifi==2020.4.5.1       # via -r requirements.txt, requests, sentry-sdk
 chardet==3.0.4            # via -r requirements.txt, requests
@@ -19,7 +19,7 @@ coverage==4.5.4           # via -r requirements_dev.in, coveralls, hypothesis, p
 coveralls==2.0.0          # via -r requirements_dev.in
 dealer==2.1.0             # via -r requirements.txt, libcoveweb
 defusedxml==0.6.0         # via -r requirements.txt, odfpy
-django-bootstrap3==12.0.3  # via -r requirements.txt, libcoveweb
+django-bootstrap3==12.1.0  # via -r requirements.txt, libcoveweb
 django-debug-toolbar==2.2  # via -r requirements.txt, libcoveweb
 django-environ==0.4.5     # via -r requirements.txt, libcoveweb
 django==2.2.12            # via -r requirements.txt, django-debug-toolbar, libcove, libcoveocds, libcoveweb
@@ -47,14 +47,14 @@ mccabe==0.6.1             # via flake8
 more-itertools==8.2.0     # via pytest
 odfpy==1.4.1              # via -r requirements.txt, flattentool
 openpyxl==2.6.4           # via -r requirements.txt, flattentool, libcoveweb
-packaging==20.3           # via pytest, sphinx
-pip-tools==5.1.0          # via -r requirements_dev.in
+packaging==20.3           # via -r requirements.txt, bleach, pytest, sphinx
+pip-tools==5.1.2          # via -r requirements_dev.in
 pluggy==0.13.1            # via pytest
 py==1.8.1                 # via pytest
 pycodestyle==2.5.0        # via flake8
 pyflakes==2.1.1           # via flake8
 pygments==2.6.1           # via sphinx
-pyparsing==2.4.7          # via packaging
+pyparsing==2.4.7          # via -r requirements.txt, packaging
 pyrsistent==0.16.0        # via -r requirements.txt, jsonschema
 pytest-cov==2.8.1         # via -r requirements_dev.in
 pytest-django==3.9.0      # via -r requirements_dev.in

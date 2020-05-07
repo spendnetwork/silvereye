@@ -334,13 +334,18 @@
 
 <div class="row"> <!--Start Row (Detail Table)-->
   <div class="col-md-12">
-    <div class="panel panel-default">
+    <div class="panel panel-default" id="releases-table-panel">
       <div class="panel-heading">
         <h4 class="panel-title">
            {% trans "Releases Table:" %}
         </h4>
       </div>
       <div class="panel-body">
+        {% if releases|length > 25 %}
+        <p>
+          {% blocktrans %}Showing the first 25 releases. To explore all your data in a tabular format, convert it to a spreadsheet using the "Convert" section, above.{% endblocktrans %}
+        </p>
+        {% endif %}
         <table class="table table-striped">
           <thead>
             <tr>
@@ -352,7 +357,7 @@
             </tr>
           </thead>
           <tbody>
-            {% for release in releases %}
+            {% for release in releases|slice:":25" %}
             <tr>
               <td>{{ release.ocid }}</td>
               <td>{{ release.date|date:"j M Y, H:i (e)" }}</td>

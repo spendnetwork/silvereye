@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-26 08:10+0000\n"
+"POT-Creation-Date: 2020-05-06 10:17+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,7 +23,7 @@ msgstr ""
 
 #: cove_ocds/lib/exceptions.py:11 cove_ocds/lib/exceptions.py:31
 #: cove_ocds/lib/exceptions.py:54 cove_ocds/lib/exceptions.py:74
-#: cove_ocds/views.py:80 cove_ocds/views.py:98
+#: cove_ocds/views.py:81 cove_ocds/views.py:99
 msgid "Try Again"
 msgstr ""
 
@@ -551,12 +551,12 @@ msgid "Records Table:"
 msgstr ""
 
 #: cove_ocds/templates/cove_ocds/explore_record.html:170
-#: cove_ocds/templates/cove_ocds/explore_release.html:422
+#: cove_ocds/templates/cove_ocds/explore_release.html:427
 msgid "Explore your data:"
 msgstr ""
 
 #: cove_ocds/templates/cove_ocds/explore_record.html:175
-#: cove_ocds/templates/cove_ocds/explore_release.html:427
+#: cove_ocds/templates/cove_ocds/explore_release.html:432
 msgid ""
 "This section provides a visual representation of the data, use it to check "
 "whether the data makes sense in the type of tool a user might use to explore "
@@ -564,14 +564,14 @@ msgid ""
 msgstr ""
 
 #: cove_ocds/templates/cove_ocds/explore_record.html:178
-#: cove_ocds/templates/cove_ocds/explore_release.html:430
+#: cove_ocds/templates/cove_ocds/explore_release.html:435
 msgid ""
 "Extensions and additional fields are hidden by default, click the 'Extra "
 "fields' buttons or open the 'Extra fields' section to view them."
 msgstr ""
 
 #: cove_ocds/templates/cove_ocds/explore_record.html:181
-#: cove_ocds/templates/cove_ocds/explore_release.html:433
+#: cove_ocds/templates/cove_ocds/explore_release.html:438
 msgid ""
 "When viewing an OCDS record, use the numbers at the top of the visualization "
 "to browse the change history. New and changed fields are highlighted, use "
@@ -837,55 +837,61 @@ msgstr ""
 msgid "Releases Table:"
 msgstr ""
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:348
+#: cove_ocds/templates/cove_ocds/explore_release.html:346
+msgid ""
+"Showing the first 25 releases. To explore all your data in a tabular format, "
+"convert it to a spreadsheet using the \"Convert\" section, above."
+msgstr ""
+
+#: cove_ocds/templates/cove_ocds/explore_release.html:353
 msgid "Release Date"
 msgstr ""
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:349
+#: cove_ocds/templates/cove_ocds/explore_release.html:354
 msgid "Tags"
 msgstr ""
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:350
+#: cove_ocds/templates/cove_ocds/explore_release.html:355
 msgid "Descriptions"
 msgstr ""
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:351
+#: cove_ocds/templates/cove_ocds/explore_release.html:356
 msgid "Purchasers"
 msgstr ""
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:363
+#: cove_ocds/templates/cove_ocds/explore_release.html:368
 msgid "Tender Title:"
 msgstr ""
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:366
+#: cove_ocds/templates/cove_ocds/explore_release.html:371
 msgid "Tender Description:"
 msgstr ""
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:370
+#: cove_ocds/templates/cove_ocds/explore_release.html:375
 msgid "Tender Item Description:"
 msgstr ""
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:375
+#: cove_ocds/templates/cove_ocds/explore_release.html:380
 msgid "Award Title:"
 msgstr ""
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:378
+#: cove_ocds/templates/cove_ocds/explore_release.html:383
 msgid "Award Description:"
 msgstr ""
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:383
+#: cove_ocds/templates/cove_ocds/explore_release.html:388
 msgid "Contract Title:"
 msgstr ""
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:386
+#: cove_ocds/templates/cove_ocds/explore_release.html:391
 msgid "Contract Description:"
 msgstr ""
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:394
+#: cove_ocds/templates/cove_ocds/explore_release.html:399
 msgid "Buyer:"
 msgstr ""
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:400
+#: cove_ocds/templates/cove_ocds/explore_release.html:405
 msgid "Procuring Entity:"
 msgstr ""
 
@@ -1127,11 +1133,11 @@ msgstr ""
 msgid "Line:"
 msgstr ""
 
-#: cove_ocds/views.py:78 cove_ocds/views.py:96
+#: cove_ocds/views.py:79 cove_ocds/views.py:97
 msgid "Sorry, we can't process that data"
 msgstr ""
 
-#: cove_ocds/views.py:100
+#: cove_ocds/views.py:101
 msgid ""
 "OCDS JSON should have an object as the top level, the JSON you supplied does "
 "not."

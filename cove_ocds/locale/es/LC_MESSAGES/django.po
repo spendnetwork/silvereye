@@ -4,22 +4,22 @@
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# Bibiana Cristòfol <bcristofol@gmail.com>, 2020
 # Romina Fernandez <rfernandez@cds.com.py>, 2020
 # Amy Guy <amy.guy@opendataservices.coop>, 2020
 # Ben Webb <ben.webb@opendataservices.coop>, 2020
 # Eduardo Gomez <eduardo.gomez@hotmail.co.uk>, 2020
 # James Baster <james.baster@opendataservices.coop>, 2020
 # Maria Esther Cervantes <mariaesther@idatosabiertos.org>, 2020
+# Bibiana Cristòfol <bcristofol@gmail.com>, 2020
 # 
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-02-18 15:26+0000\n"
+"POT-Creation-Date: 2020-05-06 10:17+0000\n"
 "PO-Revision-Date: 2020-01-02 14:12+0000\n"
-"Last-Translator: Maria Esther Cervantes <mariaesther@idatosabiertos.org>, 2020\n"
+"Last-Translator: Bibiana Cristòfol <bcristofol@gmail.com>, 2020\n"
 "Language-Team: Spanish (https://www.transifex.com/OpenDataServices/teams/59127/es/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -33,7 +33,7 @@ msgstr "Versión del esquema no reconocida"
 
 #: cove_ocds/lib/exceptions.py:11 cove_ocds/lib/exceptions.py:31
 #: cove_ocds/lib/exceptions.py:54 cove_ocds/lib/exceptions.py:74
-#: cove_ocds/views.py:80 cove_ocds/views.py:98
+#: cove_ocds/views.py:81 cove_ocds/views.py:99
 msgid "Try Again"
 msgstr "Inténtelo de nuevo"
 
@@ -632,12 +632,12 @@ msgid "Records Table:"
 msgstr "Tabla de Registros:"
 
 #: cove_ocds/templates/cove_ocds/explore_record.html:170
-#: cove_ocds/templates/cove_ocds/explore_release.html:422
+#: cove_ocds/templates/cove_ocds/explore_release.html:427
 msgid "Explore your data:"
 msgstr "Explora tus datos:"
 
 #: cove_ocds/templates/cove_ocds/explore_record.html:175
-#: cove_ocds/templates/cove_ocds/explore_release.html:427
+#: cove_ocds/templates/cove_ocds/explore_release.html:432
 msgid ""
 "This section provides a visual representation of the data, use it to check "
 "whether the data makes sense in the type of tool a user might use to explore"
@@ -648,7 +648,7 @@ msgstr ""
 "podría usar para explorarlos."
 
 #: cove_ocds/templates/cove_ocds/explore_record.html:178
-#: cove_ocds/templates/cove_ocds/explore_release.html:430
+#: cove_ocds/templates/cove_ocds/explore_release.html:435
 msgid ""
 "Extensions and additional fields are hidden by default, click the 'Extra "
 "fields' buttons or open the 'Extra fields' section to view them."
@@ -658,7 +658,7 @@ msgstr ""
 "adicionales\" para verlos."
 
 #: cove_ocds/templates/cove_ocds/explore_record.html:181
-#: cove_ocds/templates/cove_ocds/explore_release.html:433
+#: cove_ocds/templates/cove_ocds/explore_release.html:438
 msgid ""
 "When viewing an OCDS record, use the numbers at the top of the visualization"
 " to browse the change history. New and changed fields are highlighted, use "
@@ -935,55 +935,64 @@ msgstr ""
 msgid "Releases Table:"
 msgstr "Tabla de Entregas:"
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:348
+#: cove_ocds/templates/cove_ocds/explore_release.html:346
+msgid ""
+"Showing the first 25 releases. To explore all your data in a tabular format,"
+" convert it to a spreadsheet using the \"Convert\" section, above."
+msgstr ""
+"Mostrando los primeros 25 lanzamientos. Para explorar todos tus datos en "
+"formato tabular, conviértalos a una hoja de cálculo usando la sección "
+"\"Convertir\", arriba."
+
+#: cove_ocds/templates/cove_ocds/explore_release.html:353
 msgid "Release Date"
 msgstr "Fecha de Entrega"
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:349
+#: cove_ocds/templates/cove_ocds/explore_release.html:354
 msgid "Tags"
 msgstr "Etiquetas"
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:350
+#: cove_ocds/templates/cove_ocds/explore_release.html:355
 msgid "Descriptions"
 msgstr "Descripciones"
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:351
+#: cove_ocds/templates/cove_ocds/explore_release.html:356
 msgid "Purchasers"
 msgstr "Compradores"
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:363
+#: cove_ocds/templates/cove_ocds/explore_release.html:368
 msgid "Tender Title:"
 msgstr "Título de la Licitación:"
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:366
+#: cove_ocds/templates/cove_ocds/explore_release.html:371
 msgid "Tender Description:"
 msgstr "Descripción de la Licitación:"
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:370
+#: cove_ocds/templates/cove_ocds/explore_release.html:375
 msgid "Tender Item Description:"
 msgstr "Descripción del Artículo de la Licitación:"
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:375
+#: cove_ocds/templates/cove_ocds/explore_release.html:380
 msgid "Award Title:"
 msgstr "Título de la Adjudicación:"
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:378
+#: cove_ocds/templates/cove_ocds/explore_release.html:383
 msgid "Award Description:"
 msgstr "Descripción de la Adjudicación:"
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:383
+#: cove_ocds/templates/cove_ocds/explore_release.html:388
 msgid "Contract Title:"
 msgstr "Título del Contrato:"
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:386
+#: cove_ocds/templates/cove_ocds/explore_release.html:391
 msgid "Contract Description:"
 msgstr "Descripción del Contrato:"
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:394
+#: cove_ocds/templates/cove_ocds/explore_release.html:399
 msgid "Buyer:"
 msgstr "Comprador:"
 
-#: cove_ocds/templates/cove_ocds/explore_release.html:400
+#: cove_ocds/templates/cove_ocds/explore_release.html:405
 msgid "Procuring Entity:"
 msgstr "Entidad Contratante:"
 
@@ -1284,11 +1293,11 @@ msgstr "Ruta:"
 msgid "Line:"
 msgstr "Línea:"
 
-#: cove_ocds/views.py:78 cove_ocds/views.py:96
+#: cove_ocds/views.py:79 cove_ocds/views.py:97
 msgid "Sorry, we can't process that data"
 msgstr "Lo sentimos, no podemos procesar esos datos"
 
-#: cove_ocds/views.py:100
+#: cove_ocds/views.py:101
 msgid ""
 "OCDS JSON should have an object as the top level, the JSON you supplied does"
 " not."

@@ -1097,3 +1097,31 @@ def test_additional_checks_error_modal(
     browser.find_element_by_css_selector(
         "div.modal.additional-checks-1 button.close"
     ).click()
+
+
+def test_release_table_25_rows(url_input_browser):
+    """
+    Check that when there are more than 25 releases, only 25 are shown in the
+    table, and there is a message.
+    """
+
+    browser = url_input_browser("30_releases.json")
+    assert "This file contains 30 releases" in browser.find_element_by_tag_name("body").text
+    panel = browser.find_element_by_css_selector("#releases-table-panel")
+    assert "first 25 releases" in panel.text
+    table_rows = browser.find_elements_by_css_selector("#releases-table-panel table tbody tr")
+    assert len(table_rows) == 25
+
+
+def test_release_table_7_rows(url_input_browser):
+    """
+    Check that when there are less than 25 releases, they are all shown in the
+    table, and there is no message.
+    """
+
+    browser = url_input_browser("tenders_releases_7_releases_check_ocids.json")
+    assert "This file contains 7 releases" in browser.find_element_by_tag_name("body").text
+    panel = browser.find_element_by_css_selector("#releases-table-panel")
+    assert "first 25 releases" not in panel.text
+    table_rows = browser.find_elements_by_css_selector("#releases-table-panel table tbody tr")
+    assert len(table_rows) == 7
