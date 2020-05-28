@@ -7,3 +7,6 @@
 __pycache__
 /media
 docs/_build
+.hypothesis
+.*.swp
+*~

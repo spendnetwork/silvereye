@@ -222,7 +222,7 @@ def test_500_error(server_url, browser):
         "panel-danger"
     ).find_element_by_tag_name("span")
     assert "Glyphicons Halflings" in icon_span.value_of_css_property("font-family")
-    assert icon_span.value_of_css_property("color") == "rgba(169, 68, 66, 1)"
+    assert icon_span.value_of_css_property("color") == "rgba(255, 255, 255, 1)"
 
 
 @pytest.mark.parametrize(
@@ -657,6 +657,57 @@ def check_url_input_result_page(
                 assert grant1["classifications"][0]["title"] == "Test"
             assert converted_file_response.status_code == 200
             assert int(converted_file_response.headers["content-length"]) != 0
+
+
+DARK_RED = "rgba(169, 68, 66, 1)"
+DARK_GREEN = "rgba(155, 175, 0, 1)"
+
+
+@pytest.mark.parametrize(
+    ("source_filename", "heading_color"),
+    [
+        # If everything's fine, it should be green
+        (
+            "tenders_releases_2_releases.json",
+            DARK_GREEN
+        ),
+        # It should be red on:
+        # * Not valid against the schema
+        (
+            "tenders_releases_2_releases_invalid.json",
+            DARK_RED,
+        ),
+        # * Disallowed values on closed codelists
+        (
+            "tenders_releases_1_release_with_closed_codelist.json",
+            DARK_RED,
+        ),
+        # * Bad extensions
+        (
+            "tenders_releases_1_release_with_all_invalid_extensions.json",
+            DARK_RED,
+        ),
+        # And same for records too:
+        (
+            "record_minimal_valid.json",
+            DARK_GREEN,
+        ),
+        (
+            "full_record.json",
+            DARK_RED,
+        ),
+        (
+            "tenders_records_1_record_with_invalid_extensions.json",
+            DARK_RED,
+        ),
+    ],
+)
+def test_headlines_class(url_input_browser, source_filename, heading_color):
+    browser = url_input_browser(source_filename)
+    headlines_panel = browser.find_elements_by_class_name("panel")[0]
+    # Check that this is actually the headlines panel
+    assert headlines_panel.text.startswith('Headlines')
+    assert headlines_panel.find_element_by_class_name("panel-heading").value_of_css_property("background-color") == heading_color
 
 
 def test_validation_error_messages(url_input_browser):

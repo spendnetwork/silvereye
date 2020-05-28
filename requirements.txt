@@ -29,10 +29,10 @@ jsonschema==3.2.0         # via -r requirements.in, libcove, libcoveocds, libcov
 lepl==5.1.3               # via rfc6266
 libcove==0.17.0           # via -r requirements.in, libcoveocds, libcoveweb
 libcoveocds==0.7.4        # via -r requirements.in
-lxml==4.5.0               # via flattentool
+lxml==4.5.1               # via flattentool
 odfpy==1.4.1              # via flattentool
 openpyxl==2.6.4           # via -r requirements.in, flattentool, libcoveweb
-packaging==20.3           # via bleach
+packaging==20.4           # via bleach
 pyparsing==2.4.7          # via packaging
 pyrsistent==0.16.0        # via jsonschema
 python-dateutil==2.8.1    # via -r requirements.in, libcoveweb
@@ -42,8 +42,8 @@ requests==2.23.0          # via -r requirements.in, libcove, libcoveocds, libcov
 rfc3987==1.3.8            # via -r requirements.in, libcove, libcoveweb
 rfc6266==0.0.4            # via -r requirements.in, libcoveweb
 schema==0.7.2             # via flattentool
-sentry-sdk==0.14.3        # via -r requirements.in, libcoveweb
-six==1.14.0               # via bleach, jsonschema, packaging, pyrsistent, python-dateutil
+sentry-sdk==0.14.4        # via -r requirements.in, libcoveweb
+six==1.15.0               # via bleach, jsonschema, packaging, pyrsistent, python-dateutil
 sqlparse==0.3.1           # via django, django-debug-toolbar
 strict-rfc3339==0.7       # via -r requirements.in, libcove, libcoveweb
 urllib3==1.25.9           # via requests, sentry-sdk
