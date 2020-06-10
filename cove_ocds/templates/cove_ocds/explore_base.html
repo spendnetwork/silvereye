@@ -25,7 +25,7 @@
       </div>
       <div class="panel-body">
         {% if unrecognized_version_data %}
-          <div class="bg-danger in-panel-warning">
+          <div class="bg-danger text-danger in-panel-warning">
             <small><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span> &nbsp;Your data specifies a version <strong>{{unrecognized_version_data}}</strong> which is not recognised. For that reason, it's been checked against the current default version.</small>
           </div>
         {% endif %}
@@ -147,7 +147,7 @@
     </div>
     <div class="panel-body">
       {% if extensions and version_used_display == "1.0" %}
-        <div class="bg-danger in-panel-warning">
+        <div class="bg-danger text-danger in-panel-warning">
           <small><span class="glyphicon glyphicon-warning-sign" aria-hidden="true"></span> &nbsp;Your data has been checked against schema version <strong>1.0</strong> and includes extensions but extensions were not introduced in the schema until version <strong>1.1</strong>.</small>
         </div>
       {% endif %}

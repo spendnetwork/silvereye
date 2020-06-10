@@ -14,8 +14,11 @@ This documentation is for people who wish to contribute to or modify the DRT.
    template-structure
    translations
    how-to-add-a-validation-check
+   how-to-edit-stylesheet
    tests
    ocds-show
+
+.. _run_locally:
 
 Running it locally
 ------------------

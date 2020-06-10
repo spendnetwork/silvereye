@@ -15,5 +15,6 @@ transifex-client
 hypothesis==3.52.3
 # Lock as coverage 5 breaks hypothesis tests?
 coverage<=4.5.4
+libsass
 sphinx
 sphinx-rtd-theme
