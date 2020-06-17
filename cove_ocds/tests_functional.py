@@ -266,7 +266,7 @@ def test_500_error(server_url, browser):
             [
                 "Schema Extensions",
                 "Lots",
-                "A tender process may be divided into lots",
+                "A tender process can be divided into lots",
                 "copy of the schema with extension",
                 "Structural Errors",
                 "id is missing but required within items",
