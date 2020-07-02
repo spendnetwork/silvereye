@@ -22,7 +22,7 @@ defusedxml==0.6.0         # via -r requirements.txt, odfpy
 django-bootstrap3==12.1.0  # via -r requirements.txt, libcoveweb
 django-debug-toolbar==2.2  # via -r requirements.txt, libcoveweb
 django-environ==0.4.5     # via -r requirements.txt, libcoveweb
-django==2.2.12            # via -r requirements.txt, django-debug-toolbar, libcove, libcoveocds, libcoveweb
+django==2.2.14            # via -r requirements.txt, django-debug-toolbar, libcove, libcoveocds, libcoveweb
 docopt==0.6.2             # via coveralls
 docutils==0.16            # via sphinx
 et-xmlfile==1.0.1         # via -r requirements.txt, openpyxl

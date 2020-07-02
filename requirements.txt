@@ -17,7 +17,7 @@ defusedxml==0.6.0         # via odfpy
 django-bootstrap3==12.1.0  # via -r requirements.in, libcoveweb
 django-debug-toolbar==2.2  # via -r requirements.in, libcoveweb
 django-environ==0.4.5     # via -r requirements.in, libcoveweb
-django==2.2.12            # via -r requirements.in, django-debug-toolbar, libcove, libcoveocds, libcoveweb
+django==2.2.14            # via -r requirements.in, django-debug-toolbar, libcove, libcoveocds, libcoveweb
 et-xmlfile==1.0.1         # via openpyxl
 flattentool==0.11.0       # via -r requirements.in, libcove, libcoveocds
 idna==2.9                 # via requests
