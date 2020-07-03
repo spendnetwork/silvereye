@@ -3,3 +3,4 @@ The DRT is a web application that allows you to review Open Contracting data, va
 
 It runs at `standard.open-contracting.org/review/ <https://standard.open-contracting.org/review/>`_.
 
+Docs about running locally etc. at https://ocds-data-review-tool.readthedocs.io/en/latest/
