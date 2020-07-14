@@ -10,3 +10,5 @@ docs/_build
 .hypothesis
 .*.swp
 *~
+
+*.env

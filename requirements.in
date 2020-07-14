@@ -24,3 +24,7 @@ rangedict
 openpyxl<3.0
 waitress
 whitenoise
+
+psycopg2-binary
+django-storages
+boto3
