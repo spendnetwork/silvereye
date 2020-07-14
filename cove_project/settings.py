@@ -29,10 +29,12 @@ HOTJAR = {
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
-DEALER_TYPE = settings.DEALER_TYPE
+# Heroku doesn't have git support when deploying
+DEALER_TYPE = 'null'
+
 SECRET_KEY = settings.SECRET_KEY
 DEBUG = settings.DEBUG
-ALLOWED_HOSTS = settings.ALLOWED_HOSTS
+ALLOWED_HOSTS = env('ALLOWED_HOSTS')
 
 # Application definition
 
@@ -58,8 +60,9 @@ MIDDLEWARE = (
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.middleware.security.SecurityMiddleware",
-    "dealer.contrib.django.Middleware",
+    # "dealer.contrib.django.Middleware",
     "cove.middleware.CoveConfigCurrentApp",
 )
 
@@ -78,7 +81,7 @@ WSGI_APPLICATION = "cove_project.wsgi.application"
 # ... otherwise the files appear under the BASE_DIR that is the Cove library install.
 # That could get messy. We want them to appear in our directory.
 DATABASES = {
-    "default": {"ENGINE": "django.db.backends.sqlite3", "NAME": env("DB_NAME")}
+    'default': env.db()
 }
 
 # Password validation
