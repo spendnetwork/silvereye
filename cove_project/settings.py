@@ -29,6 +29,21 @@ HOTJAR = {
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 MEDIA_URL = "/media/"
 
+DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+CACHE_VALIDATION_ERRORS = True
+
+# Set variable to "TRUE" to enable
+STORE_OCDS_IN_S3 = os.getenv('STORE_OCDS_IN_S3') == 'TRUE'
+if STORE_OCDS_IN_S3:
+    # AWS settings
+    # DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    S3_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', 'spendnetwork-silvereye')
+    AWS_LOCATION = os.getenv('AWS_LOCATION', 'media')
+    AWS_DEFAULT_ACL = None
+
 # Heroku doesn't have git support when deploying
 DEALER_TYPE = 'null'
 
@@ -49,6 +64,8 @@ INSTALLED_APPS = [
     "cove",
     "cove.input",
     "cove_ocds",
+
+    'storages',
 ]
 
 

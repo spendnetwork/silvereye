@@ -7,9 +7,11 @@ import re
 from collections import OrderedDict
 from decimal import Decimal
 
-from cove.views import explore_data_context
 from dateutil import parser
 from django.conf import settings
+from django.core.files.base import ContentFile
+from django.core.files.storage import get_storage_class
+from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render
 from django.utils import translation
 from django.utils.html import format_html
@@ -21,11 +23,18 @@ from libcoveocds.common_checks import common_checks_ocds
 from libcoveocds.config import LibCoveOCDSConfig
 from libcoveocds.schema import SchemaOCDS
 from strict_rfc3339 import validate_rfc3339
+from cove.input.models import SuppliedData
 
 from cove_ocds.lib.views import group_validation_errors
 
 from .lib import exceptions
 from .lib.ocds_show_extra import add_extra_fields
+
+# Don't need to import this as we make our own modified function below
+# from cove.views import explore_data_context
+# But we do need some dependencies
+from django.core.exceptions import ValidationError
+from libcove.lib.tools import get_file_type as _get_file_type
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +48,92 @@ def cove_web_input_error(func):
             return render(request, "error.html", context=err.context)
 
     return wrapper
+
+
+# From libcoveweb
+def get_file_name(file_name):
+    if file_name is not None and '/' in file_name:
+        file_name = file_name.split('/')[-1]
+    return file_name
+
+
+# From libcoveweb
+# Updated to store/sync with S3 bucket
+def explore_data_context(request, pk, get_file_type=None):
+    if get_file_type is None:
+        get_file_type = _get_file_type
+
+    try:
+        data = SuppliedData.objects.get(pk=pk)
+    except (SuppliedData.DoesNotExist, ValidationError):  # Catches primary key does not exist and badly formed UUID
+        return {}, None, render(request, 'error.html', {
+            'sub_title': _('Sorry, the page you are looking for is not available'),
+            'link': 'index',
+            'link_text': _('Go to Home page'),
+            'msg': _("We don't seem to be able to find the data you requested.")
+        }, status=404)
+
+    # Updated code to sync local storage to/from S3 storage
+    if settings.STORE_OCDS_IN_S3:
+        s3_storage = get_storage_class(settings.S3_FILE_STORAGE)()
+        original_filename = data.original_file.name.split(os.path.sep)[1]
+        original_file_path = data.original_file.path
+
+        # Sync to S3
+        if os.path.exists(original_file_path):
+            if not s3_storage.exists(data.original_file.name):
+                local_file = data.original_file.read()
+                # Temporarily change the storage for the original_file FileField to save to S3
+                data.original_file.storage = s3_storage
+                data.original_file.save(original_filename, ContentFile(local_file))
+                # Put storage back to DEFAULT_FILE_STORAGE for
+                data.original_file.storage = get_storage_class(settings.DEFAULT_FILE_STORAGE)()
+
+        # Sync from S3 if not local
+        if not os.path.exists(original_file_path):
+            if s3_storage.exists(data.original_file.name):
+                # Switch to S# storage and read file
+                data.original_file.storage = s3_storage
+                s3_file = data.original_file.read()
+
+                data.original_file.storage = get_storage_class(settings.DEFAULT_FILE_STORAGE)()
+                data.original_file.save(original_filename, ContentFile(s3_file))
+
+    file_type = get_file_type(data.original_file)
+    original_file_path = data.original_file.path
+
+    try:
+        file_name = data.original_file.file.name
+        if file_name.endswith('validation_errors-3.json'):
+            raise PermissionError('You are not allowed to upload a file with this name.')
+    except FileNotFoundError:
+        return {}, None, render(request, 'error.html', {
+            'sub_title': _('Sorry, the page you are looking for is not available'),
+            'link': 'index',
+            'link_text': _('Go to Home page'),
+            'msg': _('The data you were hoping to explore no longer exists.\n\nThis is because all '
+                     'data supplied to this website is automatically deleted after 7 days, and therefore '
+                     'the analysis of that data is no longer available.')
+        }, status=404)
+
+    context = {
+        'original_file': {
+            'url': data.original_file.url,
+            'size': data.original_file.size,
+            'path': original_file_path,
+        },
+        'file_type': file_type,
+        'file_name': get_file_name(file_name),
+        'data_uuid': pk,
+        'current_url': request.build_absolute_uri(),
+        'source_url': data.source_url,
+        'form_name': data.form_name,
+        'created_datetime': data.created.strftime('%A, %d %B %Y %I:%M%p %Z'),
+        'created_date': data.created.strftime('%A, %d %B %Y'),
+        'created_time': data.created.strftime('%I:%M%p %Z'),
+    }
+
+    return (context, data, None)
 
 
 @cove_web_input_error
@@ -216,7 +311,7 @@ def explore_ocds(request, pk):
         if os.path.exists(validation_errors_path):
             os.remove(validation_errors_path)
 
-    context = common_checks_ocds(context, upload_dir, json_data, schema_ocds)
+    context = common_checks_ocds(context, upload_dir, json_data, schema_ocds, cache=settings.CACHE_VALIDATION_ERRORS)
 
     if schema_ocds.json_deref_error:
         exceptions.raise_json_deref_error(schema_ocds.json_deref_error)

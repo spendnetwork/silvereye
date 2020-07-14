@@ -95,3 +95,13 @@ zipp==1.2.0               # via -r requirements.txt, importlib-metadata
 # The following packages are considered to be unsafe in a requirements file:
 # pip
 # setuptools
+
+# these were added when adapting for deploying on heroku
+waitress==1.4.3
+whitenoise==5.0.1
+psycopg2-binary==2.8.5
+
+# For S3 storage
+django-storages==1.9.1
+boto3==1.13.14
+smart-open==2.0.0
