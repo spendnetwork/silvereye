@@ -23,3 +23,5 @@ bleach
 xmltodict
 rangedict
 openpyxl<3.0
+waitress
+whitenoise
