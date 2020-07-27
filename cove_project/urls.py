@@ -6,6 +6,7 @@ from django.conf import settings
 from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
+from django.urls import include, path
 from cove.input.views import data_input
 
 import cove_ocds.views
@@ -21,7 +22,9 @@ urlpatterns = [
         },
         name='index'),
     url(r"^review/", include(urlpatterns_core)),
-    url(r"^data/(.+)$", cove_ocds.views.explore_ocds, name="explore")
+    url(r"^data/(.+)$", cove_ocds.views.explore_ocds, name="explore"),
+    path(r'', include('bluetail.urls')),
+    path('publisher-hub/', include('silvereye.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
