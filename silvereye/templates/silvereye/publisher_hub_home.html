@@ -7,14 +7,13 @@
 
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb my-4">
-            <li class="breadcrumb-item"><a href="">Publisher Hub</a></li>
-            <li class="breadcrumb-item active" aria-current="page">{{ id }}</li>
+            <li class="breadcrumb-item active" aria-current="page">Publisher Hub</li>
         </ol>
     </nav>
 
     <h1 class="mt-4">{{ title }}</h1>
 
-    <h1 class="mt-4">Thursday, 18th June 2021</h1>
+    <h1 class="mt-4">{% now "l, jS F Y" %}</h1>
     <hr class="mb-5" />
     <div class="row">
       <div class="col-sm-12 col-md-8" role="main">
@@ -181,7 +180,7 @@
               <span class="badge badge-primary badge-pill">1</span>
             </a>
           </div>
-          <a href="#">View all publishers</a>
+          <a href="{% url 'publisher-listing' %}">View all publishers</a>
         </div>
      </div>
 
