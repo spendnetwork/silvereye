@@ -1,6 +1,6 @@
 import 'popper.js'
 import $ from 'jquery'
-import bootstrap from '../../../dist/js/bootstrap'
+import bootstrap from '../../..'
 
 $(() => {
   $('#resultUID').text(bootstrap.Util.getUID('bs'))
