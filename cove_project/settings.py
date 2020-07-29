@@ -66,6 +66,11 @@ INSTALLED_APPS = [
     "cove_ocds",
 
     'storages',
+
+    'bluetail',
+    'silvereye',
+    'django_pgviews',
+    'pipeline',
 ]
 
 
@@ -88,6 +93,8 @@ ROOT_URLCONF = "cove_project.urls"
 
 TEMPLATES = settings.TEMPLATES
 TEMPLATES[0]["DIRS"] = [os.path.join(BASE_DIR, "cove_project", "templates")]
+TEMPLATES[0]["DIRS"] = [os.path.join(BASE_DIR, "bluetail", "templates")]
+TEMPLATES[0]["DIRS"] = [os.path.join(BASE_DIR, "silvereye", "templates")]
 TEMPLATES[0]["OPTIONS"]["context_processors"].append(
     "cove_project.context_processors.analytics"
 )
@@ -192,3 +199,69 @@ URL_PREFIX = r"review/"
 
 # Because of how the standard site proxies traffic, we want to use this
 USE_X_FORWARDED_HOST = True
+
+
+
+# Bluetail settings
+
+BLUETAIL_APP_DIR = os.path.join(BASE_DIR, "bluetail")
+
+# pipeline
+if DEBUG:
+    IS_LIVE = False
+    STATICFILES_STORAGE = 'pipeline.storage.NonPackagingPipelineStorage'
+else:
+    IS_LIVE = True
+    STATICFILES_STORAGE = 'pipeline.storage.PipelineStorage'
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'pipeline.finders.PipelineFinder',
+)
+
+VENDOR_DIR = os.path.join(BLUETAIL_APP_DIR, "vendor")
+# Define some custom locations at which the staticfiles app can find our
+# files, which it will collect in the directory defined by `STATIC_ROOT`.
+# django-pipeline will then compile them from there (if required).
+STATICFILES_DIRS = (
+    (
+        "bootstrap",
+        os.path.join(VENDOR_DIR, "bootstrap", "scss"),
+    ),
+    (
+        "html5shiv",
+        os.path.join(VENDOR_DIR, "html5shiv"),
+    ),
+    (
+        "jquery",
+        os.path.join(VENDOR_DIR, "jquery"),
+    ),
+    (
+        "bootstrap",
+        os.path.join(VENDOR_DIR, "bootstrap", "dist", "js"),
+    )
+)
+
+SASS_BINARY = os.getenv('SASS_BINARY', 'sassc')
+
+PIPELINE = {
+    'STYLESHEETS': {
+        'main': {
+            'source_filenames': (
+                'sass/main.scss',
+            ),
+            'output_filename': 'css/main.css',
+        },
+    },
+
+    'CSS_COMPRESSOR': 'django_pipeline_csscompressor.CssCompressor',
+    'DISABLE_WRAPPER': True,
+    'COMPILERS': (
+        'pipeline.compilers.sass.SASSCompiler',
+    ),
+    'SHOW_ERRORS_INLINE': False,
+    # Use the libsass commandline tool (that's bundled with libsass) as our
+    # sass compiler, so there's no need to install anything else.
+    'SASS_BINARY': SASS_BINARY,
+}

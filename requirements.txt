@@ -64,3 +64,42 @@ psycopg2-binary==2.8.5
 django-storages==1.9.1
 boto3==1.13.14
 smart-open==2.0.0
+
+
+# Bluetail requirements
+# mySociety Django project
+# Django==2.2.13
+# Markdown==2.6.8
+# Pillow==7.1.2
+# pyyaml==4.2b1
+# argparse==1.2.1
+# csscompressor==0.9.4
+# django-autoslug==1.9.7
+# django-htmlmin
+# django-markitup==4.0.0
+django-pipeline==1.6.14
+-e git+https://github.com/mysociety/django-pipeline-csscompressor@6a88fde5045d68746f1c7ee816deda86615c5581#egg=django_pipeline_csscompressor-master
+# futures==3.0.5
+libsass==0.12.3
+# olefile==0.44
+# psycopg2==2.8.5
+# six==1.10.0
+# feedparser==5.2.1
+# django-import-export==2.0.2
+
+# Added For Heroku
+# waitress==1.4.3
+# whitenoise==5.0.1
+dj-database-url==0.5.0
+
+# Bluetail
+# Using updated fork of django-pgviews https://github.com/mikicz/django-pgviews
+django-pgviews-redux==0.6.0
+# -e git+https://github.com/OpenDataServices/lib-cove-web.git@v0.14.0#egg=libcoveweb
+ocdskit==0.2.8
+pandas==1.0.5
+elasticsearch==7.8.0
+elasticsearch-dsl==7.2.1
+# smart-open==2.1.0
+# django-storages==1.9.1
+faker==4.1.1
