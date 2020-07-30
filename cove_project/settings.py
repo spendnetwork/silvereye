@@ -158,7 +158,7 @@ LOGGING["loggers"]["django.security.DisallowedHost"] = {
 
 COVE_CONFIG = {
     "app_name": "cove_ocds",
-    "app_base_template": "cove_ocds/base.html",
+    "app_base_template": "bluetail_and_silvereye_shared/base.html",
     "app_verbose_name": "Open Contracting Data Review Tool",
     "app_strapline": "Review your OCDS data.",
     "schema_name": {
