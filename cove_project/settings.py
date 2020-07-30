@@ -184,8 +184,9 @@ COVE_CONFIG = {
     "root_list_path": "releases",
     "root_id": "ocid",
     "convert_titles": False,
-    "input_methods": ["upload", "url", "text"],
     "input_template": "silvereye/input.html",
+    # "input_methods": ["upload", "url", "text"],
+    "input_methods": ["upload"],
     "support_email": "data@open-contracting.org",
 }
 
