@@ -9,7 +9,10 @@ def home(request):
 
 
 def publisher_listing(request):
-    return render(request, "silvereye/publisher_listing.html", {})
+    context = {
+        'publishers': PublisherMetrics.objects.all(),
+    }
+    return render(request, "silvereye/publisher_listing.html", context)
 
 
 def publisher(request):
