@@ -1,6 +1,6 @@
 {% extends "bluetail_and_silvereye_shared/base.html" %}
 
-{% block title %}Example Publisher{% endblock %}
+{% block title %}{{ publisher.publisher_name }}{% endblock %}
 
 {% block content %}
 <div class="container-md">
@@ -9,11 +9,11 @@
         <ol class="breadcrumb my-4">
             <li class="breadcrumb-item"><a href="{% url 'publisher-hub' %}">Publisher Hub</a></li>
             <li class="breadcrumb-item"><a href="{% url 'publisher-listing' %}">Publishers</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Borsetshire Council</li>
+            <li class="breadcrumb-item active" aria-current="page">{{ publisher.publisher_name }}</li>
         </ol>
     </nav>
 
-    <h1 class="mt-4">Borsetshire Council</h1>
+    <h1 class="mt-4">{{ publisher.publisher_name }}</h1>
     <hr class="mb-5" />
     <div class="row">
       <div class="col-sm-12 col-md-8" role="main">
