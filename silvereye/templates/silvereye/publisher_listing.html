@@ -105,6 +105,17 @@
               </td>
             </tr>
             {% endfor %}
+            {% for package in packages %}
+            <tr>
+              <td><a href="{% url 'publisher' package.publisher_name %}">{{ package.publisher_name }}</a></td>
+              <td>
+                <span class="display-good">
+                  <svg alt="File is up to date" class="mr-2" fill="none" height="13" viewBox="0 0 13 13" width="13" xmlns="http://www.w3.org/2000/svg"><g fill="#c4c4c4"><path d="m0 7.46751 2.75119-2.75119 5.10935 5.10936-2.75119 2.75122z"/><path d="m2.35816 9.82568 7.46752-7.46752 2.75122 2.75119-7.46755 7.46755z"/></g></svg>
+                  {{ package.supplied_data.created|date:"d/m/Y" }}
+                </span>
+              </td>
+            </tr>
+            {% endfor %}
 
             {% comment %}
             <!--
