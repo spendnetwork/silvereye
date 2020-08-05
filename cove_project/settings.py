@@ -92,9 +92,9 @@ MIDDLEWARE = (
 ROOT_URLCONF = "cove_project.urls"
 
 TEMPLATES = settings.TEMPLATES
-TEMPLATES[0]["DIRS"] = [os.path.join(BASE_DIR, "cove_project", "templates")]
-TEMPLATES[0]["DIRS"] = [os.path.join(BASE_DIR, "bluetail", "templates")]
-TEMPLATES[0]["DIRS"] = [os.path.join(BASE_DIR, "silvereye", "templates")]
+TEMPLATES[0]["DIRS"].append(os.path.join(BASE_DIR, "cove_project", "templates"))
+TEMPLATES[0]["DIRS"].append(os.path.join(BASE_DIR, "bluetail", "templates"))
+TEMPLATES[0]["DIRS"].append(os.path.join(BASE_DIR, "silvereye", "templates"))
 TEMPLATES[0]["OPTIONS"]["context_processors"].append(
     "cove_project.context_processors.analytics"
 )
