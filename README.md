@@ -27,7 +27,24 @@ Migrate
 Download Contracts Finder releases in a date range and insert
 
     python manage.py get_cf_data --start_date 2020-06-01 --end_date 2020-07-01
-      
+
+## Prepare Publisher metrics
+
+This management command will prepare metric data for the Silvereye Publisher page
+
+    python manage.py update_publisher_metrics
+          
+          
+### Heroku deployment
+
+Set up database
+
+    heroku run "script/setup" --app ocds-silvereye
+
+Insert Contracts Finder data 
+    
+    heroku run "python manage.py get_cf_data --start_date 2020-06-01" --app ocds-silvereye
+          
     
 ## Modified Review Tool Info
 
