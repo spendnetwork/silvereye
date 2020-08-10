@@ -103,3 +103,6 @@ elasticsearch-dsl==7.2.1
 # smart-open==2.1.0
 # django-storages==1.9.1
 faker==4.1.1
+
+# Silvereye
+django-debug-toolbar
