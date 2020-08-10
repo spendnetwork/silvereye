@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from django.db.models import Count, Max, F
 
 from cove.input.models import SuppliedData
 from cove.input.views import data_input
@@ -22,12 +23,19 @@ def home(request):
 
 
 def publisher_listing(request):
-    packages = OCDSPackageData.objects.all()
-    sorted_packages = packages.order_by("publisher_name", "-supplied_data__created")
-    distinct = sorted_packages.distinct("publisher_name")
+    # packages = OCDSPackageData.objects.all()
+    # sorted_packages = packages.order_by("publisher_name", "-supplied_data__created")
+    # distinct = sorted_packages.distinct("publisher_name")
+
+    publishers = OCDSPackageData.objects.all()\
+        .values('publisher_name')\
+        .order_by('-supplied_data__created')\
+        .annotate(last_submission=Max("supplied_data__created")) \
+        .annotate(total=Count('publisher_name'))\
+        .order_by('publisher_name') \
 
     context = {
-        'publishers': distinct,
+        'publishers': publishers,
         # 'publisher_metrics': PublisherMetrics.objects.all(),
         "submission_date_yellow": datetime.today() - timedelta(days=14),
         "submission_date_red": datetime.today() - timedelta(days=30),
