@@ -25,7 +25,7 @@ class OCDSPackageData(pgviews.View):
     package_data = JSONField()
     supplied_data = models.ForeignKey(SuppliedData, on_delete=None)
     uri = models.TextField()
-    publishedDate = models.DateTimeField()
+    published_date = models.DateTimeField()
     publisher = JSONField()
     publisher_uid = models.TextField()
     publisher_uri = models.TextField()
@@ -37,11 +37,12 @@ class OCDSPackageData(pgviews.View):
         SELECT
             package.id,
             package.supplied_data_id,
+            package.package_data as package_data,
             package.package_data ->> 'uri' as uri,
             package.package_data ->> 'license' as license,
             package.package_data ->> 'version' as version,
-            package.package_data ->> 'publishedDate' as publishedDate,
-            package.package_data ->> 'publicationPolicy' as publicationPolicy,            
+            package.package_data ->> 'publishedDate' as published_date,
+            package.package_data ->> 'publicationPolicy' as publication_policy,            
             package.package_data -> 'packages' as packages,
             package.package_data -> 'publisher' as publisher,
             package.package_data -> 'publisher' ->> 'uid' as publisher_uid,
