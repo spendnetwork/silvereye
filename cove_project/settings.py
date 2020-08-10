@@ -71,18 +71,20 @@ INSTALLED_APPS = [
     'silvereye',
     'django_pgviews',
     'pipeline',
+    'debug_toolbar',
 ]
 
 
 MIDDLEWARE = (
     "django.contrib.sessions.middleware.SessionMiddleware",
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.middleware.security.SecurityMiddleware",
     # "dealer.contrib.django.Middleware",
     "cove.middleware.CoveConfigCurrentApp",
@@ -266,3 +268,8 @@ PIPELINE = {
     # sass compiler, so there's no need to install anything else.
     'SASS_BINARY': SASS_BINARY,
 }
+
+# Needed for DEBUG TOOLBAR
+INTERNAL_IPS = [
+    "127.0.0.1",
+]

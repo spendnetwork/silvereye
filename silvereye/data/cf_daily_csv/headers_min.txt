@@ -6,7 +6,6 @@ publisher/scheme
 publisher/uid
 publisher/uri
 version
-extensions/0
 license
 publicationPolicy
 releases/0/ocid

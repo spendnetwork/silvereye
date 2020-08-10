@@ -13,3 +13,6 @@ docs/_build
 
 *.env
 /static/
+
+working_files/
+.idea

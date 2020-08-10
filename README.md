@@ -4,7 +4,49 @@ The DRT is a web application that allows you to review Open Contracting data, va
 It runs at `standard.open-contracting.org/review/ <https://standard.open-contracting.org/review/>`_.
 
 
-## Modified Review Tool
+# Silvereye setup
+
+Migrate
+
+    python manage.py migrate
+    python manage.py sync_pgviews --force 
+
+ ## Data Input
+ 
+ ### Contracts Finder
+ 
+ There is a management command to insert data from the Contracts Finder API. 
+ https://www.contractsfinder.service.gov.uk/apidocumentation/Notices/1/GET-Harvester-Notices-Data-CSV
+ 
+ This can point to a local file or provide arguments to retrieve files from the API directly in a date range
+ 
+ Insert local sample file
+ 
+    python manage.py get_cf_data --file_path silvereye/data/cf_daily_csv/export-2020-08-05.csv
+    
+Download Contracts Finder releases in a date range and insert
+
+    python manage.py get_cf_data --start_date 2020-06-01 --end_date 2020-07-01
+
+## Prepare Publisher metrics
+
+This management command will prepare metric data for the Silvereye Publisher page
+
+    python manage.py update_publisher_metrics
+          
+          
+### Heroku deployment
+
+Set up database
+
+    heroku run "script/setup" --app ocds-silvereye
+
+Insert Contracts Finder data 
+    
+    heroku run "python manage.py get_cf_data --start_date 2020-06-01" --app ocds-silvereye
+          
+    
+## Modified Review Tool Info
 
 ## S3 storage
 
