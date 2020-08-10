@@ -25,6 +25,7 @@ SILVEREYE_DIR = silvereye.__path__[0]
 METRICS_SQL_DIR = os.path.join(SILVEREYE_DIR, "metrics", "sql")
 CF_DAILY_DIR = os.path.join(SILVEREYE_DIR, "data", "cf_daily_csv")
 HEADERS_LIST = join(CF_DAILY_DIR, "headers_min.txt")
+OCDS_SCHEMA = join(SILVEREYE_DIR, "data", "OCDS", "1.1.4-release-schema.json")
 
 
 def fix_df(df):
@@ -62,7 +63,8 @@ def process_df_csv(csv_path_or_url):
     shutil.rmtree(clean_output_dir, ignore_errors=True)
     os.makedirs(clean_output_dir)
     fixed_df.to_csv(open(clean_output_file, "w"), index=False, header=True)
-    schema = "https://standard.open-contracting.org/schema/1__1__4/release-package-schema.json"
+    # schema = "https://standard.open-contracting.org/schema/1__1__4/release-package-schema.json"
+    schema = OCDS_SCHEMA
     unflatten(clean_output_dir, output_name=output_file, input_format="csv", root_id="ocid", root_is_list=True, schema=schema)
     js = json.load(open(output_file))
     for package in js:
@@ -76,7 +78,6 @@ def process_df_csv(csv_path_or_url):
         supplied_data, created = SuppliedData.objects.update_or_create(
             id=cf_id,
             defaults={
-                "created": published_date,
                 "current_app": "silvereye",
             }
         )
