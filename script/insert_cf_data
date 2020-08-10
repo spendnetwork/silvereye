@@ -1,0 +1,6 @@
+#!/bin/sh
+
+python manage.py get_cf_data --file_path silvereye/data/cf_daily_csv/export-2020-08-05.csv
+python manage.py update_publisher_data
+
+

@@ -41,9 +41,15 @@ Set up database
 
     heroku run "script/setup" --app ocds-silvereye
 
-Insert Contracts Finder data 
+Insert Contracts Finder data using defaults
+
+    heroku run "script/insert_cf_data" --app ocds-silvereye
+ 
+Manually update data from Contracts Finder with args
     
     heroku run "python manage.py get_cf_data --start_date 2020-06-01" --app ocds-silvereye
+    heroku run "python manage.py update_publisher_data" --app ocds-silvereye
+
           
     
 ## Modified Review Tool Info

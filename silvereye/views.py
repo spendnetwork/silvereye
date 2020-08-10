@@ -6,7 +6,7 @@ from cove.input.views import data_input
 from django.shortcuts import render
 
 from bluetail.models import OCDSPackageData
-from silvereye.models import PublisherMetrics
+from silvereye.models import PublisherMetrics, Publisher
 
 
 def home(request):
@@ -51,9 +51,13 @@ def publisher(request, publisher_name):
     }
     publisher_metrics = PublisherMetrics.objects.filter(publisher_id=publisher_name).first()
     packages = OCDSPackageData.objects.filter(publisher_name=publisher_name)
+
+    publisher_metadata = Publisher.objects.filter(publisher_name=publisher_name)[0]
+
     context = {
         "recent_submissions": recent_submissions,
         'publisher': publisher,
+        'publisher_metadata': publisher_metadata,
         'packages': packages,
         'publisher_metrics': publisher_metrics,
     }
