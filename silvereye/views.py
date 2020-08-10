@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta
+
 from cove.input.models import SuppliedData
 from cove.input.views import data_input
 from django.shortcuts import render
@@ -25,8 +27,10 @@ def publisher_listing(request):
     distinct = sorted_packages.distinct("publisher_name")
 
     context = {
-        'packages': distinct,
-        'publishers': PublisherMetrics.objects.all(),
+        'publishers': distinct,
+        # 'publisher_metrics': PublisherMetrics.objects.all(),
+        "submission_date_yellow": datetime.today() - timedelta(days=14),
+        "submission_date_red": datetime.today() - timedelta(days=30),
     }
     return render(request, "silvereye/publisher_listing.html", context)
 
