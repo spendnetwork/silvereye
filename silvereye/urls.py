@@ -7,6 +7,6 @@ import silvereye.views as views
 urlpatterns = [
     path('', views.home, name='publisher-hub'),
     path('publishers/all/', views.publisher_listing, name='publisher-listing'),
-    path('publisher/<publisher_id>', views.publisher, name='publisher'),
+    path('publisher/<publisher_name>', views.publisher, name='publisher'),
     path('upload-results/', views.upload_results, name='upload-results'),
 ]
