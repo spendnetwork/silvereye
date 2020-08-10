@@ -55,8 +55,8 @@ def process_df_csv(csv_path_or_url):
     """
     Take path or URL to a Contracts Finder API flat CSV output and insert all releases into Silvereye database
     """
-    output_file = join(CF_DAILY_DIR, "release_packages.json")
-    clean_output_dir = join(CF_DAILY_DIR, "cleaned")
+    output_file = join(CF_DAILY_DIR, "working_files", "release_packages.json")
+    clean_output_dir = join(CF_DAILY_DIR, "working_files", "cleaned")
     clean_output_file = join(clean_output_dir, "cleaned.csv")
     df = pd.read_csv(csv_path_or_url)
     fixed_df = fix_df(df)
