@@ -1,17 +1,39 @@
+# Silvereye
+
+Silvereye is a modified fork of the Open Contracting repository `cove-ocds` (OCDS Data Review Tool)
 
 The DRT is a web application that allows you to review Open Contracting data, validate it against the Open Contracting Data Standard, and review it for errors or places for improvement. You can also use it to covert data between JSON and Excel spreadsheet formats.
 
-It runs at `standard.open-contracting.org/review/ <https://standard.open-contracting.org/review/>`_.
+The original tool runs at https://standard.open-contracting.org/review/
+
+Documentation for the original tool is at https://ocds-data-review-tool.readthedocs.io/en/latest/
+
+The Silvereye fork runs at https://ocds-silvereye.herokuapp.com
+
+WIP Documentation for the fork is in the README.me https://github.com/spendnetwork/cove-ocds/blob/master/README.md
 
 
-# Silvereye setup
+# Setup
 
-Migrate
+See the original docs for local setup
+
+https://ocds-data-review-tool.readthedocs.io/en/latest/#running-it-locally
+
+There is an extra step needed to create the Postgres views after migrating
 
     python manage.py migrate
     python manage.py sync_pgviews --force 
 
+If you need to reset your local DB during development (eg. after pulling updates to the migrations) run
+
+    script/setup
+
+
  ## Data Input
+ 
+ To insert the sample data set run 
+ 
+    script/insert_cf_data
  
  ### Contracts Finder
  
@@ -26,9 +48,15 @@ Migrate
     
 Download Contracts Finder releases in a date range and insert
 
-    python manage.py get_cf_data --start_date 2020-06-01 --end_date 2020-07-01
+    python manage.py get_cf_data --start_date 2020-07-01 --end_date 2020-09-01
 
-## Prepare Publisher metrics
+### Update Publisher metadata
+
+This command updates the contact details from the latest submitted file for each publisher
+
+    python manage.py update_publisher_data
+
+### Prepare Publisher metrics
 
 This management command will prepare metric data for the Silvereye Publisher page
 
