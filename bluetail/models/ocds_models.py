@@ -80,7 +80,7 @@ class OCDSReleaseJSON(pgviews.View):
     ocid = models.TextField(primary_key=True)
     release_id = models.TextField()
     release_json = JSONField()
-    package_data = models.ForeignKey(OCDSPackageDataJSON, on_delete=None, null=True)
+    package_data = models.ForeignKey(OCDSPackageData, on_delete=None, null=True)
 
     sql = """
         SELECT

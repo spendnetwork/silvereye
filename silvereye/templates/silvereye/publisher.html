@@ -156,9 +156,9 @@
                         <div class="col text-right"><a href="#">Edit</a></div>
                     </div>
 
-                    <p class="mb-1">Charlotte Blankenship</p>
-                    <p class="mb-1"><a href="mailto:" procurement@borsetshire.gov.uk">procurement@borsetshire.gov.uk</a></p>
-                    <p class="mb-0"><a href="tel:08003432321">08003432321</a></p>
+                    <p class="mb-1">{{ publisher_metadata.contact_name }}</p>
+                    <p class="mb-1"><a href="mailto:{{ publisher_metadata.contact_email }}">{{ publisher_metadata.contact_email }}</a></p>
+                    <p class="mb-0"><a href="tel:{{ publisher_metadata.contact_telephone }}">{{ publisher_metadata.contact_telephone }}</a></p>
                 </div>
                 <div>
                     <button type="button" class="btn btn-secondary btn-block">Download data <small>– 1282 rows, 128kb</small></button>
