@@ -14,9 +14,11 @@ import cove_ocds.views
 
 
 # Serve the OCDS validator at /validator/
+from silvereye.views import custom_data_input
+
 urlpatterns = [
     url(r"^$", RedirectView.as_view(url="review/", permanent=False)),
-    url(r'^review/$', data_input,
+    url(r'^review/$', custom_data_input,
         kwargs={
             "text_file_name": "{}.json".format(datetime.now().strftime("%Y%m%dT%H%M%SZ"))
         },

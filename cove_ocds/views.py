@@ -26,6 +26,7 @@ from libcoveocds.schema import SchemaOCDS
 from strict_rfc3339 import validate_rfc3339
 from cove.input.models import SuppliedData
 
+from bluetail.helpers import UpsertDataHelpers
 from cove_ocds.lib.views import group_validation_errors
 
 from .lib import exceptions
@@ -391,6 +392,20 @@ def explore_ocds(request, pk):
                             context["releases_aggregates"][field] = None
         else:
             context["releases"] = []
+
+    # Silvereye: Insert OCDS data
+    releases = context.get("releases")
+    if releases:
+        # If we don't have validation errors
+        validation_errors_grouped = context["validation_errors_grouped"]
+        if not validation_errors_grouped:
+            json_string = json.dumps(
+                json_data,
+                indent=2,
+                sort_keys=True,
+                cls=DjangoJSONEncoder
+            )
+            UpsertDataHelpers().upsert_ocds_data(json_string, supplied_data=db_data)
 
     return render(request, template, context)
 

@@ -67,3 +67,10 @@ def publisher(request, publisher_name):
 # TODO: Remove this once we've moved the styles over to cove-ocds's main upload form.
 def upload_results(request):
     return render(request, "silvereye/upload_results.html")
+
+
+def custom_data_input(request, *args, **kwargs):
+    # Add something to request.POST so data_input doesn't ignore uploaded files.
+    request.POST = request.POST.copy()
+    request.POST["something"] = "Dummy POSST content so the CSV gets processed"
+    return data_input(request, *args, **kwargs)
