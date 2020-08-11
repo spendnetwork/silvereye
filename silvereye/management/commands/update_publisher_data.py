@@ -30,8 +30,8 @@ class Command(BaseCommand):
                     publisher_id=pub.package_data.publisher_name,
                     publisher_name=pub.package_data.publisher_name,
                     defaults={
-                        "contact_name": contact.get("name"),
-                        "contact_email": contact.get("email"),
-                        "contact_telephone": contact.get("telephone"),
+                        "contact_name": contact.get("name", ""),
+                        "contact_email": contact.get("email", ""),
+                        "contact_telephone": contact.get("telephone", ""),
                     }
                 )

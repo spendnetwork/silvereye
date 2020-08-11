@@ -4,9 +4,9 @@ from django.db import models
 class Publisher(models.Model):
     publisher_id = models.TextField(primary_key=True)
     publisher_name = models.TextField()
-    contact_name = models.TextField(blank=True, default="")
-    contact_email = models.TextField(blank=True, default="")
-    contact_telephone = models.TextField(blank=True, default="")
+    contact_name = models.TextField(null=True, blank=True, default="")
+    contact_email = models.TextField(null=True, blank=True, default="")
+    contact_telephone = models.TextField(null=True, blank=True, default="")
 
     class Meta:
         app_label = 'silvereye'
