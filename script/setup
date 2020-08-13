@@ -12,12 +12,11 @@ psql -d $DATABASE_URL -c "DROP SCHEMA IF EXISTS public CASCADE"
 psql -d $DATABASE_URL -c "CREATE SCHEMA public"
 
 # Set up database.
-python manage.py migrate
-python manage.py sync_pgviews --force
+script/migrate
 
 # Insert example data.
 # python manage.py get_cf_data --file_path silvereye/data/cf_daily_csv/export-2020-08-05.csv
 
-
 # Create superuser.
-script/console -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'admin')"
+script/console -c "from django.contrib.auth import get_user_model; User = get_user_model();
+User.objects.create_superuser('admin', 'admin@example.com', 'admin')"
