@@ -12,7 +12,7 @@ env = environ.Env(  # set default values and casting
     HOTJAR_ID=(str, ""),
     HOTJAR_SV=(str, ""),
     HOTJAR_DATE_INFO=(str, ""),
-    ALLOWED_HOSTS = (list,["127.0.0.1", "locahost"])
+    ALLOWED_HOSTS = (list,["127.0.0.1", "localhost"])
 )
 
 
