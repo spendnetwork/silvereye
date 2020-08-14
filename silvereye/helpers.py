@@ -33,25 +33,24 @@ class S3_helpers():
             logger.info(f"Downloading {original_file_path}")
             filename_root = os.path.splitext(filename)[0]
 
+            # Create SuppliedData entry
+            supplied_data, created = SuppliedData.objects.update_or_create(
+                id=id,
+                defaults={
+                    "current_app": "silvereye",
+                    "original_file": original_file_path,
+                }
+            )
+
             # Extract created date from filename if possible
             try:
-                created = datetime.strptime(filename_root, "%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc)
+                filename_datetime = datetime.strptime(filename_root, "%Y%m%dT%H%M%SZ").replace(tzinfo=timezone.utc)
+                supplied_data.created = filename_datetime
             except ValueError:
-                logger.info("Couldn't extract datetime from filename")
-                # Else let the created value be set when inserted
-                created = None
+                logger.debug("Couldn't extract datetime from filename")
 
-            supplied_data = SuppliedData(
-                id=id,
-                original_file=original_file_path,
-                created=created
-            )
-            supplied_data.current_app = "bluetail"
             supplied_data.save()
             sync_with_s3(supplied_data)
-
-
-
 
             # package_json_raw = s3_storage._open(original_file_path)
             # package_json_dict = json.load(package_json_raw)
