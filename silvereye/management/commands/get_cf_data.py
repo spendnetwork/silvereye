@@ -1,19 +1,25 @@
 """
 Command to create an generate publisher metrics
 """
-from datetime import datetime
+from datetime import datetime, timedelta
 
 import json
 import logging
 import os
 import shutil
 from os.path import join
+import urllib.request
+import shutil
+
 
 import pandas as pd
 from cove.input.models import SuppliedData
 from django.core.files.base import ContentFile
 from django.core.management import BaseCommand
 from django.core.serializers.json import DjangoJSONEncoder
+from django.template.defaultfilters import slugify
+from ocdskit.combine import combine_release_packages
+
 from flattentool import unflatten
 
 import silvereye
@@ -24,75 +30,229 @@ logger = logging.getLogger('django')
 SILVEREYE_DIR = silvereye.__path__[0]
 METRICS_SQL_DIR = os.path.join(SILVEREYE_DIR, "metrics", "sql")
 CF_DAILY_DIR = os.path.join(SILVEREYE_DIR, "data", "cf_daily_csv")
-HEADERS_LIST = join(CF_DAILY_DIR, "headers_min.txt")
-OCDS_SCHEMA = join(SILVEREYE_DIR, "data", "OCDS", "1.1.4-release-schema.json")
+WORKING_DIR = os.path.join(CF_DAILY_DIR, "working_files")
+SOURCE_DIR = os.path.join(WORKING_DIR, "source")
+CLEAN_OUTPUT_DIR = join(WORKING_DIR, "cleaned")
 
+HEADERS_LIST = join(CF_DAILY_DIR, "headers_min.txt")
+OCDS_RELEASE_SCHEMA = join(SILVEREYE_DIR, "data", "OCDS", "1.1.4-release-schema.json")
+
+def get_publisher_names():
+    """
+    Get a list of names of publishers who are expected to submit data
+    """
+    publishers = ['City of London Corporation',
+                  'Crown Commercial Service',
+                  'Devon County Council',
+                  'Highways England',
+                  'Leeds City Council',
+                  'London Fire Commissioner',
+                  'Newcastle City Council',
+                  'Nottingham City Council',
+                  'North Tyneside Council',
+                  'Telford & Wrekin Council'
+                  ]
+    return publishers
 
 def fix_df(df):
     """
     Process raw CF CSV:
         - Filter columns using headers in HEADERS_LIST file
         - fix array issue with tags
+        - Use the first buyer name in the release as the publisher name
     """
     cols_list = open(HEADERS_LIST).readlines()
     cols_list = [x.strip() for x in cols_list]
     fixed_df = df[df.columns.intersection(cols_list)]
     fixed_df = fixed_df.rename(columns={
-        # 'extensions/0': 'extensions',
         'releases/0/tag/0': 'releases/0/tag'
     })
+    fixed_df['publisher/name'] = fixed_df['releases/0/buyer/name']
     return fixed_df
 
 
-def fix_json_package(package):
-    """Set publisher name to buyer name"""
-    buyer_name = package["releases"][0]["buyer"]["name"]
-    package["publisher"]["name"] = buyer_name
-    return package
-
-
-def process_df_csv(csv_path_or_url):
+def create_package_from_json(contracts_finder_id, package):
     """
-    Take path or URL to a Contracts Finder API flat CSV output and insert all releases into Silvereye database
+    Create SuppliedData and OCDSPackageDataJSON records in the database for a
+    Contracts Finder JSON OCDS release package
+
+    :param contracts_finder_id: ID to use in constructing the SuppliedData ID
+    :param package: JSON OCDS package
     """
-    output_file = join(CF_DAILY_DIR, "working_files", "release_packages.json")
-    clean_output_dir = join(CF_DAILY_DIR, "working_files", "cleaned")
-    clean_output_file = join(clean_output_dir, "cleaned.csv")
-    df = pd.read_csv(csv_path_or_url)
-    fixed_df = fix_df(df)
-    shutil.rmtree(clean_output_dir, ignore_errors=True)
-    os.makedirs(clean_output_dir)
-    fixed_df.to_csv(open(clean_output_file, "w"), index=False, header=True)
-    # schema = "https://standard.open-contracting.org/schema/1__1__4/release-package-schema.json"
-    schema = OCDS_SCHEMA
-    unflatten(clean_output_dir, output_name=output_file, input_format="csv", root_id="ocid", root_is_list=True, schema=schema)
-    js = json.load(open(output_file))
-    for package in js:
-        package = fix_json_package(package)
+    published_date = package["publishedDate"]
+    publisher_name= package["publisher"]["name"]
 
-        cf_id = os.path.splitext(os.path.split(package["uri"])[1])[0]
-        release_id = package["releases"][0]["id"]
-        published_date = package["publishedDate"]
+    logger.info("Creating SuppliedData %s uri %s date %s", publisher_name, contracts_finder_id, published_date)
+    # Create SuppliedData entry
+    supplied_data, created = SuppliedData.objects.update_or_create(
+        id=contracts_finder_id,
+        defaults={
+            "current_app": "silvereye",
+        }
+    )
+    supplied_data.created = published_date
+    supplied_data.original_file.save("release_package.json", ContentFile(json.dumps(package, indent=2)))
+    supplied_data.save()
 
-        # Create SuppliedData entry
-        supplied_data, created = SuppliedData.objects.update_or_create(
-            id=cf_id,
-            defaults={
-                "current_app": "silvereye",
-            }
-        )
-        supplied_data.created = published_date
-        supplied_data.original_file.save("release_package.json", ContentFile(json.dumps(package, indent=2)))
-        supplied_data.save()
+    json_string = json.dumps(
+        package,
+        indent=2,
+        sort_keys=True,
+        cls=DjangoJSONEncoder
+    )
+    UpsertDataHelpers().upsert_ocds_data(json_string, supplied_data)
 
-        json_string = json.dumps(
-            package,
-            indent=2,
-            sort_keys=True,
-            cls=DjangoJSONEncoder
-        )
-        UpsertDataHelpers().upsert_ocds_data(json_string, supplied_data)
+def get_date_boundaries(start_date, end_date, df):
+    """
+    Return an iterator of tuples of the start and end dates for a set of weekly
+    periods that will include the period defined by the start and end date
+    passed. If no start_date is passed, it is set using the earliest
+    publishedDate in the dataframe, and similarly with end_date
 
+    :param start_date: first date to be included in the weekly periods
+    :param end_date: last date to be included in the weekly periods
+    :param df: the data frame
+    """
+    if start_date is None:
+        start_date = df['publishedDate'].min()
+    else:
+        start_date = datetime.strptime(start_date, "%Y-%m-%d")
+
+    if end_date is None:
+        end_date = df['publishedDate'].max()
+    else:
+        end_date = datetime.strptime(end_date, "%Y-%m-%d")
+
+    # define the start of the week that contains the start date
+    start = start_date - timedelta(days=start_date.weekday())
+    # define the start of the week after the week that contains the end date
+    end = (end_date - timedelta(days=end_date.weekday())) + timedelta(days=7)
+    # get a range of week starts
+    starts = pd.date_range(start=start, end=end, freq='W-MON', tz="UTC")
+    # get tuples of week starts and ends
+    return zip(starts, starts[1:])
+
+def process_contracts_finder_csv(publisher_names, start_date, end_date, options={}):
+    """
+    Load Contracts Finder API flat CSV output from the source directory,
+    pre-process it and turn it into JSON. Group the data into publisher
+    submission files if passed the publisher_submissions boolean option and
+    load it into the database if passed the load_data boolean option
+
+    :param publisher_names: List of names of publishers to preprocess
+    :param start_date: first date on which data might appear
+    :param end_date: last date on which data might appear
+    :param options: Dictionary of options
+    """
+    publisher_submissions = options['publisher_submissions']
+    load_data = options['load_data']
+    source_data = []
+
+    # Preprocess and merge all the CSV files into one dataframe
+    for file_name in os.listdir(SOURCE_DIR):
+        if file_name.endswith(".csv"):
+            logger.info("Preprocessing %s", file_name)
+            df = pd.read_csv(join(SOURCE_DIR, file_name))
+            fixed_df = fix_df(df)
+            source_data.append(fixed_df)
+
+    source_df = pd.concat(source_data, ignore_index=True)
+    source_df['publishedDate'] = pd.to_datetime(source_df['publishedDate'])
+
+    # Filter for publisher names
+    if publisher_names:
+        logger.info("Filtering for named publishers")
+        named_publishers = source_df['publisher/name'].isin(publisher_names)
+        source_df = source_df[named_publishers]
+
+    # Get the date boundaries to use for package files
+    date_boundaries = get_date_boundaries(start_date, end_date, source_df)
+
+    # Filter the data according to those boundaries
+    for start, end in date_boundaries:
+        period_dir = join(CLEAN_OUTPUT_DIR, start.strftime("%Y%m%d") + "-" + end.strftime("%Y%m%d"))
+        os.makedirs(period_dir)
+        boundary_mask = (source_df['publishedDate'] > start) & (source_df['publishedDate'] <= end)
+        period_df = source_df.loc[boundary_mask]
+
+        # If grouping by publisher, create the output files per publisher,
+        # otherwise create a combined file
+        if publisher_submissions:
+            for publisher_name in period_df['publisher/name'].unique():
+                publisher_df = period_df[period_df['publisher/name']==publisher_name]
+                directory_name = slugify(publisher_name)
+                create_output_files(directory_name, publisher_df, period_dir, load_data)
+        else:
+            create_output_files('all', period_df, period_dir, load_data)
+
+def create_output_files(name, df, parent_directory, load_data):
+    """
+    Create a set of JSON format release package files from the DataFrame
+    supplied for the releases where the type is tender or award. Load the data
+    into the database if the load_data param is True.
+
+    :param name: Name of the directory to create
+    :param df: DataFrame containing the data
+    :param parent_directory: Path to the parent directory to create the files
+    :param load_data: Boolean indicating that the data should be loaded
+    """
+    release_types = ['tender', 'award']
+    for release_type in release_types:
+        logger.info("Creating output files for %s %s", name, release_type)
+
+        release_name = name + "-" + release_type
+        output_dir = join(parent_directory, release_name)
+        os.makedirs(output_dir)
+        json_file_path = join(output_dir, release_name + ".json")
+
+        # Filter the DataFrame
+        df_release_type = df[df['releases/0/tag']==release_type]
+        if df_release_type.shape[0] > 0:
+            csv_file_name = release_name + ".csv"
+            csv_file_path = join(output_dir, csv_file_name)
+
+            last_published_date = df_release_type['publishedDate'].max()
+
+            # Write the DataFrame to a CSV
+            df_release_type.to_csv(open(csv_file_path, "w"), index=False, header=True)
+
+            # Turn the CSV into releases package JSON
+            schema = OCDS_RELEASE_SCHEMA
+            unflatten(output_dir, output_name=json_file_path, input_format="csv", root_id="ocid", root_is_list=True, schema=schema)
+
+            # Combine the packages from the file into one release package and
+            # write it back to the file
+            js = json.load(open(json_file_path))
+            publisher = js[0]["publisher"]
+            uri = js[0]["uri"]
+            release_package = combine_release_packages(js, uri=uri, publisher=publisher, published_date=last_published_date, version='1.1')
+            release_package = json.dumps(
+                release_package,
+                indent=2,
+                sort_keys=True,
+                cls=DjangoJSONEncoder
+            )
+            release_file = open(json_file_path, "w")
+            release_file.write(release_package)
+            release_file.close()
+
+            # Load the data from the file into the database
+            if load_data:
+                logger.info("Loading data from %s", json_file_path)
+                js = json.load(open(json_file_path))
+                # Extract the Contracts Finder ID from the uri of the first
+                # release to use as an ID
+                contracts_finder_id = os.path.splitext(os.path.split(uri)[1])[0]
+                create_package_from_json(contracts_finder_id, js)
+
+def remake_dir(directory):
+    """
+    Delete and recreate a directory
+
+    :param directory: Directory to recreate
+    """
+    shutil.rmtree(directory, ignore_errors=True)
+    os.makedirs(directory)
 
 class Command(BaseCommand):
     help = "Inserts Contracts Finder data using Flat CSV OCDS from the CF API.\nhttps://www.contractsfinder.service.gov.uk/apidocumentation/Notices/1/GET-Harvester-Notices-Data-CSV"
@@ -101,23 +261,39 @@ class Command(BaseCommand):
         parser.add_argument("--start_date", help="Import from date. YYYY-MM-DD")
         parser.add_argument("--end_date", help="Import to date. YYYY-MM-DD")
         parser.add_argument("--file_path", type=str, help="File path to CSV data to insert.")
-        # parser.add_argument("--anonymise", action='store_true', help="Anonymise names/addresses during insert")
+        parser.add_argument("--publisher_submissions", action='store_true', help="Group data into publisher submissions")
+        parser.add_argument("--load_data", action='store_true', help="Load data into database")
 
     def handle(self, *args, **kwargs):
 
+        publisher_names = get_publisher_names()
+        remake_dir(SOURCE_DIR)
+        remake_dir(CLEAN_OUTPUT_DIR)
+        file_path = kwargs.get("file_path")
+
+        options = { 'publisher_submissions': kwargs.get("publisher_submissions"),
+                    'load_data': kwargs.get("load_data") }
+
+        start_date = None
+        end_date = None
         if kwargs.get("start_date"):
             start_date = kwargs.get("start_date")
             end_date = kwargs.get("end_date", datetime.today())
+
             daterange = pd.date_range(start_date, end_date)
             logger.info("Downloading Contracts Finder data from %s to %s", start_date, end_date)
             for date in daterange:
                 try:
-                    url = f"https://www.contractsfinder.service.gov.uk/Harvester/Notices/Data/CSV/{date.year}/{date.month:02}/{date.day:02}"
-                    logger.info("Processing URL: %s", url)
-                    process_df_csv(url)
+                    date_string = f"{date.year}/{date.month:02}/{date.day:02}"
+                    url = f"https://www.contractsfinder.service.gov.uk/Harvester/Notices/Data/CSV/{date_string}"
+                    # urllib.request.urlretrieve(url, join(SOURCE_DIR, slugify(date_string) + ".csv"))
+                    logger.info("Downloading URL: %s", url)
                 except TypeError:
-                    logger.exception("Error with file: %s", url)
-        elif kwargs.get("file_path"):
-            process_df_csv(kwargs.get("file_path"))
+                    logger.exception("Error with URL: %s", url)
+        elif file_path:
+            logger.info("Copying data from %s", file_path)
+            shutil.copy(file_path, SOURCE_DIR)
         else:
             self.print_help('manage.py', '<your command name>')
+
+        process_contracts_finder_csv(publisher_names, start_date, end_date, options)
