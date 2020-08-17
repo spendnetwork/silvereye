@@ -75,10 +75,19 @@ Insert Contracts Finder data using defaults
  
 Manually update data from Contracts Finder with args
     
-    heroku run "python manage.py get_cf_data --start_date 2020-06-01" --app ocds-silvereye
+    heroku run "python manage.py get_cf_data --start_date 2020-06-01 --end_date 2020-08-12" --app ocds-silvereye
     heroku run "python manage.py update_publisher_data" --app ocds-silvereye
 
-          
+### Django Admin
+
+https://ocds-silvereye.herokuapp.com/review/admin/
+
+http://127.0.0.1:8001/review/admin/
+
+## Publisher Admin
+
+http://127.0.0.1:8001/admin/silvereye/publisher/
+           
     
 ## Modified Review Tool Info
 
