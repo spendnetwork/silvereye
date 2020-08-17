@@ -28,6 +28,7 @@ from strict_rfc3339 import validate_rfc3339
 from bluetail.helpers import UpsertDataHelpers
 from cove_ocds.lib.views import group_validation_errors
 from silvereye.helpers import S3_helpers, sync_with_s3
+from silvereye.lib.converters import convert_csv
 from silvereye.models import FileSubmission
 
 from .lib import exceptions
@@ -143,7 +144,7 @@ def explore_ocds(request, pk):
     file_name = db_data.original_file.file.name
     file_type = context["file_type"]
 
-    post_version_choice = request.POST.get("version")
+    post_version_choice = request.POST.get("version", lib_cove_ocds_config.config["schema_version"])
     replace = False
     validation_errors_path = os.path.join(upload_dir, "validation_errors-3.json")
 
@@ -214,7 +215,7 @@ def explore_ocds(request, pk):
                 replace = True
             if schema_ocds.extensions:
                 schema_ocds.create_extended_release_schema_file(upload_dir, upload_url)
-            url = schema_ocds.extended_schema_file or schema_ocds.release_schema_url
+            schema_url = schema_ocds.extended_schema_file or schema_ocds.release_schema_url
 
             if "records" in json_data:
                 context["conversion"] = None
@@ -231,7 +232,7 @@ def explore_ocds(request, pk):
                         upload_url,
                         file_name,
                         lib_cove_ocds_config,
-                        schema_url=url,
+                        schema_url=schema_url,
                         replace=replace_converted,
                         request=request,
                         flatten=request.POST.get("flatten"),
@@ -276,21 +277,34 @@ def explore_ocds(request, pk):
 
         if schema_ocds.extensions:
             schema_ocds.create_extended_release_schema_file(upload_dir, upload_url)
-        url = schema_ocds.extended_schema_file or schema_ocds.release_schema_url
+        schema_url = schema_ocds.extended_schema_file or schema_ocds.release_schema_url
         pkg_url = schema_ocds.release_pkg_schema_url
 
-        context.update(
-            convert_spreadsheet(
-                upload_dir,
-                upload_url,
-                file_name,
-                file_type,
-                lib_cove_ocds_config,
-                schema_url=url,
-                pkg_schema_url=pkg_url,
-                replace=replace,
+        if file_type != "csv":
+            # ORIGINAL UNFLATTEN
+            conversion_context = convert_spreadsheet(
+                    upload_dir,
+                    upload_url,
+                    file_name,
+                    file_type,
+                    lib_cove_ocds_config,
+                    schema_url=schema_url,
+                    pkg_schema_url=pkg_url,
+                    replace=replace,
             )
-        )
+        else:
+            # Silvereye CSV unflatten
+            conversion_context = convert_csv(
+                    upload_dir,
+                    upload_url,
+                    file_name,
+                    file_type,
+                    lib_cove_ocds_config,
+                    schema_url=schema_url,
+                    replace=replace,
+            )
+
+        context.update(conversion_context)
 
         with open(context["converted_path"], encoding="utf-8") as fp:
             json_data = json.load(
