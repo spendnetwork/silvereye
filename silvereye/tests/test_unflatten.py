@@ -119,5 +119,5 @@ def test_convert_cf_to_1_1_awards():
 
 def test_create_templates():
     templates_output_dir = join(CF_DIR, "templates")
-    shutil.rmtree(templates_output_dir)
+    shutil.rmtree(templates_output_dir, ignore_errors=True)
     create_templates = CSVMapper().create_templates(templates_output_dir)
