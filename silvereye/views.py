@@ -52,7 +52,9 @@ def publisher(request, publisher_name):
     publisher_metrics = PublisherMetrics.objects.filter(publisher_id=publisher_name).first()
     packages = OCDSPackageData.objects.filter(publisher_name=publisher_name)
 
-    publisher_metadata = Publisher.objects.filter(publisher_name=publisher_name)[0]
+    publisher_metadata = Publisher.objects.filter(publisher_name=publisher_name)
+    if publisher_metadata:
+        publisher_metadata = publisher_metadata[0]
 
     context = {
         "recent_submissions": recent_submissions,

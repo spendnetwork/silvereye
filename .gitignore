@@ -16,3 +16,4 @@ docs/_build
 
 working_files/
 .idea
+/.vagrant/

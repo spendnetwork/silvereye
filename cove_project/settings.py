@@ -12,6 +12,7 @@ env = environ.Env(  # set default values and casting
     HOTJAR_ID=(str, ""),
     HOTJAR_SV=(str, ""),
     HOTJAR_DATE_INFO=(str, ""),
+    ALLOWED_HOSTS = (list,["127.0.0.1", "localhost"])
 )
 
 
@@ -49,7 +50,7 @@ DEALER_TYPE = 'null'
 
 SECRET_KEY = settings.SECRET_KEY
 DEBUG = settings.DEBUG
-ALLOWED_HOSTS = env('ALLOWED_HOSTS')
+ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
 # Application definition
 

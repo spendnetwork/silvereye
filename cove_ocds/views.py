@@ -28,6 +28,7 @@ from cove.input.models import SuppliedData
 
 from bluetail.helpers import UpsertDataHelpers
 from cove_ocds.lib.views import group_validation_errors
+from silvereye.helpers import S3_helpers, sync_with_s3
 
 from .lib import exceptions
 from .lib.ocds_show_extra import add_extra_fields
@@ -67,39 +68,23 @@ def explore_data_context(request, pk, get_file_type=None):
 
     try:
         data = SuppliedData.objects.get(pk=pk)
+        # Updated code to sync local storage to/from S3 storage
+        if settings.STORE_OCDS_IN_S3:
+            sync_with_s3(data)
     except (SuppliedData.DoesNotExist, ValidationError):  # Catches primary key does not exist and badly formed UUID
-        return {}, None, render(request, 'error.html', {
-            'sub_title': _('Sorry, the page you are looking for is not available'),
-            'link': 'index',
-            'link_text': _('Go to Home page'),
-            'msg': _("We don't seem to be able to find the data you requested.")
-        }, status=404)
+        try:
+            if settings.STORE_OCDS_IN_S3:
+                S3_helpers().retrieve_data_from_S3(pk)
+                data = SuppliedData.objects.get(pk=pk)
+        except (SuppliedData.DoesNotExist, ValidationError):  # Catches primary key does not exist and badly formed UUID
+            logger.exception("Couldn't get data from S3: %s", pk)
+            return {}, None, render(request, 'error.html', {
+                'sub_title': _('Sorry, the page you are looking for is not available'),
+                'link': 'index',
+                'link_text': _('Go to Home page'),
+                'msg': _("We don't seem to be able to find the data you requested.")
+            }, status=404)
 
-    # Updated code to sync local storage to/from S3 storage
-    if settings.STORE_OCDS_IN_S3:
-        s3_storage = get_storage_class(settings.S3_FILE_STORAGE)()
-        original_filename = data.original_file.name.split(os.path.sep)[1]
-        original_file_path = data.original_file.path
-
-        # Sync to S3
-        if os.path.exists(original_file_path):
-            if not s3_storage.exists(data.original_file.name):
-                local_file = data.original_file.read()
-                # Temporarily change the storage for the original_file FileField to save to S3
-                data.original_file.storage = s3_storage
-                data.original_file.save(original_filename, ContentFile(local_file))
-                # Put storage back to DEFAULT_FILE_STORAGE for
-                data.original_file.storage = get_storage_class(settings.DEFAULT_FILE_STORAGE)()
-
-        # Sync from S3 if not local
-        if not os.path.exists(original_file_path):
-            if s3_storage.exists(data.original_file.name):
-                # Switch to S# storage and read file
-                data.original_file.storage = s3_storage
-                s3_file = data.original_file.read()
-
-                data.original_file.storage = get_storage_class(settings.DEFAULT_FILE_STORAGE)()
-                data.original_file.save(original_filename, ContentFile(s3_file))
 
     file_type = get_file_type(data.original_file)
     original_file_path = data.original_file.path
