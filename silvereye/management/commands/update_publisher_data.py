@@ -7,7 +7,7 @@ import os
 from django.core.management import BaseCommand
 
 import silvereye
-from bluetail.models import OCDSPackageData, OCDSReleaseJSON
+from bluetail.models import OCDSPackageData, OCDSReleaseView
 from silvereye.models import Publisher
 
 logger = logging.getLogger('django')
@@ -20,7 +20,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         logger.info("Updating Publisher metadata from latest submission by each.")
-        packages = OCDSReleaseJSON.objects.all()
+        packages = OCDSReleaseView.objects.all()
         sorted_packages = packages.order_by("package_data__publisher_name", "-package_data__supplied_data__created")
         publishers = sorted_packages.distinct("package_data__publisher_name")
 

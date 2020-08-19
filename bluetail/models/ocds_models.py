@@ -72,13 +72,28 @@ class OCDSRecordJSON(models.Model):
         db_table = 'bluetail_ocds_record_json'
 
 
-class OCDSReleaseJSON(pgviews.View):
+class OCDSReleaseJSON(models.Model):
+    """
+    Model to store OCDS JSON records.
+    """
+    ocid = models.TextField(primary_key=True)
+    release_id = models.TextField()
+    release_json = JSONField()
+    package_data = models.ForeignKey(OCDSPackageDataJSON, on_delete=None, null=True)
+
+    class Meta:
+        app_label = 'bluetail'
+        db_table = 'bluetail_ocds_release_json'
+
+
+class OCDSReleaseView(pgviews.View):
     """
     Model to store OCDS JSON releases.
     OCID must be unique so multiple releases for a single OCID should be compiled before insertion.
     """
     ocid = models.TextField(primary_key=True)
     release_id = models.TextField()
+    release_tag = JSONField()
     release_json = JSONField()
     package_data = models.ForeignKey(OCDSPackageData, on_delete=None, null=True)
 
@@ -86,9 +101,18 @@ class OCDSReleaseJSON(pgviews.View):
         SELECT
             ocds.ocid,
             ocds.record_json -> 'compiledRelease' ->> 'id' as release_id,
+            ocds.record_json -> 'compiledRelease' -> 'tag' as release_tag,
             ocds.record_json -> 'compiledRelease' as release_json,
             ocds.package_data_id
         FROM bluetail_ocds_record_json ocds
+        UNION ALL 
+        SELECT 
+            ocid, 
+            release_id, 
+            release_json -> 'tag' as release_tag, 
+            release_json, 
+            package_data_id
+        FROM bluetail_ocds_release_json
         """
 
     class Meta:
@@ -99,11 +123,11 @@ class OCDSReleaseJSON(pgviews.View):
 
 class OCDSTender(pgviews.View):
     """
-    django-pg-views for extracting Tender details from an OCDSReleaseJSON object
+    django-pg-views for extracting Tender details from an OCDSReleaseView object
     Tender as from an OCDS version 1.1 release
     https://standard.open-contracting.org/latest/en/schema/reference/#tender
     """
-    # projection = ['bluetail.OCDSReleaseJSON.*', ]
+    # projection = ['bluetail.OCDSReleaseView.*', ]
     # dependencies = ['bluetail.OtherView',]
     ocid = models.TextField(primary_key=True)
     release_id = models.TextField()
@@ -159,12 +183,12 @@ class OCDSTender(pgviews.View):
 
 class OCDSTenderer(pgviews.View):
     """
-    View for extracting Party details from an OCDSReleaseJSON object
+    View for extracting Party details from an OCDSReleaseView object
     Parties as from an OCDS version 1.1 release in
     https://standard.open-contracting.org/latest/en/schema/reference/#parties
     """
     # dependencies = ['bluetail.OtherView',]
-    # projection = ['bluetail.OCDSReleaseJSON.ocid', ]
+    # projection = ['bluetail.OCDSReleaseView.ocid', ]
     ocid = models.TextField(primary_key=True)
     release_json = JSONField()
     party_json = JSONField()

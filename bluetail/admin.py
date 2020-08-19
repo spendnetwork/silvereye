@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from bluetail.models import Flag, OCDSReleaseJSON, FlagAttachment
+from bluetail.models import Flag, OCDSReleaseView, FlagAttachment
 
 
 class FlagAdmin(admin.ModelAdmin):
@@ -15,4 +15,4 @@ class FlagAdmin(admin.ModelAdmin):
 
 admin.site.register(Flag, FlagAdmin)
 admin.site.register(FlagAttachment)
-admin.site.register(OCDSReleaseJSON)
+admin.site.register(OCDSReleaseView)
