@@ -25,6 +25,7 @@ from flattentool import unflatten
 
 import silvereye
 from bluetail.helpers import UpsertDataHelpers
+from silvereye.models import Publisher
 
 logger = logging.getLogger('django')
 
@@ -83,7 +84,20 @@ def create_package_from_json(contracts_finder_id, package):
     :param package: JSON OCDS package
     """
     published_date = package["publishedDate"]
-    publisher_name = package["publisher"]["name"]
+    publisher_name = package["publisher"].get("name")
+    publisher_id = package["publisher"].get("uid")
+
+    logger.info("Creating or updating Publisher %s (id %s)", publisher_name, publisher_id)
+
+    publisher, created = Publisher.objects.update_or_create(
+            publisher_id=publisher_id,
+            publisher_name=publisher_name,
+            defaults={
+                "publisher_name": publisher_name,
+                "publisher_id": publisher_id,
+            }
+
+        )
 
     logger.info("Creating SuppliedData %s uri %s date %s", publisher_name, contracts_finder_id, published_date)
     # Create SuppliedData entry
@@ -93,6 +107,7 @@ def create_package_from_json(contracts_finder_id, package):
             "current_app": "silvereye",
         }
     )
+    supplied_data.filesubmission.publisher = publisher
     supplied_data.created = published_date
     supplied_data.original_file.save("release_package.json", ContentFile(json.dumps(package, indent=2)))
     supplied_data.save()
@@ -266,7 +281,6 @@ def remake_dir(directory):
     """
     shutil.rmtree(directory, ignore_errors=True)
     os.makedirs(directory)
-
 
 class Command(BaseCommand):
     help = "Inserts Contracts Finder data using Flat CSV OCDS from the CF API.\nhttps://www.contractsfinder.service.gov.uk/apidocumentation/Notices/1/GET-Harvester-Notices-Data-CSV"
