@@ -24,6 +24,7 @@ from flattentool import unflatten
 
 import silvereye
 from bluetail.helpers import UpsertDataHelpers
+from silvereye.ocds_csv_mapper import CSVMapper
 from silvereye.models import Publisher, FileSubmission
 
 logger = logging.getLogger('django')

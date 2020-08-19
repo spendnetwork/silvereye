@@ -1,4 +1,6 @@
 import copy
+from datetime import datetime
+
 import functools
 import json
 import logging
@@ -294,6 +296,27 @@ def explore_ocds(request, pk):
             )
         else:
             # Silvereye CSV unflatten
+            # Prepare base_json
+            publisher_name = "PUBLISHER_NAME"
+            publisher_scheme = "PUBLISHER_SCHEME"
+            publisher_uid = "PUBLISHER_UID"
+
+            base_json = {
+                "version": "1.1",
+                "publisher": {
+                    "name": publisher_name,
+                    "scheme": publisher_scheme,
+                    "uid": publisher_uid,
+                },
+                "publishedDate": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
+                # "license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/",
+                # "publicationPolicy": "https://www.gov.uk/government/publications/open-contracting",
+                "uri": "https://ocds-silvereye.herokuapp.com/"
+            }
+            base_json_path = os.path.join(upload_dir, "base.json")
+            with open(base_json_path, "w") as writer:
+                json.dump(base_json, writer, indent=2)
+
             conversion_context = convert_csv(
                     upload_dir,
                     upload_url,
@@ -302,6 +325,7 @@ def explore_ocds(request, pk):
                     lib_cove_ocds_config,
                     schema_url=schema_url,
                     replace=replace,
+                    base_json_path=base_json_path
             )
 
         context.update(conversion_context)

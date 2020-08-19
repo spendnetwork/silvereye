@@ -10,6 +10,8 @@ from django.utils.translation import ugettext_lazy as _
 from flattentool.json_input import BadlyFormedJSONError
 
 from libcove.lib.exceptions import cove_spreadsheet_conversion_error
+
+import silvereye.ocds_csv_mapper
 from silvereye import helpers
 
 logger = logging.getLogger(__name__)
@@ -35,9 +37,10 @@ def convert_csv(
     schema_url=None,
     replace=True,
     cache=True,
+    base_json_path=None,
+    output_file="unflattened.json",
 ):
     context = {}
-    output_file = "unflattened.json"
     converted_path = os.path.join(upload_dir, "unflattened.json")
     cell_source_map_path = os.path.join(upload_dir, "cell_source_map.json")
     heading_source_map_path = os.path.join(upload_dir, "heading_source_map.json")
@@ -66,24 +69,7 @@ def convert_csv(
                 encoding = "latin_1"
 
         # Convert Simple CSV to OCDS URIs
-        df = helpers.CSVMapper().convert_simple_csv_to_ocds_csv(destination)
-
-    # Prepare base_json
-    base_json = {
-        "version": "1.1",
-        "publisher": {
-            "name": "PUBLISHER_NAME",
-            "scheme": "PUBLISHER_SCHEME",
-            "uid": "PUBLISHER_ID",
-        },
-        "publishedDate": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
-        # "license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/",
-        # "publicationPolicy": "https://www.gov.uk/government/publications/open-contracting",
-        "uri": "https://ocds-silvereye.herokuapp.com/"
-    }
-    base_json_path = os.path.join(upload_dir, "base.json")
-    with open(base_json_path, "w") as writer:
-        json.dump(base_json, writer, indent=2)
+        df = silvereye.ocds_csv_mapper.CSVMapper(csv_path=destination).convert_simple_csv_to_ocds_csv(destination)
 
     flattentool_options = {
         "output_name": converted_path,

@@ -11,7 +11,8 @@ from django.urls import reverse
 from flattentool import unflatten
 
 import silvereye
-from silvereye.helpers import GoogleSheetHelpers, prepare_base_json_from_release_df, CSVMapper
+from silvereye.helpers import GoogleSheetHelpers, prepare_base_json_from_release_df
+from silvereye.ocds_csv_mapper import CSVMapper
 from silvereye.management.commands.get_cf_data import fix_df
 
 TESTS_DIR = os.path.dirname(os.path.realpath(__file__))
