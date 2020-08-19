@@ -172,6 +172,10 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
         named_publishers = source_df['publisher/name'].isin(publisher_names)
         source_df = source_df[named_publishers]
 
+    if not start_date:
+        create_output_files(file_name, source_df, CLEAN_OUTPUT_DIR, load_data)
+        return
+
     # Get the date boundaries to use for package files
     date_boundaries = get_date_boundaries(start_date, end_date, source_df)
 
@@ -268,7 +272,7 @@ class Command(BaseCommand):
     help = "Inserts Contracts Finder data using Flat CSV OCDS from the CF API.\nhttps://www.contractsfinder.service.gov.uk/apidocumentation/Notices/1/GET-Harvester-Notices-Data-CSV"
 
     def add_arguments(self, parser):
-        parser.add_argument("--start_date", help="Import from date. YYYY-MM-DD")
+        parser.add_argument("--start_date", default=argparse.SUPPRESS, help="Import from date. YYYY-MM-DD")
         parser.add_argument("--end_date", default=argparse.SUPPRESS, help="Import to date. YYYY-MM-DD")
         parser.add_argument("--file_path", type=str, help="File path to CSV data to insert.")
         parser.add_argument("--publisher_submissions", action='store_true', help="Group data into publisher submissions")
@@ -288,7 +292,10 @@ class Command(BaseCommand):
 
         start_date = kwargs.get("start_date")
         end_date = kwargs.get("end_date", datetime.today().strftime("%Y-%m-%d"))
-        if start_date:
+        if file_path:
+            logger.info("Copying data from %s", file_path)
+            shutil.copy(file_path, SOURCE_DIR)
+        elif start_date:
             daterange = pd.date_range(start_date, end_date)
             logger.info("Downloading Contracts Finder data from %s to %s", start_date, end_date)
             for date in daterange:
@@ -299,9 +306,6 @@ class Command(BaseCommand):
                     logger.info("Downloading URL: %s", url)
                 except TypeError:
                     logger.exception("Error with URL: %s", url)
-        elif file_path:
-            logger.info("Copying data from %s", file_path)
-            shutil.copy(file_path, SOURCE_DIR)
         else:
             self.print_help('manage.py', '<your command name>')
             sys.exit()
