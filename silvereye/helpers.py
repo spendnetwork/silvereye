@@ -139,3 +139,15 @@ def prepare_base_json_from_release_df(fixed_df, base_json_path=None):
             json.dump(base_json, writer, indent=2)
     return base_json
 
+
+def get_published_release_metrics(release_queryset):
+    count_tenders = release_queryset.filter(release_tag__contains="tender").count()
+    count_awards = release_queryset.filter(release_tag__contains="award").count()
+    count_spend = release_queryset.filter(release_tag__contains="spend").count()
+
+    context = {
+            "tenders_count": count_tenders,
+            "awards_count": count_awards,
+            "spend_count": count_spend,
+    }
+    return context

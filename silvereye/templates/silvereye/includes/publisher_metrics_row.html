@@ -1,0 +1,74 @@
+<div class="row">
+    <div class="col">
+        <h3 class="h6 ">Key figures</h3>
+        <div class="dropdown figures-dropdown mb-2">
+            Show <a class="dropdown-toggle mb-2" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            count</a>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <a class="dropdown-item" href="#">percentages</a>
+                <a class="dropdown-item" href="#">change</a>
+            </div>
+        </div>
+        <div class="dropdown figures-dropdown mb-2">
+            Last <a class="dropdown-toggle mb-2" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            3 months</a>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <a class="dropdown-item" href="#">6 months</a>
+                <a class="dropdown-item" href="#">12 months</a>
+                <a class="dropdown-item" href="#">All time</a>
+            </div>
+        </div>
+
+        <div class="dropdown figures-dropdown mb-2">
+            Compare to <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            last year</a>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                <a class="dropdown-item" href="#">two years ago</a>
+                <a class="dropdown-item" href="#">preceeding period</a>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <h3 class="h6">Tenders</h3>
+        <div class="figure-box media">
+            <svg width="36" height="51" viewBox="0 0 36 51" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2">
+                <path d="M18 0L36 31.1044H0L18 0Z" fill="#C4C4C4"/>
+                <path d="M12.9443 17.9341H23.0557V51H12.9443V17.9341Z" fill="#C4C4C4"/>
+            </svg>
+            <div class="media-body">
+                <p class="figure-box__change figure-box--up mb-0">+21%</p>
+                <p class="figure-box__main-figure figure-box--up mb-0">{{ publisher_metrics.current_publisher_metrics.tenders_count }}</p>
+                <p class="figure-box__compare-figure">{{ publisher_metrics.all_publishers_metrics.tenders_count }}</p>
+            </div>
+        </div>
+    </div>
+    <div class="col">
+        <h3 class="h6">Contract awards</h3>
+        <div class="figure-box media">
+            <svg width="36" height="51" viewBox="0 0 36 51" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2">
+                <path d="M18 51L36 19.8956H0L18 51Z" fill="#C4C4C4"/>
+                <path d="M12.9443 33.0659H23.0557V-3.8147e-06H12.9443V33.0659Z" fill="#C4C4C4"/>
+            </svg>
+            <div class="media-body">
+                <p class="figure-box__change figure-box--up mb-0">+21%</p>
+                <p class="figure-box__main-figure figure-box--up mb-0">{{ publisher_metrics.current_publisher_metrics.awards_count }}</p>
+                <p class="figure-box__compare-figure">{{ publisher_metrics.all_publishers_metrics.awards_count }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col">
+        <h3 class="h6">Spend files</h3>
+        <div class="figure-box media">
+            <svg width="36" height="51" viewBox="0 0 36 51" fill="none" xmlns="http://www.w3.org/2000/svg" class="mr-2">
+                <path d="M18 0L36 31.1044H0L18 0Z" fill="#C4C4C4"/>
+                <path d="M12.9443 17.9341H23.0557V51H12.9443V17.9341Z" fill="#C4C4C4"/>
+            </svg>
+            <div class="media-body">
+                <p class="figure-box__change figure-box--down mb-0">-21%</p>
+                <p class="figure-box__main-figure figure-box--down mb-0">{{ publisher_metrics.current_publisher_metrics.spend_count }}</p>
+                <p class="figure-box__compare-figure">{{ publisher_metrics.all_publishers_metrics.spend_count }}</p>
+            </div>
+        </div>
+    </div>
+</div>
