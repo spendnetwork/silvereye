@@ -19,6 +19,7 @@ class Command(BaseCommand):
     help = "Generates publisher metrics for tenders"
 
     def handle(self, *args, **kwargs):
+        logger.info("Updating Publisher metadata from latest submission by each.")
         packages = OCDSReleaseJSON.objects.all()
         sorted_packages = packages.order_by("package_data__publisher_name", "-package_data__supplied_data__created")
         publishers = sorted_packages.distinct("package_data__publisher_name")

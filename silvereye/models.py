@@ -2,11 +2,11 @@ from django.db import models
 
 
 class Publisher(models.Model):
-    publisher_id = models.TextField(primary_key=True)
-    publisher_name = models.TextField()
-    contact_name = models.TextField(null=True, blank=True, default="")
-    contact_email = models.TextField(null=True, blank=True, default="")
-    contact_telephone = models.TextField(null=True, blank=True, default="")
+    publisher_id = models.CharField(max_length=1024, primary_key=True)
+    publisher_name = models.CharField(max_length=1024)
+    contact_name = models.CharField(max_length=1024, null=True, blank=True, default="")
+    contact_email = models.CharField(max_length=1024, null=True, blank=True, default="")
+    contact_telephone = models.CharField(max_length=1024, null=True, blank=True, default="")
 
     class Meta:
         app_label = 'silvereye'
@@ -14,8 +14,8 @@ class Publisher(models.Model):
 
 
 class PublisherMetrics(models.Model):
-    publisher_id = models.TextField(primary_key=True)
-    publisher_name = models.TextField(null=True)
+    publisher_id = models.CharField(max_length=1024, primary_key=True)
+    publisher_name = models.CharField(max_length=1024)
     count_lastmonth = models.IntegerField(null=True)
     count_last3months = models.IntegerField(null=True)
     count_last12months = models.IntegerField(null=True)

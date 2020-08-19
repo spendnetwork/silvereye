@@ -79,7 +79,17 @@ Manually update data from Contracts Finder with args
     heroku run "python manage.py update_publisher_data" --app ocds-silvereye
 
 
+### Django Admin
 
+https://ocds-silvereye.herokuapp.com/review/admin/
+
+http://127.0.0.1:8001/review/admin/
+
+## Publisher Admin
+
+http://127.0.0.1:8001/admin/silvereye/publisher/
+           
+    
 ## Modified Review Tool Info
 
 ## S3 storage

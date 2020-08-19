@@ -50,7 +50,7 @@ DEALER_TYPE = 'null'
 
 SECRET_KEY = settings.SECRET_KEY
 DEBUG = settings.DEBUG
-ALLOWED_HOSTS = env('ALLOWED_HOSTS')
+ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
 # Application definition
 
