@@ -41,14 +41,14 @@ If you need to reset your local DB during development (eg. after pulling updates
  https://www.contractsfinder.service.gov.uk/apidocumentation/Notices/1/GET-Harvester-Notices-Data-CSV
  
  This can point to a local file or provide arguments to retrieve files from the API directly in a date range
- 
- Insert local sample file
- 
-    python manage.py get_cf_data --file_path silvereye/data/cf_daily_csv/export-2020-08-05.csv
-    
-Download Contracts Finder releases in a date range and insert
 
-    python manage.py get_cf_data --start_date 2020-07-01 --end_date 2020-09-01
+ Insert local sample file as weekly publisher submissions
+
+    python manage.py get_cf_data --file_path silvereye/data/cf_daily_csv/export-2020-08-05.csv --load_data --publisher_submissions
+
+Download Contracts Finder releases in a date range and insert as weekly publisher submissions
+
+    python manage.py get_cf_data --start_date 2020-07-01 --end_date 2020-09-01 --load_data --publisher_submissions
 
 ### Update Publisher metadata
 
@@ -72,11 +72,12 @@ Set up database
 Insert Contracts Finder data using defaults
 
     heroku run "script/insert_cf_data" --app ocds-silvereye
- 
+
 Manually update data from Contracts Finder with args
-    
-    heroku run "python manage.py get_cf_data --start_date 2020-06-01 --end_date 2020-08-12" --app ocds-silvereye
+
+    heroku run "python manage.py get_cf_data --start_date 2020-06-01 --load_data" --app ocds-silvereye
     heroku run "python manage.py update_publisher_data" --app ocds-silvereye
+
 
 ### Django Admin
 
