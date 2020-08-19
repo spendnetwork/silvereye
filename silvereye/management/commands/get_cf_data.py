@@ -1,6 +1,8 @@
 """
 Command to create an generate publisher metrics
 """
+import argparse
+import sys
 from datetime import datetime, timedelta
 
 import json
@@ -10,7 +12,6 @@ import shutil
 from os.path import join
 import urllib.request
 import shutil
-
 
 import pandas as pd
 from cove.input.models import SuppliedData
@@ -37,6 +38,7 @@ CLEAN_OUTPUT_DIR = join(WORKING_DIR, "cleaned")
 HEADERS_LIST = join(CF_DAILY_DIR, "headers_min.txt")
 OCDS_RELEASE_SCHEMA = join(SILVEREYE_DIR, "data", "OCDS", "1.1.4-release-schema.json")
 
+
 def get_publisher_names():
     """
     Get a list of names of publishers who are expected to submit data
@@ -53,6 +55,7 @@ def get_publisher_names():
                   'Telford & Wrekin Council'
                   ]
     return publishers
+
 
 def fix_df(df):
     """
@@ -80,7 +83,7 @@ def create_package_from_json(contracts_finder_id, package):
     :param package: JSON OCDS package
     """
     published_date = package["publishedDate"]
-    publisher_name= package["publisher"]["name"]
+    publisher_name = package["publisher"]["name"]
 
     logger.info("Creating SuppliedData %s uri %s date %s", publisher_name, contracts_finder_id, published_date)
     # Create SuppliedData entry
@@ -132,6 +135,7 @@ def get_date_boundaries(start_date, end_date, df):
     # get tuples of week starts and ends
     return zip(starts, starts[1:])
 
+
 def process_contracts_finder_csv(publisher_names, start_date, end_date, options={}):
     """
     Load Contracts Finder API flat CSV output from the source directory,
@@ -151,10 +155,13 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
     # Preprocess and merge all the CSV files into one dataframe
     for file_name in os.listdir(SOURCE_DIR):
         if file_name.endswith(".csv"):
-            logger.info("Preprocessing %s", file_name)
-            df = pd.read_csv(join(SOURCE_DIR, file_name))
-            fixed_df = fix_df(df)
-            source_data.append(fixed_df)
+            try:
+                logger.info("Preprocessing %s", file_name)
+                df = pd.read_csv(join(SOURCE_DIR, file_name))
+                fixed_df = fix_df(df)
+                source_data.append(fixed_df)
+            except pd.errors.EmptyDataError:
+                pass
 
     source_df = pd.concat(source_data, ignore_index=True)
     source_df['publishedDate'] = pd.to_datetime(source_df['publishedDate'])
@@ -179,11 +186,12 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
         # otherwise create a combined file
         if publisher_submissions:
             for publisher_name in period_df['publisher/name'].unique():
-                publisher_df = period_df[period_df['publisher/name']==publisher_name]
+                publisher_df = period_df[period_df['publisher/name'] == publisher_name]
                 directory_name = slugify(publisher_name)
                 create_output_files(directory_name, publisher_df, period_dir, load_data)
         else:
             create_output_files('all', period_df, period_dir, load_data)
+
 
 def create_output_files(name, df, parent_directory, load_data):
     """
@@ -206,7 +214,7 @@ def create_output_files(name, df, parent_directory, load_data):
         json_file_path = join(output_dir, release_name + ".json")
 
         # Filter the DataFrame
-        df_release_type = df[df['releases/0/tag']==release_type]
+        df_release_type = df[df['releases/0/tag'] == release_type]
         if df_release_type.shape[0] > 0:
             csv_file_name = release_name + ".csv"
             csv_file_path = join(output_dir, csv_file_name)
@@ -245,6 +253,7 @@ def create_output_files(name, df, parent_directory, load_data):
                 contracts_finder_id = os.path.splitext(os.path.split(uri)[1])[0]
                 create_package_from_json(contracts_finder_id, js)
 
+
 def remake_dir(directory):
     """
     Delete and recreate a directory
@@ -254,12 +263,13 @@ def remake_dir(directory):
     shutil.rmtree(directory, ignore_errors=True)
     os.makedirs(directory)
 
+
 class Command(BaseCommand):
     help = "Inserts Contracts Finder data using Flat CSV OCDS from the CF API.\nhttps://www.contractsfinder.service.gov.uk/apidocumentation/Notices/1/GET-Harvester-Notices-Data-CSV"
 
     def add_arguments(self, parser):
         parser.add_argument("--start_date", help="Import from date. YYYY-MM-DD")
-        parser.add_argument("--end_date", help="Import to date. YYYY-MM-DD")
+        parser.add_argument("--end_date", default=argparse.SUPPRESS, help="Import to date. YYYY-MM-DD")
         parser.add_argument("--file_path", type=str, help="File path to CSV data to insert.")
         parser.add_argument("--publisher_submissions", action='store_true', help="Group data into publisher submissions")
         parser.add_argument("--load_data", action='store_true', help="Load data into database")
@@ -271,22 +281,21 @@ class Command(BaseCommand):
         remake_dir(CLEAN_OUTPUT_DIR)
         file_path = kwargs.get("file_path")
 
-        options = { 'publisher_submissions': kwargs.get("publisher_submissions"),
-                    'load_data': kwargs.get("load_data") }
+        options = {
+            'publisher_submissions': kwargs.get("publisher_submissions"),
+            'load_data': kwargs.get("load_data")
+        }
 
-        start_date = None
-        end_date = None
-        if kwargs.get("start_date"):
-            start_date = kwargs.get("start_date")
-            end_date = kwargs.get("end_date", datetime.today())
-
+        start_date = kwargs.get("start_date")
+        end_date = kwargs.get("end_date", datetime.today().strftime("%Y-%m-%d"))
+        if start_date:
             daterange = pd.date_range(start_date, end_date)
             logger.info("Downloading Contracts Finder data from %s to %s", start_date, end_date)
             for date in daterange:
                 try:
                     date_string = f"{date.year}/{date.month:02}/{date.day:02}"
                     url = f"https://www.contractsfinder.service.gov.uk/Harvester/Notices/Data/CSV/{date_string}"
-                    # urllib.request.urlretrieve(url, join(SOURCE_DIR, slugify(date_string) + ".csv"))
+                    urllib.request.urlretrieve(url, join(SOURCE_DIR, slugify(date_string) + ".csv"))
                     logger.info("Downloading URL: %s", url)
                 except TypeError:
                     logger.exception("Error with URL: %s", url)
@@ -295,5 +304,6 @@ class Command(BaseCommand):
             shutil.copy(file_path, SOURCE_DIR)
         else:
             self.print_help('manage.py', '<your command name>')
+            sys.exit()
 
         process_contracts_finder_csv(publisher_names, start_date, end_date, options)
