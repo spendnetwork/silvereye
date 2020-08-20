@@ -33,7 +33,10 @@ class Publisher(models.Model):
     class Meta:
         app_label = 'silvereye'
         db_table = 'silvereye_publisher_metadata'
+        ordering = ["publisher_name"]
 
+    def __str__(self):
+        return self.publisher_name
 
 class PublisherMetrics(models.Model):
     publisher_id = models.CharField(max_length=1024, primary_key=True)
