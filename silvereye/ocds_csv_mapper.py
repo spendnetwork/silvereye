@@ -31,6 +31,13 @@ class CSVMapper():
         self.simple_mappings_df = self.mappings_df.loc[self.mappings_df[f'{self.release_type}_csv'] == "TRUE"]
 
 
+    def _map_and_crop_df(self, df, mappings_df, map_from_col="orig", map_to_col="target"):
+        """
+        utility func to rename cols and remove any not in the mappings_df
+        """
+
+
+
     def rename_friendly_cols_to_ocds_uri(self, df):
         mapping_dict = {}
         for i, row in self.simple_mappings_df.iterrows():
@@ -38,6 +45,7 @@ class CSVMapper():
                 mapping_dict[row["csv_header"]] = row["uri"]
         self.output_df = df.rename(columns=mapping_dict)
         return self.output_df
+
 
     def convert_cf_to_1_1(self, df):
 

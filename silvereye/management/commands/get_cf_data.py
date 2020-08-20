@@ -70,7 +70,7 @@ def new_ocid_prefix(row):
     new_ocid_prefix = 'ocds-' + ''.join(map(str, new_ocid))[0:6]
     return ocid.replace(ocid_prefix, new_ocid_prefix, 1)
 
-def fix_df(df):
+def fix_contracts_finder_flat_CSV(df):
     """
     Process raw CF CSV:
         - Filter columns using headers in HEADERS_LIST file
@@ -92,10 +92,16 @@ def fix_df(df):
     fixed_df['publisher/uri'] = fixed_df.apply(lambda row: create_uri(row), axis=1)
     fixed_df['releases/0/ocid'] = fixed_df.apply(lambda row: new_ocid_prefix(row), axis=1)
 
+    # CF does not move info from tender section to award section, so we need to do this
     # Set award title/desc from tender as CF don't include it
     fixed_df.loc[fixed_df['releases/0/tag'] == 'award', 'releases/0/awards/0/title'] = fixed_df['releases/0/tender/title']
     fixed_df.loc[fixed_df['releases/0/tag'] == 'award', 'releases/0/awards/0/description'] = fixed_df['releases/0/tender/description']
-    # Copy classifications to awards
+    # Copy items to awards
+    for col in fixed_df.columns:
+        if "tender/items" in col:
+            new_col = col.replace("releases/0/tender/", "releases/0/awards/0/")
+            fixed_df[new_col] = fixed_df[col]
+
 
     return fixed_df
 
@@ -215,7 +221,7 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
             try:
                 logger.info("Preprocessing %s", file_name)
                 df = pd.read_csv(join(SOURCE_DIR, file_name))
-                fixed_df = fix_df(df)
+                fixed_df = fix_contracts_finder_flat_CSV(df)
                 source_data.append(fixed_df)
             except pd.errors.EmptyDataError:
                 pass

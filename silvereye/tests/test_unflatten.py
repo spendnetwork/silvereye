@@ -13,7 +13,7 @@ from flattentool import unflatten
 import silvereye
 from silvereye.helpers import GoogleSheetHelpers, prepare_base_json_from_release_df
 from silvereye.ocds_csv_mapper import CSVMapper
-from silvereye.management.commands.get_cf_data import fix_df
+from silvereye.management.commands.get_cf_data import fix_contracts_finder_flat_CSV
 
 TESTS_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -26,13 +26,13 @@ CF_DIR = join(TESTS_DIR, "fixtures", "CF_CSV")
 
 
 def test_unflatten_cf_daily_csv_to_jsonlist_of_release_packages():
-    CF_DIR = join(TESTS_DIR, "fixtures", "CF_CSV")
     csv_path_or_url = join(CF_DIR, "export-2020-08-05.csv")
     output_file = join(CF_DIR, "working_files", "release_packages.json")
     clean_output_dir = join(CF_DIR, "working_files", "cleaned")
     clean_output_file = join(clean_output_dir, "cleaned.csv")
+
     df = pd.read_csv(csv_path_or_url)
-    fixed_df = fix_df(df)
+    fixed_df = fix_contracts_finder_flat_CSV(df)
     shutil.rmtree(clean_output_dir, ignore_errors=True)
     os.makedirs(clean_output_dir)
     fixed_df.to_csv(open(clean_output_file, "w"), index=False, header=True)
@@ -43,14 +43,25 @@ def test_unflatten_cf_daily_csv_to_jsonlist_of_release_packages():
     assert js
 
 
+def test_fix_contracts_finder_flat_CSV():
+    csv_path_or_url = join(CF_DIR, "export-2020-08-05.csv")
+    df = pd.read_csv(csv_path_or_url)
+    fixed_df = fix_contracts_finder_flat_CSV(df)
+    assert any(fixed_df["releases/0/awards/0/items/0/id"])
+
+
+def test_rename_friendly_cols_to_ocds_uri():
+    pass
+
+
 def convert_cf_to_release_csv(df):
     """
     Process raw CF CSV:
         - Filter columns using headers in HEADERS_LIST file
         - fix array issue with tags
     """
-    HEADERS_LIST = join(CF_DIR, "headers_min.txt")
-    cols_list = open(HEADERS_LIST).readlines()
+    CF_HEADERS_LIST = join(CF_DIR, "headers_min.txt")
+    cols_list = open(CF_HEADERS_LIST).readlines()
     cols_list = [x.strip() for x in cols_list]
     fixed_df = df[df.columns.intersection(cols_list)]
     # Remove releases/0
