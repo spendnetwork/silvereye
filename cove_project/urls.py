@@ -15,6 +15,7 @@ from silvereye.views import data_input
 
 urlpatterns = [
     url(r"^$", RedirectView.as_view(url="review/", permanent=False)),
+    url(r"^admin/$", RedirectView.as_view(url="/review/admin/", permanent=False)),
     url(r'^review/$', data_input,
         kwargs={
             "text_file_name": "{}.json".format(datetime.now().strftime("%Y%m%dT%H%M%SZ"))
