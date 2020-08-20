@@ -1,6 +1,9 @@
 from datetime import datetime, timedelta
+
+import requests
 from django import forms
 from django.conf import settings
+from django.core.files.base import ContentFile
 from django.db.models import Count, Max, F
 
 from cove.input.models import SuppliedData
@@ -77,7 +80,7 @@ class UploadForm(forms.ModelForm):
 
     class Meta:
         model = SuppliedData
-        fields = ['original_file']
+        fields = ["publisher_id", 'original_file']
         labels = {
             'original_file': _('Upload a file (.json, .csv, .xlsx, .ods)')
         }
@@ -88,7 +91,7 @@ class UrlForm(forms.ModelForm):
 
     class Meta:
         model = SuppliedData
-        fields = ['source_url']
+        fields = ["publisher_id", 'source_url']
         labels = {
             'source_url': _('Supply a URL')
         }
@@ -110,7 +113,7 @@ def data_input(request, *args, **kwargs):
     text_file_name='test.json'
     # Add something to request.POST so data_input doesn't ignore uploaded files.
     request.POST = request.POST.copy()
-    request.POST["something"] = "Dummy POSST content so the CSV gets processed"
+    request.POST["something"] = "Dummy POST content so the CSV gets processed when CSRF not present"
     forms = {form_name: form_class() for form_name, form_class in form_classes.items()}
     request_data = None
     if "source_url" in request.GET:
