@@ -51,7 +51,17 @@ class PublisherMetrics(models.Model):
 
     class Meta:
         app_label = 'silvereye'
-        db_table = 'silvereye_publisher_metrics'
+
+    class Meta:
+        app_label = 'silvereye'
+
+
+class PublisherMonthlyCounts(models.Model):
+    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, null=True)
+    date = models.DateField(null=True)
+    count_tenders = models.IntegerField(null=True)
+    count_awards = models.IntegerField(null=True)
+    count_spend = models.IntegerField(null=True)
 
 
 

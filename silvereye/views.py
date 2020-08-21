@@ -4,7 +4,9 @@ import requests
 from django import forms
 from django.conf import settings
 from django.core.files.base import ContentFile
-from django.db.models import Count, Max, F
+from django.db.models import Count, Max, F, Sum
+from dateutil.relativedelta import relativedelta
+from django.db.models.functions import ExtractMonth, ExtractDay, ExtractYear
 
 from cove.input.models import SuppliedData
 from django.shortcuts import render, redirect
@@ -12,7 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 
 from bluetail.models import OCDSPackageData, OCDSReleaseView
 from silvereye.helpers import get_published_release_metrics
-from silvereye.models import PublisherMetrics, Publisher, FileSubmission
+from silvereye.models import PublisherMetrics, Publisher, FileSubmission, PublisherMonthlyCounts
 
 
 def home(request):
@@ -56,6 +58,56 @@ def publisher_listing(request):
     return render(request, "silvereye/publisher_listing.html", context)
 
 
+def get_publisher_metrics_context(queryset=None):
+    # personsMonthlyData = Person.objects.annotate(month=ExtractMonth('added_date')).values('month').annotate(
+    #     count=Count('id')).order_by('month')
+
+    # daily = queryset.annotate(year=ExtractYear('date'), month=ExtractMonth('date'), day=ExtractDay('date'))\
+    #     .values('year', 'month', 'day', 'date')\
+    #     .annotate(tenders=Sum('count_tenders'), awards=Sum('count_awards'), spend=Sum('count_spend'))\
+    #     .order_by('month')
+
+    today = datetime.now().date()
+    this_month = today.replace(day=1)
+    last_month = this_month - relativedelta(months=1)
+
+    last_month_count = queryset\
+        .filter(date__gte=last_month, date__lt=this_month)\
+        .aggregate(tenders=Sum('count_tenders'), awards=Sum('count_awards'), spend=Sum('count_spend'))
+
+    last_month_prev_count = queryset\
+        .filter(date__gte=last_month-relativedelta(months=1), date__lt=last_month)\
+        .aggregate(tenders=Sum('count_tenders'), awards=Sum('count_awards'), spend=Sum('count_spend'))
+
+    context = {
+        "last_month": {
+            "date": last_month,
+            "count": {
+                "tenders": last_month_count.get("tenders"),
+                "awards": last_month_count.get("awards"),
+                "spend": last_month_count.get("spend"),
+            },
+            "change": {
+                "tenders": last_month_count.get("tenders") - last_month_prev_count.get("tenders"),
+                "awards": last_month_count.get("awards") - last_month_prev_count.get("awards"),
+                "spend": last_month_count.get("spend") - last_month_prev_count.get("spend"),
+            },
+            "percentages": {
+                "tenders": 100 * (last_month_count.get("tenders") - last_month_prev_count.get("tenders")) / last_month_prev_count.get("tenders"),
+                "awards": 100 * (last_month_count.get("awards") - last_month_prev_count.get("awards")) / last_month_prev_count.get("awards"),
+                "spend": 100 * (last_month_count.get("spend") - last_month_prev_count.get("spend")) / last_month_prev_count.get("spend"),
+            },
+            "prev_date": last_month - relativedelta(months=1),
+            "prev_count": {
+                "tenders": last_month_prev_count.get("tenders"),
+                "awards": last_month_prev_count.get("awards"),
+                "spend": last_month_prev_count.get("spend"),
+            },
+        },
+    }
+    return context
+
+
 def publisher(request, publisher_name):
     valid_submissions = FileSubmission.objects.filter(ocdspackagedata__publisher_name__isnull=False).distinct()
     recent_submissions = valid_submissions.filter(ocdspackagedata__publisher_name=publisher_name).order_by("-created")[
@@ -70,18 +122,26 @@ def publisher(request, publisher_name):
     if publisher_metadata:
         publisher_metadata = publisher_metadata[0]
 
+    publisher_metrics = PublisherMonthlyCounts.objects.filter(publisher__publisher_name=publisher_name)
+    metrics = get_publisher_metrics_context(publisher_metrics)
+
+    poor_performers = None
+
     current_publisher_metrics = get_published_release_metrics(OCDSReleaseView.objects.filter(package_data__publisher_name=publisher_name))
     all_publishers_metrics = get_published_release_metrics(OCDSReleaseView.objects.all())
 
     context = {
         "recent_submissions": recent_submissions,
         'publisher': publisher,
+
         'publisher_metadata': publisher_metadata,
         'packages': packages,
-        'publisher_metrics': {
+        'publisher_metrics1': {
             "all_publishers_metrics": all_publishers_metrics,
             "current_publisher_metrics": current_publisher_metrics,
         },
+        # 'publisher_metrics': publisher_metrics,
+        'publisher_metrics': metrics,
     }
     return render(request, "silvereye/publisher.html", context)
 
@@ -89,6 +149,7 @@ def publisher(request, publisher_name):
 # TODO: Remove this once we've moved the styles over to cove-ocds's main upload form.
 def upload_results(request):
     return render(request, "silvereye/upload_results.html")
+
 
 class UploadForm(forms.ModelForm):
     publisher_id = forms.ModelChoiceField(label=_('Select a publisher'), queryset=Publisher.objects.all())
@@ -123,9 +184,10 @@ default_form_classes = {
     'text_form': TextForm,
 }
 
+
 def data_input(request, *args, **kwargs):
-    form_classes=default_form_classes
-    text_file_name='test.json'
+    form_classes = default_form_classes
+    text_file_name = 'test.json'
     # Add something to request.POST so data_input doesn't ignore uploaded files.
     request.POST = request.POST.copy()
     request.POST["something"] = "Dummy POST content so the CSV gets processed when CSRF not present"
@@ -166,7 +228,7 @@ def data_input(request, *args, **kwargs):
                         'link': 'index',
                         'link_text': _('Try Again'),
                         'msg': _(str(err) + '\n\n Common reasons for this error include supplying a local '
-                                 'development url that our servers can\'t access, or misconfigured SSL certificates.')
+                                            'development url that our servers can\'t access, or misconfigured SSL certificates.')
                     })
                 except requests.HTTPError as err:
                     return render(request, 'error.html', context={
@@ -174,10 +236,10 @@ def data_input(request, *args, **kwargs):
                         'link': 'index',
                         'link_text': _('Try Again'),
                         'msg': _(str(err) + '\n\n If you can access the file through a browser then the problem '
-                                 'may be related to permissions, or you may be blocking certain user agents.')
+                                            'may be related to permissions, or you may be blocking certain user agents.')
                     })
             elif form_name == 'text_form':
                 data.original_file.save(text_file_name, ContentFile(form['paste'].value()))
             return redirect(data.get_absolute_url())
 
-    return render(request, settings.COVE_CONFIG.get('input_template', 'input.html'), {'forms': forms })
+    return render(request, settings.COVE_CONFIG.get('input_template', 'input.html'), {'forms': forms})
