@@ -4,13 +4,192 @@
 {% load staticfiles %}
 
 {% block key_facts %}
+
+<div class="col-12" style="margin-bottom: 20em">
+
+    <h1>Upload results</h1>
+
+  {% with releases_aggregates as ra %}
+    <div class="card mt-4 mb-5">
+        <div class="card-body">
+            <p class="mb-3 d-flex align-items-center">
+                <svg class="bi bi-file-check mr-2" width="1em" height="1em" viewBox="0 0 16 16" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 1H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8h-1v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1h5V1z"></path>
+                    <path fill-rule="evenodd" d="M15.854 2.146a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 0 1 .708-.708L12.5 4.793l2.646-2.647a.5.5 0 0 1 .708 0z"></path>
+                </svg>
+                {{ file_name }}
+            </p>
+            <div>
+                <a href="{{original_file.url}}" class="btn btn-outline-secondary btn-sm mr-2">
+                    Download original file
+                </a>
+              {% if conversion == 'flatten' %}
+                {% if not conversion_error %}
+                <a href="{{converted_url}}.xlsx" class="btn btn-outline-secondary btn-sm">
+                    Download as XLSX
+                </a>
+                {% endif %}
+              {% elif conversion == 'unflatten' %}
+                <a href="{{converted_url}}" class="btn btn-outline-secondary btn-sm">
+                    Download as JSON
+                </a>
+              {% elif conversion == 'flattenable' %}
+                  <form method="post" class="d-inline">
+                      <button name="flatten" value="true" type="submit" class="btn btn-outline-secondary btn-sm">
+                          {% blocktrans %}Convert to Spreadsheet{% endblocktrans %}
+                      </button>
+                      {% csrf_token %}
+                  </form>
+              {% endif %}
+            </div>
+        </div>
+        <div class="card-footer">
+            <ul class="list-unstyled mb-0 d-sm-flex justify-content-between align-items-center">
+              {% if data_schema_version %}
+                <li class="px-3 text-center">
+                    OCDS version <strong>{{ data_schema_version }}</strong>
+                  {% if validation_errors or additional_closed_codelist_values %}
+                    <strong class="d-inline-flex align-items-center text-danger ml-1">
+                        Failed
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-x-circle-fill ml-2 text-danger" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.146-3.146a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z"/>
+                        </svg>
+                    </strong>
+                  {% else %}
+                    <strong class="d-inline-flex align-items-center text-success ml-1">
+                        Passed
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-check-circle-fill ml-2 text-success" fill="currentColor" xmlns="http://www.w3.org/2000/svg" title="Passed validation">
+                            <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                        </svg>
+                    </strong>
+                  {% endif %}
+                </li>
+              {% else %}
+                <li class="px-3 text-center">
+                    OCDS version:
+                    <strong class="d-inline-flex align-items-center text-danger">
+                        Unknown
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-x-circle-fill ml-2 text-danger" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.146-3.146a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z"/>
+                        </svg>
+                    </strong>
+                </li>
+              {% endif %}
+              {% if json_data.publisher.name %}
+                <li class="px-3 text-center">
+                    Publisher: <strong>{{ json_data.publisher.name }}</strong>
+                </li>
+              {% else %}
+                <li class="px-3 text-center">
+                    Publisher:
+                    <strong class="d-inline-flex align-items-center text-danger">
+                        Unknown
+                        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-x-circle-fill ml-2 text-danger" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-4.146-3.146a.5.5 0 0 0-.708-.708L8 7.293 4.854 4.146a.5.5 0 1 0-.708.708L7.293 8l-3.147 3.146a.5.5 0 0 0 .708.708L8 8.707l3.146 3.147a.5.5 0 0 0 .708-.708L8.707 8l3.147-3.146z"/>
+                        </svg>
+                    </strong>
+                </li>
+              {% endif %}
+              {% if ra.release_count %}
+                <li class="px-3 text-center">
+                    <strong>{{ ra.release_count }}</strong> releases
+                </li>
+              {% endif %}
+              {% if ra.tender_count %}
+                <li class="px-3 text-center">
+                    <strong>{{ ra.tender_count }}</strong> tenders
+                </li>
+              {% endif %}
+            </ul>
+        </div>
+    </div>
+
+  {% if validation_errors %}
+    <h2 class="d-flex align-items-center">
+      {% blocktrans count count=validation_errors|length %}
+        <span class="badge badge-pill badge-danger mr-3">{{ count }}</span> Error
+      {% plural %}
+        <span class="badge badge-pill badge-danger mr-3">{{ count }}</span> Errors
+      {% endblocktrans %}
+    </h2>
+
+    <table class="table mt-3 mb-5">
+      {% for error_json, values in validation_errors %}
+      {% with error=error_json|json_decode %}
+        <tr>
+            <td>{{ error.message_safe|safe }}</td>
+            <td>
+              {% if values.0.sheet %}
+                Sheet <strong>{{ values.0.sheet }}</strong>
+              {% endif %}
+            </td>
+            <td>
+              {% if values.0.row_number %}
+                Row <strong>{{ values.0.row_number }}</strong>
+              {% endif %}
+            </td>
+            <td>
+              {% if values.0.path %}
+                <strong>{{ values.0.path }}</strong>
+              {% endif %}
+            </td>
+        </tr>
+      {% endwith %}
+      {% endfor %}
+    </table>
+  {% endif %}
+
+  {% if structure_warnings %}
+    <h2 class="d-flex align-items-center">
+      {% blocktrans count count=structure_warnings|length %}
+        <span class="badge badge-pill badge-warning mr-3">{{ count }}</span> Warning
+      {% plural %}
+        <span class="badge badge-pill badge-warning mr-3">{{ count }}</span> Warnings
+      {% endblocktrans %}
+    </h2>
+
+    <table class="table mt-3 mb-5">
+    </table>
+  {% endif %}
+
+  {% if validation_errors or structure_warnings %}
+    <h2 class="h3">This data has not been submitted because there are errors</h2>
+    <p>To add your data, fix the errors, and upload your file again.</p>
+    <p>
+        <a href="{% url 'index' %}" class="btn btn-outline-secondary">Upload a new file</a>
+    </p>
+  {% else %}
+    <h2 class="h3 d-flex align-items-center mb-3">
+        <svg width="1em" height="1em" viewBox="0 0 16 16" class="bi bi-check-circle-fill mr-2 text-success" fill="currentColor" xmlns="http://www.w3.org/2000/svg" title="Passed validation">
+            <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+        </svg>
+        This data has been validated and submitted
+    </h2>
+    <p>If you have more data to add, you can <a href="{% url 'index' %}">upload a new file</a>.</p>
+  {% endif %}
+
+  {% endwith %}
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
 {% with releases_aggregates as ra %}
   <div class="col-md-12">
-    <div class="panel panel-primary {% if validation_errors or additional_closed_codelist_values or extensions and extensions.invalid_extension %}panel-danger{% endif %}">
-      <div class="panel-heading">
+    <div class="card my-5 panel-primary {% if validation_errors or additional_closed_codelist_values or extensions and extensions.invalid_extension %}panel-danger{% endif %}">
+      <div class="card-header">
         <h4 class="panel-title">{% trans 'Headlines' %}</h4>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
         {% if conversion_warning_messages or conversion_warning_messages_titles %}
           <div class="conversion message"><span class="glyphicon glyphicon-flag" aria-hidden="true"></span>{% blocktrans %}Please read the <a href="#conversion-warning">conversion warnings</a> below.{% endblocktrans %}</div>
         {% endif %} 
@@ -109,11 +288,11 @@
 {% if ra %}
 <div class="row">
   <div class="col-md-12">
-    <div class="panel panel-primary">
-      <div class="panel-heading">
+    <div class="card my-5 panel-primary">
+      <div class="card-header">
         <h4 class="panel-title">{% trans 'Key Field Information' %}</h4>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
         <div class="row">
           <div class="col-md-4">
             <b>{% trans "Initiation Types: " %}</b> {{ra.unique_initation_type|join:", "}}<br/>
@@ -216,8 +395,8 @@
 
 <div class="row">
   <div class="col-md-12">
-    <div class="panel panel-primary">
-      <div class="panel-heading">
+    <div class="card my-5 panel-primary">
+      <div class="card-header">
         <h4 class="panel-title">{% trans 'Documents' %}</h4>
       </div>
       <table class="table table-striped">
@@ -334,13 +513,13 @@
 
 <div class="row"> <!--Start Row (Detail Table)-->
   <div class="col-md-12">
-    <div class="panel panel-default" id="releases-table-panel">
-      <div class="panel-heading">
+    <div class="card my-5 panel-default" id="releases-table-panel">
+      <div class="card-header">
         <h4 class="panel-title">
            {% trans "Releases Table:" %}
         </h4>
       </div>
-      <div class="panel-body">
+      <div class="card-body">
         {% if releases|length > 25 %}
         <p>
           {% blocktrans %}Showing the first 25 releases. To explore all your data in a tabular format, convert it to a spreadsheet using the "Convert" section, above.{% endblocktrans %}
@@ -421,13 +600,13 @@
 {% if ocds_show_data %}
   <div class="row"> 
     <div class="col-md-12">
-      <div class="panel panel-default">
-        <div class="panel-heading">
+      <div class="card my-5 panel-default">
+        <div class="card-header">
           <h4 class="panel-title">
              {% trans "Explore your data:" %}
           </h4>
         </div>
-        <div class="panel-body">
+        <div class="card-body">
           <p>
             {% blocktrans %}This section provides a visual representation of the data, use it to check whether the data makes sense in the type of tool a user might use to explore it.{% endblocktrans %}
           </p>
