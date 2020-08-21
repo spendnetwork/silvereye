@@ -213,6 +213,7 @@ USE_X_FORWARDED_HOST = True
 # Bluetail settings
 
 BLUETAIL_APP_DIR = os.path.join(BASE_DIR, "bluetail")
+COMPANY_ID_SCHEME = os.getenv("COMPANY_ID_SCHEME", 'GB-COH')
 
 # pipeline
 if DEBUG:
