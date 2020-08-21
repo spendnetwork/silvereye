@@ -5,7 +5,7 @@ import os
 
 data_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data/csv_mappings')
 data_path = os.path.join(data_dir, 'awards.csv')
-mappings_path = os.path.join(data_dir, 'release_mappings.csv')
+mappings_path = os.path.join(data_dir, 'coverage_mappings.csv')
 
 
 def check_coverage(input_df, mappings_df, notice_type="tender"):
@@ -68,8 +68,10 @@ def main():
     df_in = pd.read_csv(data_path)
     df_mapping = pd.read_csv(mappings_path)
 
-    check_coverage(df_in, df_mapping, notice_type='contract')
+    context = check_coverage(df_in, df_mapping, notice_type='contract')
+
+    assert context
 
 
-main()
-
+if __name__ == '__main__':
+    main()

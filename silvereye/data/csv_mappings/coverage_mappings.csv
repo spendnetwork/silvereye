@@ -1,0 +1,62 @@
+uri,csv_header,contracts_finder_daily_csv_path,contract_csv,tender_csv,default,default_contract,reference,nullable
+id,Notice ID,releases/0/id,TRUE,TRUE,,,,FALSE
+tag,,releases/0/tag/0,,,,contract,,FALSE
+date,Published Date,releases/0/date,TRUE,TRUE,,,,FALSE
+ocid,,releases/0/ocid,,,,,,TRUE
+tender/id,,,,TRUE,tender_1,,,FALSE
+tender/title,Tender Title,,,TRUE,,,,FALSE
+tender/description,Tender Description,,,TRUE,,,,FALSE
+tender/status,,,,,,,,TRUE
+tender/value/amount,Tender Value,,,TRUE,,,,TRUE
+tender/value/currency,Tender Value-currency,,,TRUE,,,,TRUE
+tender/tenderPeriod/startDate,Tender Start Date,,,TRUE,,,,TRUE
+tender/tenderPeriod/endDate,Tender End Date,,,TRUE,,,,FALSE
+tender/items/id,,,,,tender_item_1,,,TRUE
+tender/items/description,,,,,,,,TRUE
+tender/items/classification/scheme,Classification Scheme,,,TRUE,,,,TRUE
+tender/items/classification/id,Classification Code,,,TRUE,,,,TRUE
+tender/items/classification/description,Classification Description,,,TRUE,,,,TRUE
+tender/items/classification/uri,,,,,,,,TRUE
+parties/0/name,Buyer Name,releases/0/buyer/name,TRUE,TRUE,,,,FALSE
+parties/0/id,,,,,,,parties/0/identifier/id,FALSE
+parties/0/roles,,,,,buyer,,,FALSE
+parties/0/identifier/scheme,Buyer ID-scheme,releases/0/buyer/identifier/scheme,TRUE,TRUE,,,,TRUE
+parties/0/identifier/id,Buyer ID,releases/0/buyer/identifier/id,TRUE,TRUE,,,,TRUE
+parties/0/address/locality,Buyer Locality,releases/0/buyer/address/locality,TRUE,TRUE,,,,TRUE
+parties/0/address/postalCode,,releases/0/buyer/address/postalCode,,,,,,TRUE
+parties/0/address/countryName,,releases/0/buyer/address/countryName,,,,,,TRUE
+parties/0/address/streetAddress,,releases/0/buyer/address/streetAddress,,,,,,TRUE
+parties/1/name,Supplier Name,releases/0/awards/0/suppliers/0/name,TRUE,,,,,FALSE
+parties/1/id,,releases/0/awards/0/suppliers/0/id,,,,,parties/1/identifier/id,FALSE
+parties/1/roles,,,,,supplier,,,FALSE
+parties/1/identifier/scheme,Supplier ID-scheme,releases/0/awards/0/suppliers/0/identifier/scheme,TRUE,,,,,TRUE
+parties/1/identifier/id,Supplier ID,releases/0/awards/0/suppliers/0/identifier/id,TRUE,,,,,TRUE
+parties/1/address/locality,Supplier Address - locality,releases/0/awards/0/suppliers/0/address/locality,TRUE,,,,,TRUE
+parties/1/address/postalCode,Supplier Address - postcode,releases/0/awards/0/suppliers/0/address/postalCode,TRUE,,,,,TRUE
+parties/1/address/countryName,Supplier Address - country,releases/0/awards/0/suppliers/0/address/countryName,TRUE,,,,,TRUE
+parties/1/address/streetAddress,Supplier Address - street address,releases/0/awards/0/suppliers/0/address/streetAddress,TRUE,,,,,TRUE
+buyer/name,,,,,,,parties/0/name,FALSE
+buyer/id,,,,,,,parties/0/identifier/id,FALSE
+awards/0/id,,releases/0/awards/0/id,,,award_1,,,FALSE
+awards/0/date,Date Contract Awarded,releases/0/awards/0/date,TRUE,,,,,FALSE
+awards/0/contractPeriod/startDate,Contract Start Date,,TRUE,,,,,TRUE
+awards/0/contractPeriod/endDate,Contract End Date,,TRUE,,,,,TRUE
+awards/0/title,Contract Title,releases/0/awards/0/title,TRUE,,,,,FALSE
+awards/0/description,Contract Description,releases/0/awards/0/description,TRUE,,,,,FALSE
+awards/0/documents/0/id,,,,,document_url,,,TRUE
+awards/0/documents/0/url,,,,,,,,TRUE
+awards/0/documents/0/format,,,,,text/html,,,TRUE
+awards/0/documents/0/language,,,,,en,,,TRUE
+awards/0/documents/0/documentType,,,,,awardNotice,,,TRUE
+awards/0/items/0/id,,,,,award_1_item_1,,,TRUE
+awards/0/items/0/description,,,,,,,,TRUE
+awards/0/items/0/classification/scheme,Classification Scheme,,TRUE,,,,,TRUE
+awards/0/items/0/classification/id,Classification Code,,TRUE,,,,,TRUE
+awards/0/items/0/classification/description,Classification Description,,TRUE,,,,,TRUE
+awards/0/items/0/classification/uri,,,,,,,,TRUE
+awards/0/value/amount,Contract Value,releases/0/awards/0/value/amount,TRUE,,,,,FALSE
+awards/0/value/currency,Contract Value - currency,releases/0/awards/0/value/currency,TRUE,,,,,FALSE
+awards/0/suppliers/0/name,,,,,,,parties/1/name,TRUE
+awards/0/suppliers/0/id,,,,,,,parties/1/identifier/id,TRUE
+language,,,,,en,,,FALSE
+initiationType,,,,,tender,,,FALSE
