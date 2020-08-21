@@ -9,7 +9,8 @@ from django.db.models import Q
 from ocdskit.combine import merge
 
 from bluetail import models
-from bluetail.models import FlagAttachment, Flag, BODSEntityStatement, BODSOwnershipStatement, BODSPersonStatement, OCDSReleaseView, OCDSPackageDataJSON, OCDSRecordJSON, BODSStatementJSON, OCDSTenderer
+from bluetail.models import FlagAttachment, Flag, BODSEntityStatement, BODSOwnershipStatement, BODSPersonStatement, \
+    OCDSReleaseView, OCDSPackageDataJSON, OCDSRecordJSON, BODSStatementJSON, OCDSTenderer, OCDSReleaseJSON
 from silvereye.models import FileSubmission
 
 logger = logging.getLogger('django')
@@ -253,7 +254,7 @@ class UpsertDataHelpers:
             creates a OCDSPackageDataJSON object
         """
         if not supplied_data:
-            supplied_data = SuppliedData()
+            supplied_data = FileSubmission()
             supplied_data.current_app = "bluetail"
             supplied_data.save()
 

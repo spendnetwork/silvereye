@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bluetail', '0005_externalperson'),
+        ('bluetail', '0006_ocdspackagedatajson_supplied_data'),
     ]
 
     operations = [
