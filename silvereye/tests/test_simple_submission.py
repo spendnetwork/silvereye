@@ -1,12 +1,11 @@
 import os
 
 import pytest
-import pandas as pd
 from django.test import Client
 from django.urls import reverse
 
 from silvereye.helpers import GoogleSheetHelpers
-from silvereye.models import Publisher
+from silvereye.models import Publisher, FileSubmission
 
 TESTS_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -52,6 +51,22 @@ def test_upload(publisher):
         })
     h = resp.content.decode()
     assert resp.status_code == 302
+
+
+@pytest.mark.django_db
+def test_missing_instance_pk(publisher):
+    c = Client()
+    path = os.path.join(TESTS_DIR, "fixtures/CSV_input/input.csv")
+    with open(path) as fp:
+        resp = c.post('/review/', {
+            'original_file': fp,
+            'publisher_id': publisher.id,
+        },
+                      follow=True
+                      )
+    h = resp.content.decode()
+    assert resp.status_code == 200
+    id = resp
 
 
 @pytest.mark.django_db

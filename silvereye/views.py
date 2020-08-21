@@ -148,6 +148,7 @@ def data_input(request, *args, **kwargs):
             if form_name == 'text_form':
                 data = FileSubmission()
             else:
+                form.instance.pk = form.instance.id
                 data = form.save(commit=False)
             data.current_app = request.current_app
             data.form_name = form_name
