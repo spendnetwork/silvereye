@@ -117,7 +117,7 @@ def test_convert_cf_to_1_1_tenders():
 
 def test_convert_cf_to_1_1_awards():
     csv_path_or_url = join(CF_DIR, "export-2020-07-01_awards.csv")
-    flat_processor = CSVMapper(release_type="contract", csv_path=csv_path_or_url)
+    flat_processor = CSVMapper(release_type="award", csv_path=csv_path_or_url)
     fixed_df = flat_processor.convert_cf_to_1_1(flat_processor.input_df)
     fixed_df = flat_processor.augment_cols(fixed_df)
 
@@ -132,4 +132,5 @@ def test_convert_cf_to_1_1_awards():
 def test_create_templates():
     templates_output_dir = join(CF_DIR, "templates")
     shutil.rmtree(templates_output_dir, ignore_errors=True)
-    create_templates = CSVMapper().create_templates(templates_output_dir)
+    create_templates = CSVMapper(release_type="award").create_templates(templates_output_dir)
+
