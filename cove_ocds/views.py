@@ -297,9 +297,9 @@ def explore_ocds(request, pk):
         else:
             # Silvereye CSV unflatten
             # Prepare base_json
-            publisher_name = "PUBLISHER_NAME"
-            publisher_scheme = "PUBLISHER_SCHEME"
-            publisher_uid = "PUBLISHER_UID"
+            publisher_name = db_data.publisher.publisher_name
+            publisher_scheme = db_data.publisher.publisher_scheme
+            publisher_uid = db_data.publisher.publisher_id
 
             base_json = {
                 "version": "1.1",
@@ -346,7 +346,7 @@ def explore_ocds(request, pk):
 
     context.update(
         {
-            "data_schema_version": db_data.data_schema_version,
+            "data_schema_version": db_data.schema_version,
             "first_render": not db_data.rendered,
             "validation_errors_grouped": group_validation_errors(
                 context["validation_errors"]
