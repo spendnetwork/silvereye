@@ -38,6 +38,7 @@ class Publisher(models.Model):
     def __str__(self):
         return self.publisher_name
 
+
 class PublisherMetrics(models.Model):
     publisher_id = models.CharField(max_length=1024, primary_key=True)
     publisher_name = models.CharField(max_length=1024)
@@ -53,15 +54,15 @@ class PublisherMetrics(models.Model):
         db_table = 'silvereye_publisher_metrics'
 
 
-class FileSubmission(models.Model):
-    supplied_data = models.OneToOneField(SuppliedData, on_delete=models.CASCADE)
-    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, null=False)
+
+class FileSubmission(SuppliedData):
+    supplied_data = models.OneToOneField(SuppliedData, on_delete=models.CASCADE, parent_link=True, primary_key=True, serialize=False)
+    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, null=True)
 
     @receiver(post_save, sender=SuppliedData)
     def create_file_submission(sender, instance, created, **kwargs):
         if created:
             FileSubmission.objects.create(supplied_data=instance)
 
-    @receiver(post_save, sender=SuppliedData)
-    def save_file_submission(sender, instance, **kwargs):
-        instance.filesubmission.save()
+    def __str__(self):
+        return f"{self.supplied_data.original_file}"

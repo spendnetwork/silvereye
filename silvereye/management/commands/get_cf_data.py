@@ -14,7 +14,6 @@ import urllib.request
 import shutil
 
 import pandas as pd
-from cove.input.models import SuppliedData
 from django.core.files.base import ContentFile
 from django.core.management import BaseCommand
 from django.core.serializers.json import DjangoJSONEncoder
@@ -25,7 +24,7 @@ from flattentool import unflatten
 
 import silvereye
 from bluetail.helpers import UpsertDataHelpers
-from silvereye.models import Publisher
+from silvereye.models import Publisher, FileSubmission
 
 logger = logging.getLogger('django')
 
@@ -106,10 +105,10 @@ def get_ocid_prefix(ocid):
 
 def create_package_from_json(contracts_finder_id, package):
     """
-    Create SuppliedData and OCDSPackageDataJSON records in the database for a
+    Create FileSubmission and OCDSPackageDataJSON records in the database for a
     Contracts Finder JSON OCDS release package
 
-    :param contracts_finder_id: ID to use in constructing the SuppliedData ID
+    :param contracts_finder_id: ID to use in constructing the FileSubmission ID
     :param package: JSON OCDS package
     """
     published_date = package["publishedDate"]
@@ -136,15 +135,15 @@ def create_package_from_json(contracts_finder_id, package):
 
         )
 
-    logger.info("Creating SuppliedData %s uri %s date %s", publisher_name, contracts_finder_id, published_date)
-    # Create SuppliedData entry
-    supplied_data, created = SuppliedData.objects.update_or_create(
+    logger.info("Creating FileSubmission %s uri %s date %s", publisher_name, contracts_finder_id, published_date)
+    # Create FileSubmission entry
+    supplied_data, created = FileSubmission.objects.update_or_create(
         id=contracts_finder_id,
         defaults={
             "current_app": "silvereye",
         }
     )
-    supplied_data.filesubmission.publisher = publisher
+    supplied_data.publisher = publisher
     supplied_data.created = published_date
     supplied_data.original_file.save("release_package.json", ContentFile(json.dumps(package, indent=2)))
     supplied_data.save()

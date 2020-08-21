@@ -15,7 +15,7 @@ from urllib.parse import urlparse, parse_qsl, urlencode
 import requests
 
 from bluetail.helpers import UpsertDataHelpers
-from cove.input.models import SuppliedData
+from silvereye.models import FileSubmission
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +33,8 @@ class S3_helpers():
             logger.info(f"Downloading {original_file_path}")
             filename_root = os.path.splitext(filename)[0]
 
-            # Create SuppliedData entry
-            supplied_data, created = SuppliedData.objects.update_or_create(
+            # Create FileSubmission entry
+            supplied_data, created = FileSubmission.objects.update_or_create(
                 id=id,
                 defaults={
                     "current_app": "silvereye",

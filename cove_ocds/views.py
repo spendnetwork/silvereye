@@ -24,11 +24,11 @@ from libcoveocds.common_checks import common_checks_ocds
 from libcoveocds.config import LibCoveOCDSConfig
 from libcoveocds.schema import SchemaOCDS
 from strict_rfc3339 import validate_rfc3339
-from cove.input.models import SuppliedData
 
 from bluetail.helpers import UpsertDataHelpers
 from cove_ocds.lib.views import group_validation_errors
 from silvereye.helpers import S3_helpers, sync_with_s3
+from silvereye.models import FileSubmission
 
 from .lib import exceptions
 from .lib.ocds_show_extra import add_extra_fields
@@ -67,16 +67,16 @@ def explore_data_context(request, pk, get_file_type=None):
         get_file_type = _get_file_type
 
     try:
-        data = SuppliedData.objects.get(pk=pk)
+        data = FileSubmission.objects.get(pk=pk)
         # Updated code to sync local storage to/from S3 storage
         if settings.STORE_OCDS_IN_S3:
             sync_with_s3(data)
-    except (SuppliedData.DoesNotExist, ValidationError):  # Catches primary key does not exist and badly formed UUID
+    except (FileSubmission.DoesNotExist, ValidationError):  # Catches primary key does not exist and badly formed UUID
         try:
             if settings.STORE_OCDS_IN_S3:
                 S3_helpers().retrieve_data_from_S3(pk)
-                data = SuppliedData.objects.get(pk=pk)
-        except (SuppliedData.DoesNotExist, ValidationError):  # Catches primary key does not exist and badly formed UUID
+                data = FileSubmission.objects.get(pk=pk)
+        except (FileSubmission.DoesNotExist, ValidationError):  # Catches primary key does not exist and badly formed UUID
             logger.exception("Couldn't get data from S3: %s", pk)
             return {}, None, render(request, 'error.html', {
                 'sub_title': _('Sorry, the page you are looking for is not available'),

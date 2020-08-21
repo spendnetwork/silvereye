@@ -6,11 +6,11 @@ from copy import deepcopy
 from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db.models import Q
-from cove.input.models import SuppliedData
 from ocdskit.combine import merge
 
 from bluetail import models
 from bluetail.models import FlagAttachment, Flag, BODSEntityStatement, BODSOwnershipStatement, BODSPersonStatement, OCDSReleaseJSON, OCDSPackageDataJSON, OCDSRecordJSON, BODSStatementJSON, OCDSTenderer
+from silvereye.models import FileSubmission
 
 logger = logging.getLogger('django')
 
@@ -220,11 +220,11 @@ class UpsertDataHelpers:
     def upload_record_package(self, package_json, supplied_data=None):
         """
         Upload a record package
-            creates a SuppliedData object if not given
+            creates a FileSubmission object if not given
             creates a OCDSPackageDataJSON object
         """
         if not supplied_data:
-            supplied_data = SuppliedData()
+            supplied_data = FileSubmission()
             supplied_data.current_app = "bluetail"
             supplied_data.save()
 
@@ -262,8 +262,8 @@ class UpsertDataHelpers:
             ocds_json = process_json(ocds_json)
 
         if not supplied_data:
-            # Create SuppliedData entry
-            supplied_data = SuppliedData()
+            # Create FileSubmission entry
+            supplied_data = FileSubmission()
             supplied_data.current_app = "bluetail"
             supplied_data.original_file.save(filename, ContentFile(json.dumps(ocds_json)))
             supplied_data.save()

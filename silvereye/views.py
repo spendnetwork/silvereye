@@ -15,8 +15,8 @@ from silvereye.models import PublisherMetrics, Publisher, FileSubmission
 
 
 def home(request):
-    # Get supplieddata that have releated OCDS Json packages
-    valid_submissions = SuppliedData.objects.filter(ocdspackagedata__publisher_name__isnull=False).distinct()
+    # Get FileSubmission that have releated OCDS Json packages
+    valid_submissions = FileSubmission.objects.filter(ocdspackagedata__publisher_name__isnull=False).distinct()
     recent_submissions = valid_submissions.order_by("-created")[:10]
     packages = OCDSPackageData.objects.all()
 
@@ -49,8 +49,9 @@ def publisher_listing(request):
 
 
 def publisher(request, publisher_name):
-    valid_submissions = SuppliedData.objects.filter(ocdspackagedata__publisher_name__isnull=False).distinct()
-    recent_submissions = valid_submissions.filter(ocdspackagedata__publisher_name=publisher_name).order_by("-created")[:10]
+    valid_submissions = FileSubmission.objects.filter(ocdspackagedata__publisher_name__isnull=False).distinct()
+    recent_submissions = valid_submissions.filter(ocdspackagedata__publisher_name=publisher_name).order_by("-created")[
+                         :10]
     publisher = {
         "publisher_name": publisher_name
     }
@@ -79,7 +80,7 @@ class UploadForm(forms.ModelForm):
     publisher_id = forms.ModelChoiceField(label=_('Select a publisher'), queryset=Publisher.objects.all())
 
     class Meta:
-        model = SuppliedData
+        model = FileSubmission
         fields = ["publisher_id", 'original_file']
         labels = {
             'original_file': _('Upload a file (.json, .csv, .xlsx, .ods)')
@@ -90,7 +91,7 @@ class UrlForm(forms.ModelForm):
     publisher_id = forms.ModelChoiceField(queryset=Publisher.objects.all())
 
     class Meta:
-        model = SuppliedData
+        model = FileSubmission
         fields = ["publisher_id", 'source_url']
         labels = {
             'source_url': _('Supply a URL')
@@ -131,14 +132,14 @@ def data_input(request, *args, **kwargs):
         forms[form_name] = form
         if form.is_valid():
             if form_name == 'text_form':
-                data = SuppliedData()
+                data = FileSubmission()
             else:
                 data = form.save(commit=False)
             data.current_app = request.current_app
             data.form_name = form_name
             data.save()
-            data.filesubmission.publisher_id = form.cleaned_data['publisher_id']
-            data.filesubmission.save()
+            data.publisher_id = form.cleaned_data['publisher_id']
+            data.save()
             if form_name == 'url_form':
                 try:
                     data.download()
