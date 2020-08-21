@@ -14,7 +14,6 @@ import urllib.request
 import shutil
 
 import pandas as pd
-from cove.input.models import SuppliedData
 from django.core.files.base import ContentFile
 from django.core.management import BaseCommand
 from django.core.serializers.json import DjangoJSONEncoder
@@ -25,6 +24,7 @@ from flattentool import unflatten
 
 import silvereye
 from bluetail.helpers import UpsertDataHelpers
+from silvereye.models import Publisher, FileSubmission
 
 logger = logging.getLogger('django')
 
@@ -56,13 +56,27 @@ def get_publisher_names():
                   ]
     return publishers
 
+def create_uid(row):
+    return slugify(row['publisher/name'])
+
+def create_uri(row):
+    return "http://www.example.com/" + row['publisher/uid']
+
+def new_ocid_prefix(row):
+    ocid = row['releases/0/ocid']
+    ocid_prefix = get_ocid_prefix(ocid)
+    uid = create_uid(row)
+    new_ocid = [ord(char) - 96 for char in uid.replace('-', '')]
+    new_ocid_prefix = 'ocds-' + ''.join(map(str, new_ocid))[0:6]
+    return ocid.replace(ocid_prefix, new_ocid_prefix, 1)
 
 def fix_df(df):
     """
     Process raw CF CSV:
         - Filter columns using headers in HEADERS_LIST file
         - fix array issue with tags
-        - Use the first buyer name in the release as the publisher name
+        - Use the first buyer name in the release as the publisher name and
+          create example publisher attributes
     """
     cols_list = open(HEADERS_LIST).readlines()
     cols_list = [x.strip() for x in cols_list]
@@ -70,29 +84,66 @@ def fix_df(df):
     fixed_df = fixed_df.rename(columns={
         'releases/0/tag/0': 'releases/0/tag'
     })
+
+    # Create example publisher attributes
     fixed_df['publisher/name'] = fixed_df['releases/0/buyer/name']
+    fixed_df['publisher/scheme'] = "Example Publisher Scheme"
+    fixed_df['publisher/uid'] = fixed_df.apply(lambda row: create_uid(row), axis=1)
+    fixed_df['publisher/uri'] = fixed_df.apply(lambda row: create_uri(row), axis=1)
+    fixed_df['releases/0/ocid'] = fixed_df.apply(lambda row: new_ocid_prefix(row), axis=1)
+
     return fixed_df
 
+def get_ocid_prefix(ocid):
+    """
+    Return an 11 digit OCID prefix for a publisher from an OCID e.g
+    ocds-b5fd17-e367ce01-4e9b-4692-8f89-1d1228dd9e04
+
+    :param ocid: The OCID
+    """
+    return '-'.join(ocid.split('-')[:2])
 
 def create_package_from_json(contracts_finder_id, package):
     """
-    Create SuppliedData and OCDSPackageDataJSON records in the database for a
+    Create FileSubmission and OCDSPackageDataJSON records in the database for a
     Contracts Finder JSON OCDS release package
 
-    :param contracts_finder_id: ID to use in constructing the SuppliedData ID
+    :param contracts_finder_id: ID to use in constructing the FileSubmission ID
     :param package: JSON OCDS package
     """
     published_date = package["publishedDate"]
-    publisher_name = package["publisher"]["name"]
+    publisher = package["publisher"]
+    publisher_name = publisher.get("name")
+    publisher_id = publisher.get("uid")
+    publisher_scheme = publisher.get("scheme")
+    publisher_uri = publisher.get("uri")
 
-    logger.info("Creating SuppliedData %s uri %s date %s", publisher_name, contracts_finder_id, published_date)
-    # Create SuppliedData entry
-    supplied_data, created = SuppliedData.objects.update_or_create(
+    ocid_prefix = get_ocid_prefix(package["releases"][0]["ocid"])
+
+    logger.info("Creating or updating Publisher %s (id %s)", publisher_name, publisher_id)
+
+    publisher, created = Publisher.objects.update_or_create(
+            publisher_scheme=publisher_scheme,
+            publisher_id=publisher_id,
+            defaults={
+                "publisher_name": publisher_name,
+                "publisher_id": publisher_id,
+                "publisher_scheme": publisher_scheme,
+                "uri": publisher_uri,
+                "ocid_prefix": ocid_prefix
+            }
+
+        )
+
+    logger.info("Creating FileSubmission %s uri %s date %s", publisher_name, contracts_finder_id, published_date)
+    # Create FileSubmission entry
+    supplied_data, created = FileSubmission.objects.update_or_create(
         id=contracts_finder_id,
         defaults={
             "current_app": "silvereye",
         }
     )
+    supplied_data.publisher = publisher
     supplied_data.created = published_date
     supplied_data.original_file.save("release_package.json", ContentFile(json.dumps(package, indent=2)))
     supplied_data.save()
@@ -266,7 +317,6 @@ def remake_dir(directory):
     """
     shutil.rmtree(directory, ignore_errors=True)
     os.makedirs(directory)
-
 
 class Command(BaseCommand):
     help = "Inserts Contracts Finder data using Flat CSV OCDS from the CF API.\nhttps://www.contractsfinder.service.gov.uk/apidocumentation/Notices/1/GET-Harvester-Notices-Data-CSV"

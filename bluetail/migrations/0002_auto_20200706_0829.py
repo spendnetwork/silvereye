@@ -17,7 +17,6 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('package_data', django.contrib.postgres.fields.jsonb.JSONField(null=True)),
-                ('supplied_data', models.ForeignKey(null=True, on_delete=None, to='input.SuppliedData')),
             ],
             options={
                 'db_table': 'bluetail_ocds_package_data_json',

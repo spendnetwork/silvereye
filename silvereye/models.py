@@ -1,9 +1,31 @@
+from cove.input.models import SuppliedData
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Publisher(models.Model):
-    publisher_id = models.CharField(max_length=1024, primary_key=True)
-    publisher_name = models.CharField(max_length=1024)
+    publisher_scheme = models.CharField(max_length=1024,
+                                        null=True,
+                                        blank=True,
+                                        default="",
+                                        help_text='The scheme that holds the unique identifiers used to identify publishers')
+    publisher_id = models.CharField(max_length=1024,
+                                    null=True,
+                                    help_text='The unique ID for this publisher under the given ID scheme')
+    publisher_name = models.CharField(max_length=1024,
+                                      null=True,
+                                      help_text='The name of the organization or department responsible for publishing this data')
+    uri = models.CharField(max_length=1024,
+                           null=True,
+                           blank=True,
+                           default="",
+                           help_text='A URI to identify the publisher')
+    ocid_prefix = models.CharField(max_length=11,
+                                   null=True,
+                                   blank=True,
+                                   default="",
+                                   help_text="OCID prefix registered by the publisher")
     contact_name = models.CharField(max_length=1024, null=True, blank=True, default="")
     contact_email = models.CharField(max_length=1024, null=True, blank=True, default="")
     contact_telephone = models.CharField(max_length=1024, null=True, blank=True, default="")
@@ -11,6 +33,10 @@ class Publisher(models.Model):
     class Meta:
         app_label = 'silvereye'
         db_table = 'silvereye_publisher_metadata'
+        ordering = ["publisher_name"]
+
+    def __str__(self):
+        return self.publisher_name
 
 
 class PublisherMetrics(models.Model):
@@ -26,3 +52,17 @@ class PublisherMetrics(models.Model):
     class Meta:
         app_label = 'silvereye'
         db_table = 'silvereye_publisher_metrics'
+
+
+
+class FileSubmission(SuppliedData):
+    supplied_data = models.OneToOneField(SuppliedData, on_delete=models.CASCADE, parent_link=True, primary_key=True, serialize=False)
+    publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, null=True)
+
+    @receiver(post_save, sender=SuppliedData)
+    def create_file_submission(sender, instance, created, **kwargs):
+        if created:
+            FileSubmission.objects.create(supplied_data=instance)
+
+    def __str__(self):
+        return f"{self.supplied_data.original_file}"

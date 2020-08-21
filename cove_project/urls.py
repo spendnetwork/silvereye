@@ -7,18 +7,16 @@ from django.conf.urls import include, url
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from django.urls import include, path
-from cove.input.views import data_input
 
 import cove_ocds.views
-# from cove_ocds.input.views import data_input
-
 
 # Serve the OCDS validator at /validator/
-from silvereye.views import custom_data_input
+from silvereye.views import data_input
 
 urlpatterns = [
     url(r"^$", RedirectView.as_view(url="review/", permanent=False)),
-    url(r'^review/$', custom_data_input,
+    url(r"^admin/$", RedirectView.as_view(url="/review/admin/", permanent=False)),
+    url(r'^review/$', data_input,
         kwargs={
             "text_file_name": "{}.json".format(datetime.now().strftime("%Y%m%dT%H%M%SZ"))
         },

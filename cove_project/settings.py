@@ -161,6 +161,7 @@ LOGGING["loggers"]["django.security.DisallowedHost"] = {
 
 COVE_CONFIG = {
     "app_name": "cove_ocds",
+    # "app_base_template": "cove_ocds/base.html",
     "app_base_template": "bluetail_and_silvereye_shared/base.html",
     "app_verbose_name": "Open Contracting Data Review Tool",
     "app_strapline": "Review your OCDS data.",
@@ -188,8 +189,11 @@ COVE_CONFIG = {
     "root_id": "ocid",
     "convert_titles": False,
     "input_template": "silvereye/input.html",
-    # "input_methods": ["upload", "url", "text"],
-    "input_methods": ["upload"],
+    "input_methods": [
+        "upload",
+        "url",
+        # "text"
+    ],
     "support_email": "data@open-contracting.org",
 }
 
@@ -209,6 +213,7 @@ USE_X_FORWARDED_HOST = True
 # Bluetail settings
 
 BLUETAIL_APP_DIR = os.path.join(BASE_DIR, "bluetail")
+COMPANY_ID_SCHEME = os.getenv("COMPANY_ID_SCHEME", 'GB-COH')
 
 # pipeline
 if DEBUG:

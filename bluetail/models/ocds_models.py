@@ -1,8 +1,8 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django_pgviews import view as pgviews
-from cove.input.models import SuppliedData
 
+from silvereye.models import FileSubmission
 from .bluetail_models import Flag
 
 
@@ -11,7 +11,7 @@ class OCDSPackageDataJSON(models.Model):
     Model to store OCDS JSON package data.
     """
     package_data = JSONField(null=True)
-    supplied_data = models.ForeignKey(SuppliedData, on_delete=None, null=True)
+    supplied_data = models.ForeignKey(FileSubmission, on_delete=None, null=True)
 
     class Meta:
         app_label = 'bluetail'
@@ -23,7 +23,7 @@ class OCDSPackageData(pgviews.View):
     Model to store OCDS JSON package data.
     """
     package_data = JSONField()
-    supplied_data = models.ForeignKey(SuppliedData, on_delete=None)
+    supplied_data = models.ForeignKey(FileSubmission, on_delete=None)
     uri = models.TextField()
     published_date = models.DateTimeField()
     publisher = JSONField()

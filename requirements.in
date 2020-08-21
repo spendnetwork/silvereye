@@ -24,7 +24,19 @@ rangedict
 openpyxl<3.0
 waitress
 whitenoise
-
 psycopg2-binary
+
+# Silvereye
 django-storages
 boto3
+smart-open
+dj-database-url==0.5.0
+django-pipeline==1.6.14
+-e git+https://github.com/mysociety/django-pipeline-csscompressor@6a88fde5045d68746f1c7ee816deda86615c5581#egg=django_pipeline_csscompressor-master
+libsass==0.12.3
+django-pgviews-redux
+ocdskit
+pandas
+elasticsearch
+elasticsearch-dsl
+faker
