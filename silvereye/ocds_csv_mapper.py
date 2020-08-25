@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 from django.conf import settings
 
+from silvereye.field_coverage import check_coverage
+
 
 class CSVMapper:
     """
@@ -239,3 +241,40 @@ class CSVMapper:
             with open(base_json_path, "w") as writer:
                 json.dump(base_json, writer, indent=2)
         return base_json
+
+    def run_coverage(self):
+        """ Returns a dictionary containing:
+
+            "expected_fields": (int) The number of possible fields given in the input csv.
+            "completion": (Series) The percentage of completion of each field given in the input csv.
+            "counts_missing_fields": (Series) The occurrence of null values by header.
+            "critical_fields_missing_by_id": (DataFrame) Details of the ID and headers where values are missing.
+            "completed_fields_counts": (list) The number of completed fields per row.
+
+        """
+        coverage_results = check_coverage(self.input_df, self.mappings_df, notice_type=self.release_type)
+
+        # TODO add these to db or separate report?
+        # self.completion = coverage_results["completion"]
+        # self.missing_field_counts = coverage_results["counts_missing_fields"]
+        # self.critical_missing_by_id = coverage_results["critical_fields_missing_by_id"]
+
+        return coverage_results
+
+    def get_coverage_context(self):
+
+        coverage_results = self.run_coverage()
+        expected_fields = coverage_results["expected_fields"]
+        completed_fields_counts = coverage_results["completed_fields_counts"]
+
+        av_completion = np.mean(completed_fields_counts)
+        min_completion = min(completed_fields_counts)
+        max_completion = max(completed_fields_counts)
+
+        coverage_context = {
+            "total expected fields": expected_fields,
+            "average field completion": av_completion,
+            "minimum field completion": min_completion,
+            "maximum field completion": max_completion,
+        }
+        return coverage_context
