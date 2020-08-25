@@ -6,7 +6,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db.models import Count, Max, F, Sum
 from dateutil.relativedelta import relativedelta
-from django.db.models.functions import ExtractMonth, ExtractDay, ExtractYear
+from django.db.models.functions import ExtractMonth, ExtractDay, ExtractYear, Coalesce
 
 from cove.input.models import SuppliedData
 from django.shortcuts import render, redirect
@@ -23,16 +23,14 @@ def home(request):
     recent_submissions = valid_submissions.order_by("-created")[:10]
     packages = OCDSPackageData.objects.all()
 
-    # current_publisher_metrics = get_published_release_metrics(OCDSReleaseView.objects.filter(package_data__publisher_name=publisher_name))
-    all_publishers_metrics = get_published_release_metrics(OCDSReleaseView.objects.all())
+    # metrics from helper
+    publisher_metrics = PublisherMonthlyCounts.objects.all()
+    metrics = get_publisher_metrics_context(publisher_metrics)
 
     context = {
         "packages": packages,
-        'publisher_metrics': {
-            "all_publishers_metrics": all_publishers_metrics,
-            "current_publisher_metrics": all_publishers_metrics,
-        },
-        "recent_submissions": recent_submissions
+        "recent_submissions": recent_submissions,
+        "publisher_metrics": metrics,
     }
     return render(request, "silvereye/publisher_hub_home.html", context)
 
@@ -59,6 +57,7 @@ def publisher_listing(request):
 
 
 def get_publisher_metrics_context(queryset=None):
+    # Reference
     # personsMonthlyData = Person.objects.annotate(month=ExtractMonth('added_date')).values('month').annotate(
     #     count=Count('id')).order_by('month')
 
@@ -67,17 +66,20 @@ def get_publisher_metrics_context(queryset=None):
     #     .annotate(tenders=Sum('count_tenders'), awards=Sum('count_awards'), spend=Sum('count_spend'))\
     #     .order_by('month')
 
+    if not queryset:
+        return {}
+
     today = datetime.now().date()
     this_month = today.replace(day=1)
     last_month = this_month - relativedelta(months=1)
 
     last_month_count = queryset\
         .filter(date__gte=last_month, date__lt=this_month)\
-        .aggregate(tenders=Sum('count_tenders'), awards=Sum('count_awards'), spend=Sum('count_spend'))
+        .aggregate(tenders=Coalesce(Sum('count_tenders'), 0), awards=Coalesce(Sum('count_awards'), 0), spend=Coalesce(Sum('count_spend'), 0))
 
     last_month_prev_count = queryset\
         .filter(date__gte=last_month-relativedelta(months=1), date__lt=last_month)\
-        .aggregate(tenders=Sum('count_tenders'), awards=Sum('count_awards'), spend=Sum('count_spend'))
+        .aggregate(tenders=Coalesce(Sum('count_tenders'), 0), awards=Coalesce(Sum('count_awards'), 0), spend=Coalesce(Sum('count_spend'), 0))
 
     context = {
         "last_month": {
@@ -93,9 +95,9 @@ def get_publisher_metrics_context(queryset=None):
                 "spend": last_month_count.get("spend") - last_month_prev_count.get("spend"),
             },
             "percentages": {
-                "tenders": 100 * (last_month_count.get("tenders") - last_month_prev_count.get("tenders")) / last_month_prev_count.get("tenders"),
-                "awards": 100 * (last_month_count.get("awards") - last_month_prev_count.get("awards")) / last_month_prev_count.get("awards"),
-                "spend": 100 * (last_month_count.get("spend") - last_month_prev_count.get("spend")) / last_month_prev_count.get("spend"),
+                "tenders": (100 * (last_month_count.get("tenders") - last_month_prev_count.get("tenders")) / last_month_prev_count.get("tenders")) if last_month_prev_count.get("tenders") else 0,
+                "awards": (100 * (last_month_count.get("awards") - last_month_prev_count.get("awards")) / last_month_prev_count.get("awards")) if last_month_prev_count.get("awards") else 0,
+                "spend": (100 * (last_month_count.get("spend") - last_month_prev_count.get("spend")) / last_month_prev_count.get("spend")) if last_month_prev_count.get("spend") else 0,
             },
             "prev_date": last_month - relativedelta(months=1),
             "prev_count": {
@@ -115,20 +117,21 @@ def publisher(request, publisher_name):
     publisher = {
         "publisher_name": publisher_name
     }
-    publisher_metrics = PublisherMetrics.objects.filter(publisher_id=publisher_name).first()
+
     packages = OCDSPackageData.objects.filter(publisher_name=publisher_name)
+
+    # metrics from cached model
+    publisher_metrics = PublisherMetrics.objects.filter(publisher_id=publisher_name).first()
 
     publisher_metadata = Publisher.objects.filter(publisher_name=publisher_name)
     if publisher_metadata:
         publisher_metadata = publisher_metadata[0]
 
+    # metrics from helper
     publisher_metrics = PublisherMonthlyCounts.objects.filter(publisher__publisher_name=publisher_name)
     metrics = get_publisher_metrics_context(publisher_metrics)
 
     poor_performers = None
-
-    current_publisher_metrics = get_published_release_metrics(OCDSReleaseView.objects.filter(package_data__publisher_name=publisher_name))
-    all_publishers_metrics = get_published_release_metrics(OCDSReleaseView.objects.all())
 
     context = {
         "recent_submissions": recent_submissions,
@@ -136,10 +139,6 @@ def publisher(request, publisher_name):
 
         'publisher_metadata': publisher_metadata,
         'packages': packages,
-        'publisher_metrics1': {
-            "all_publishers_metrics": all_publishers_metrics,
-            "current_publisher_metrics": current_publisher_metrics,
-        },
         # 'publisher_metrics': publisher_metrics,
         'publisher_metrics': metrics,
     }

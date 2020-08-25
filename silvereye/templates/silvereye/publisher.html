@@ -17,74 +17,7 @@
     <hr class="mb-5"/>
     <div class="row">
       <div class="col-sm-12 col-md-8" role="main">
-        <div class="row">
-          <div class="col">
-            <h3 class="h6 ">Key figures</h3>
-            <div class="dropdown figures-dropdown mb-2">
-              Show <a class="dropdown-toggle mb-2" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-                      aria-haspopup="true" aria-expanded="false">
-              count</a>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                <a class="dropdown-item" href="#">percentages</a>
-                <a class="dropdown-item" href="#">change</a>
-              </div>
-            </div>
-            <div class="dropdown figures-dropdown mb-2">
-              Last <a class="dropdown-toggle mb-2" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-                      aria-haspopup="true" aria-expanded="false">
-              month</a>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                <a class="dropdown-item" href="#">3 months</a>
-                <a class="dropdown-item" href="#">6 months</a>
-                <a class="dropdown-item" href="#">12 months</a>
-                <a class="dropdown-item" href="#">All time</a>
-              </div>
-            </div>
-
-            <div class="dropdown figures-dropdown mb-2">
-              Compare to <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-                            aria-haspopup="true" aria-expanded="false">
-              preceeding period</a>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                <a class="dropdown-item" href="#">last year</a>
-                <a class="dropdown-item" href="#">two years ago</a>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <h3 class="h6">Tenders</h3>
-            <div class="figure-box media">
-              {% include "silvereye/includes/up_arrow.svg" %}
-              <div class="media-body">
-                <p class="figure-box__change figure-box--up mb-0">{{ publisher_metrics.last_month.change.tenders }}</p>
-                <p class="figure-box__main-figure figure-box--up mb-0">{{ publisher_metrics.last_month.count.tenders }}</p>
-                <p class="figure-box__compare-figure">{{ publisher_metrics.last_month.prev_count.tenders }}</p>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <h3 class="h6">Contract awards</h3>
-            <div class="figure-box media">
-              {% include "silvereye/includes/down_arrow.svg" %}
-              <div class="media-body">
-                <p class="figure-box__change figure-box--up mb-0">{{ publisher_metrics.last_month.change.awards }}</p>
-                <p class="figure-box__main-figure figure-box--up mb-0">{{ publisher_metrics.last_month.count.awards }}</p>
-                <p class="figure-box__compare-figure">{{ publisher_metrics.last_month.prev_count.awards }}</p>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <h3 class="h6">Spend files</h3>
-            <div class="figure-box media">
-              {% include "silvereye/includes/up_arrow.svg" %}
-              <div class="media-body">
-                <p class="figure-box__change figure-box--up mb-0">{{ publisher_metrics.last_month.change.spend }}</p>
-                <p class="figure-box__main-figure figure-box--up mb-0">{{ publisher_metrics.last_month.count.spend }}</p>
-                <p class="figure-box__compare-figure">{{ publisher_metrics.last_month.prev_count.spend }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {% include "silvereye/includes/publisher_metrics_row.html" %}
         <hr class="my-5"/>
         <div class="row">
           <div class="col">
