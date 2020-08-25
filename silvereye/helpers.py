@@ -9,11 +9,15 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import get_storage_class
 import requests
+from django.db import connections
 
+import silvereye
 from bluetail.helpers import UpsertDataHelpers
 from silvereye.models import FileSubmission
 
 logger = logging.getLogger(__name__)
+
+SILVEREYE_DIR = silvereye.__path__[0]
 
 
 class S3_helpers():
@@ -151,3 +155,12 @@ def get_published_release_metrics(release_queryset):
             "spend_count": count_spend,
     }
     return context
+
+
+def update_publisher_monthly_counts():
+    sql_path = os.path.join(SILVEREYE_DIR, "metrics", "monthly_counts.sql")
+
+    with connections['default'].cursor() as cursor:
+        sql = open(sql_path).read()
+        logger.info(f"Executing metric sql from file {sql_path}")
+        cursor.execute(sql)

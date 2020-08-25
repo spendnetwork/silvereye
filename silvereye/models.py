@@ -52,9 +52,6 @@ class PublisherMetrics(models.Model):
     class Meta:
         app_label = 'silvereye'
 
-    class Meta:
-        app_label = 'silvereye'
-
 
 class PublisherMonthlyCounts(models.Model):
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, null=True)
@@ -63,6 +60,8 @@ class PublisherMonthlyCounts(models.Model):
     count_awards = models.IntegerField(null=True)
     count_spend = models.IntegerField(null=True)
 
+    class Meta:
+        unique_together = ('publisher', 'date',)
 
 
 class FileSubmission(SuppliedData):
