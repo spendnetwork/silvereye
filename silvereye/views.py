@@ -148,6 +148,8 @@ def data_input(request, *args, **kwargs):
             if form_name == 'text_form':
                 data = FileSubmission()
             else:
+                # pk assigned manually as it does not get set on initial Form submission
+                # but is needed for SuppliedData.original_file.upload_to()
                 form.instance.pk = form.instance.id
                 data = form.save(commit=False)
             data.current_app = request.current_app

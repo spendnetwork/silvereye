@@ -307,11 +307,6 @@ class UpsertDataHelpers:
         if ocds_json.get("releases"):
             # We have a release package
             self.upload_release_package(ocds_json, supplied_data=supplied_data)
-            # # First we use OCDSkit merge to create a record package
-            # rp = merge([ocds_json], published_date=ocds_json.get("publishedDate"), return_package=True)
-            # # Then upload the package
-            # for r in rp:
-            #     self.upload_record_package(r, supplied_data=supplied_data)
 
     def upsert_bods_data(self, bods_json_path_or_string, process_json=None):
         """
