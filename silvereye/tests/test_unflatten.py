@@ -150,12 +150,29 @@ def test_create_award_template():
     assert "Award Title" in df.columns
 
 
-def test_convert_simple_csv_to_ocds_csv(simple_csv_submission_path):
-    mapper = CSVMapper(csv_path=simple_csv_submission_path)
-    ocds_df = mapper.convert_simple_csv_to_ocds_csv(simple_csv_submission_path)
+def test_convert_simple_csv_to_ocds_csv(simple_csv_submission_path, tmp_path):
+    tmpfile_path = os.path.join(tmp_path, "test.csv")
+    shutil.copyfile(simple_csv_submission_path, tmpfile_path)
+    mapper = CSVMapper(csv_path=tmpfile_path)
+    ocds_df = mapper.convert_simple_csv_to_ocds_csv(tmpfile_path)
+
     assert "initiationType" in ocds_df.columns
 
 
 def test_rename_friendly_cols_to_ocds_uri(simple_csv_submission_path, simple_csv_submission_df):
     renamed_df = CSVMapper(simple_csv_submission_path).rename_friendly_cols_to_ocds_uri(simple_csv_submission_df)
-    assert "initiationType" in renamed_df.columns
+    assert "tender/title" in renamed_df.columns
+
+
+def test_default_referenced_mapping(simple_csv_submission_path):
+    mapper = CSVMapper(simple_csv_submission_path)
+    new_df = mapper.rename_friendly_cols_to_ocds_uri(mapper.input_df)
+    mapper.detect_notice_type(new_df)
+    new_df = mapper.augment_cols(new_df)
+
+    assert new_df.loc[0, "parties/0/id"] == "buyer_id_0"
+    assert new_df.loc[1, "parties/0/id"] == "buyer"
+    assert new_df.loc[1, "parties/0/id"] == "buyer"
+
+    # TODO stop award data appeaing in tenders
+    assert new_df.loc[0, "awards/0/suppliers/0/id"] == "supplier"

@@ -56,7 +56,11 @@ class CSVMapper:
         :return:
         """
         mapping_dict = {}
-        for i, row in self.mappings_df.iterrows():
+        # Remove unknown columns
+        df = df[self.simple_mappings_df["csv_header"].to_list()]
+
+        # rename simple CSV headers to OCDS uri headers
+        for i, row in self.simple_mappings_df.iterrows():
             if row["csv_header"]:
                 mapping_dict[row["csv_header"]] = row["uri"]
         new_df = df.rename(columns=mapping_dict)
@@ -96,18 +100,22 @@ class CSVMapper:
         :return:
         """
         for i, row in self.mappings_df.iterrows():
-            # Set defaults from mapping sheet where null
-            if row["default"]:
-                df[row["uri"]] = row["default"]
+            ocds_header = row["uri"]
+            default_value = row["default"]
+            reference_header = row["reference"]
+            # Set defaults from mapping sheet
+            if default_value:
+                df[ocds_header] = default_value
             # Set references
-            if row["reference"] and row["reference"] in df:
-                df.loc[:, row["uri"]] = df[row["reference"]]
-                # df.loc[:, row["uri"]] = df[row["reference"].isna() == False]
-            # df.assign(uri=np.where(df["mappings_df"], df.uri, df.default))
+            if reference_header and reference_header in df.columns:
+                if not ocds_header in df.columns:
+                    df.loc[:, ocds_header] = df[reference_header]
+                else:
+                    df.loc[:, ocds_header] = df.apply(lambda row: row[reference_header] if pd.notnull(row[reference_header]) else row[ocds_header], axis=1)
 
         df["ocid"] = self.ocid_prefix + df['id']
         df["tag"] = self.release_type
-        pass
+
         return df
 
     def output_simple_csv(self, df):
