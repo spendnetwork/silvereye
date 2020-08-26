@@ -14,7 +14,7 @@ from django.utils.translation import ugettext_lazy as _
 from bluetail.models import OCDSPackageData
 from silvereye.helpers import get_publisher_metrics_context, \
     get_coverage_metrics_context, get_metric_options
-from silvereye.models import Publisher, FileSubmission, PublisherMonthlyCounts, FieldCoverage
+from silvereye.models import Publisher, FileSubmission, PublisherMonthlyCounts, FieldCoverage, AuthorityType
 from silvereye.ocds_csv_mapper import CSVMapper
 
 
@@ -57,13 +57,30 @@ def publisher_listing(request):
         .order_by('-supplied_data__created') \
         .annotate(last_submission=Max("supplied_data__created")) \
         .annotate(total=Count('publisher_name')) \
-        .order_by('publisher_name') \
+        .order_by('publisher_name')
+
+    local_authority_name_to_type = {at.authority_name: at.authority_type for at in AuthorityType.objects.all()}
+    for publisher in publishers:
+        publisher['type'] = local_authority_name_to_type.get(publisher['publisher_name'])
+
+    filter_authority_types = request.GET.getlist('authority_type')
+    if filter_authority_types:
+        publishers = filter(lambda x: x['type'] in filter_authority_types, publishers)
+
+    unique_authority_types = AuthorityType.objects \
+        .exclude(authority_type='') \
+        .distinct('authority_type') \
+        .order_by('authority_type') \
+        .values_list('authority_type', flat=True)
+
+    known_types = [(kt, kt in filter_authority_types) for kt in unique_authority_types]
 
     context = {
         'publishers': publishers,
         # 'publisher_metrics': PublisherMetrics.objects.all(),
         "submission_date_yellow": datetime.today() - timedelta(days=14),
         "submission_date_red": datetime.today() - timedelta(days=30),
+        "known_types": known_types,
     }
     return render(request, "silvereye/publisher_listing.html", context)
 
