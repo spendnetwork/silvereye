@@ -26,3 +26,17 @@ class HomeViewTest(TestCase):
     def test_home_url_exists_at_desired_location(self):
         response = self.client.get('/publisher-hub/')
         self.assertEqual(response.status_code, 200)
+
+    def test_sets_publisher_metrics_in_context(self):
+        response = self.client.get(reverse('publisher-hub'))
+        self.assertEqual(response.status_code, 200)
+        expected_metrics = { 'last_month':
+                                { 'date': date(2020, 7, 1),
+                                  'count': {'tenders': 10, 'awards': 25, 'spend': 0 },
+                                  'change': {'tenders': 0, 'awards': 2, 'spend': 0 },
+                                  'percentages': {'tenders': 0, 'awards': 8.7, 'spend': 0 },
+                                  'prev_date': date(2020, 6, 1),
+                                  'prev_count': {'tenders': 10, 'awards': 23, 'spend': 0 }
+                                }
+                            }
+        self.assertTrue(response.context['publisher_metrics'] == expected_metrics)

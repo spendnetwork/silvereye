@@ -43,7 +43,7 @@
         {% include "silvereye/includes/up_arrow.svg" %}
       {% endif %}
       <div class="media-body">
-        <p class="figure-box__change figure-box--up mb-0">{{ publisher_metrics.last_month.change.tenders }}</p>
+        <p class="figure-box__change figure-box--up mb-0">{{ publisher_metrics.last_month.change.tenders }} ({{ publisher_metrics.last_month.percentages.tenders }}%)</p>
         <p class="figure-box__main-figure figure-box--up mb-0">{{ publisher_metrics.last_month.count.tenders }}</p>
         <p class="figure-box__compare-figure">{{ publisher_metrics.last_month.prev_count.tenders }}</p>
       </div>
@@ -60,7 +60,7 @@
         {% include "silvereye/includes/up_arrow.svg" %}
       {% endif %}
       <div class="media-body">
-        <p class="figure-box__change figure-box--up mb-0">{{ publisher_metrics.last_month.change.awards }}</p>
+        <p class="figure-box__change figure-box--up mb-0">{{ publisher_metrics.last_month.change.awards }} ({{ publisher_metrics.last_month.percentages.awards }}%)</p>
         <p class="figure-box__main-figure figure-box--up mb-0">{{ publisher_metrics.last_month.count.awards }}</p>
         <p class="figure-box__compare-figure">{{ publisher_metrics.last_month.prev_count.awards }}</p>
       </div>
@@ -77,7 +77,7 @@
         {% include "silvereye/includes/up_arrow.svg" %}
       {% endif %}
       <div class="media-body">
-        <p class="figure-box__change figure-box--up mb-0">{{ publisher_metrics.last_month.change.spend }}</p>
+        <p class="figure-box__change figure-box--up mb-0">{{ publisher_metrics.last_month.change.spend }} ({{ publisher_metrics.last_month.percentages.spend }}%)</p>
         <p class="figure-box__main-figure figure-box--up mb-0">{{ publisher_metrics.last_month.count.spend }}</p>
         <p class="figure-box__compare-figure">{{ publisher_metrics.last_month.prev_count.spend }}</p>
       </div>

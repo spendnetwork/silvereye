@@ -55,6 +55,9 @@ def publisher_listing(request):
     }
     return render(request, "silvereye/publisher_listing.html", context)
 
+def percentage_change_value(current, previous):
+    raw_percent = (100 * (current - previous) / previous) if previous else 0
+    return round(raw_percent, 1)
 
 def get_publisher_metrics_context(queryset=None):
     # Reference
@@ -95,9 +98,9 @@ def get_publisher_metrics_context(queryset=None):
                 "spend": last_month_count.get("spend") - last_month_prev_count.get("spend"),
             },
             "percentages": {
-                "tenders": (100 * (last_month_count.get("tenders") - last_month_prev_count.get("tenders")) / last_month_prev_count.get("tenders")) if last_month_prev_count.get("tenders") else 0,
-                "awards": (100 * (last_month_count.get("awards") - last_month_prev_count.get("awards")) / last_month_prev_count.get("awards")) if last_month_prev_count.get("awards") else 0,
-                "spend": (100 * (last_month_count.get("spend") - last_month_prev_count.get("spend")) / last_month_prev_count.get("spend")) if last_month_prev_count.get("spend") else 0,
+                "tenders": percentage_change_value(last_month_count.get("tenders"), last_month_prev_count.get("tenders")),
+                "awards": percentage_change_value(last_month_count.get("awards"), last_month_prev_count.get("awards")),
+                "spend": percentage_change_value(last_month_count.get("spend"), last_month_prev_count.get("spend")),
             },
             "prev_date": last_month - relativedelta(months=1),
             "prev_count": {
