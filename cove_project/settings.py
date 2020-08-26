@@ -279,3 +279,6 @@ PIPELINE = {
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+# Silvereye
+CSV_MAPPINGS_PATH = os.path.join(BASE_DIR, "silvereye", "data", "csv_mappings", "release_mappings.csv")

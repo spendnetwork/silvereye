@@ -4,7 +4,6 @@ Command to create an generate publisher metrics
 import argparse
 import sys
 from datetime import datetime, timedelta
-
 import json
 import logging
 import os
@@ -19,11 +18,11 @@ from django.core.management import BaseCommand
 from django.core.serializers.json import DjangoJSONEncoder
 from django.template.defaultfilters import slugify
 from ocdskit.combine import combine_release_packages
-
 from flattentool import unflatten
 
 import silvereye
 from bluetail.helpers import UpsertDataHelpers
+from silvereye.ocds_csv_mapper import CSVMapper
 from silvereye.models import Publisher, FileSubmission
 
 logger = logging.getLogger('django')
@@ -34,6 +33,7 @@ CF_DAILY_DIR = os.path.join(SILVEREYE_DIR, "data", "cf_daily_csv")
 WORKING_DIR = os.path.join(CF_DAILY_DIR, "working_files")
 SOURCE_DIR = os.path.join(WORKING_DIR, "source")
 CLEAN_OUTPUT_DIR = join(WORKING_DIR, "cleaned")
+SAMPLE_SUBMISSIONS_DIR = join(WORKING_DIR, "submissions")
 
 HEADERS_LIST = join(CF_DAILY_DIR, "headers_min.txt")
 OCDS_RELEASE_SCHEMA = join(SILVEREYE_DIR, "data", "OCDS", "1.1.4-release-schema.json")
@@ -70,7 +70,7 @@ def new_ocid_prefix(row):
     new_ocid_prefix = 'ocds-' + ''.join(map(str, new_ocid))[0:6]
     return ocid.replace(ocid_prefix, new_ocid_prefix, 1)
 
-def fix_df(df):
+def fix_contracts_finder_flat_CSV(df):
     """
     Process raw CF CSV:
         - Filter columns using headers in HEADERS_LIST file
@@ -91,6 +91,17 @@ def fix_df(df):
     fixed_df['publisher/uid'] = fixed_df.apply(lambda row: create_uid(row), axis=1)
     fixed_df['publisher/uri'] = fixed_df.apply(lambda row: create_uri(row), axis=1)
     fixed_df['releases/0/ocid'] = fixed_df.apply(lambda row: new_ocid_prefix(row), axis=1)
+
+    # CF does not move info from tender section to award section, so we need to do this
+    # Set award title/desc from tender as CF don't include it
+    fixed_df.loc[fixed_df['releases/0/tag'] == 'award', 'releases/0/awards/0/title'] = fixed_df['releases/0/tender/title']
+    fixed_df.loc[fixed_df['releases/0/tag'] == 'award', 'releases/0/awards/0/description'] = fixed_df['releases/0/tender/description']
+
+    # Copy items to awards
+    for col in fixed_df.columns:
+        if "tender/items" in col:
+            fixed_df.loc[fixed_df['releases/0/tag'] == 'award', col.replace("releases/0/tender/", "releases/0/awards/0/")] = fixed_df[col]
+
 
     return fixed_df
 
@@ -156,7 +167,8 @@ def create_package_from_json(contracts_finder_id, package):
     )
     UpsertDataHelpers().upsert_ocds_data(json_string, supplied_data)
 
-def get_date_boundaries(start_date, end_date, df):
+
+def get_date_boundaries(start_date, end_date, df, days=7):
     """
     Return an iterator of tuples of the start and end dates for a set of weekly
     periods that will include the period defined by the start and end date
@@ -180,7 +192,7 @@ def get_date_boundaries(start_date, end_date, df):
     # define the start of the week that contains the start date
     start = start_date - timedelta(days=start_date.weekday())
     # define the start of the week after the week that contains the end date
-    end = (end_date - timedelta(days=end_date.weekday())) + timedelta(days=7)
+    end = (end_date - timedelta(days=end_date.weekday())) + timedelta(days=days)
     # get a range of week starts
     starts = pd.date_range(start=start, end=end, freq='W-MON', tz="UTC")
     # get tuples of week starts and ends
@@ -209,7 +221,7 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
             try:
                 logger.info("Preprocessing %s", file_name)
                 df = pd.read_csv(join(SOURCE_DIR, file_name))
-                fixed_df = fix_df(df)
+                fixed_df = fix_contracts_finder_flat_CSV(df)
                 source_data.append(fixed_df)
             except pd.errors.EmptyDataError:
                 pass
@@ -222,6 +234,7 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
         logger.info("Filtering for named publishers")
         named_publishers = source_df['publisher/name'].isin(publisher_names)
         source_df = source_df[named_publishers]
+        # source_df.to_csv()
 
     if not start_date:
         create_output_files(file_name, source_df, CLEAN_OUTPUT_DIR, load_data)
@@ -279,6 +292,14 @@ def create_output_files(name, df, parent_directory, load_data):
             # Write the DataFrame to a CSV
             df_release_type.to_csv(open(csv_file_path, "w"), index=False, header=True)
 
+            # Create fake simple submission CSV
+            period_dir_name = os.path.basename(parent_directory)
+            simple_csv_file_path = join(SAMPLE_SUBMISSIONS_DIR, f"{release_name}_{period_dir_name}.csv")
+            mapper = CSVMapper(release_type=release_type)
+            ocds_1_1_release_df = mapper.convert_cf_to_1_1(df_release_type)
+            simple_csv_df = mapper.output_simple_csv(ocds_1_1_release_df)
+            simple_csv_df.to_csv(open(simple_csv_file_path, "w"), index=False, header=True)
+
             # Turn the CSV into releases package JSON
             schema = OCDS_RELEASE_SCHEMA
             unflatten(output_dir, output_name=json_file_path, input_format="csv", root_id="ocid", root_is_list=True, schema=schema)
@@ -333,6 +354,7 @@ class Command(BaseCommand):
         publisher_names = get_publisher_names()
         remake_dir(SOURCE_DIR)
         remake_dir(CLEAN_OUTPUT_DIR)
+        remake_dir(SAMPLE_SUBMISSIONS_DIR)
         file_path = kwargs.get("file_path")
 
         options = {

@@ -10,7 +10,8 @@ from cove.input.models import SuppliedData
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
 
-from bluetail.models import OCDSPackageData
+from bluetail.models import OCDSPackageData, OCDSReleaseView
+from silvereye.helpers import get_published_release_metrics
 from silvereye.models import PublisherMetrics, Publisher, FileSubmission
 
 
@@ -20,8 +21,15 @@ def home(request):
     recent_submissions = valid_submissions.order_by("-created")[:10]
     packages = OCDSPackageData.objects.all()
 
+    # current_publisher_metrics = get_published_release_metrics(OCDSReleaseView.objects.filter(package_data__publisher_name=publisher_name))
+    all_publishers_metrics = get_published_release_metrics(OCDSReleaseView.objects.all())
+
     context = {
-            "packages": packages,
+        "packages": packages,
+        'publisher_metrics': {
+            "all_publishers_metrics": all_publishers_metrics,
+            "current_publisher_metrics": all_publishers_metrics,
+        },
         "recent_submissions": recent_submissions
     }
     return render(request, "silvereye/publisher_hub_home.html", context)
@@ -32,11 +40,11 @@ def publisher_listing(request):
     # sorted_packages = packages.order_by("publisher_name", "-supplied_data__created")
     # distinct = sorted_packages.distinct("publisher_name")
 
-    publishers = OCDSPackageData.objects.all()\
-        .values('publisher_name')\
-        .order_by('-supplied_data__created')\
+    publishers = OCDSPackageData.objects.all() \
+        .values('publisher_name') \
+        .order_by('-supplied_data__created') \
         .annotate(last_submission=Max("supplied_data__created")) \
-        .annotate(total=Count('publisher_name'))\
+        .annotate(total=Count('publisher_name')) \
         .order_by('publisher_name') \
 
     context = {
@@ -62,12 +70,18 @@ def publisher(request, publisher_name):
     if publisher_metadata:
         publisher_metadata = publisher_metadata[0]
 
+    current_publisher_metrics = get_published_release_metrics(OCDSReleaseView.objects.filter(package_data__publisher_name=publisher_name))
+    all_publishers_metrics = get_published_release_metrics(OCDSReleaseView.objects.all())
+
     context = {
         "recent_submissions": recent_submissions,
         'publisher': publisher,
         'publisher_metadata': publisher_metadata,
         'packages': packages,
-        'publisher_metrics': publisher_metrics,
+        'publisher_metrics': {
+            "all_publishers_metrics": all_publishers_metrics,
+            "current_publisher_metrics": current_publisher_metrics,
+        },
     }
     return render(request, "silvereye/publisher.html", context)
 
@@ -134,6 +148,9 @@ def data_input(request, *args, **kwargs):
             if form_name == 'text_form':
                 data = FileSubmission()
             else:
+                # pk assigned manually as it does not get set on initial Form submission
+                # but is needed for SuppliedData.original_file.upload_to()
+                form.instance.pk = form.instance.id
                 data = form.save(commit=False)
             data.current_app = request.current_app
             data.form_name = form_name

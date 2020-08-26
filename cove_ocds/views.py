@@ -1,4 +1,6 @@
 import copy
+from datetime import datetime
+
 import functools
 import json
 import logging
@@ -28,6 +30,7 @@ from strict_rfc3339 import validate_rfc3339
 from bluetail.helpers import UpsertDataHelpers
 from cove_ocds.lib.views import group_validation_errors
 from silvereye.helpers import S3_helpers, sync_with_s3
+from silvereye.lib.converters import convert_csv
 from silvereye.models import FileSubmission
 
 from .lib import exceptions
@@ -143,7 +146,7 @@ def explore_ocds(request, pk):
     file_name = db_data.original_file.file.name
     file_type = context["file_type"]
 
-    post_version_choice = request.POST.get("version")
+    post_version_choice = request.POST.get("version", lib_cove_ocds_config.config["schema_version"])
     replace = False
     validation_errors_path = os.path.join(upload_dir, "validation_errors-3.json")
 
@@ -214,7 +217,7 @@ def explore_ocds(request, pk):
                 replace = True
             if schema_ocds.extensions:
                 schema_ocds.create_extended_release_schema_file(upload_dir, upload_url)
-            url = schema_ocds.extended_schema_file or schema_ocds.release_schema_url
+            schema_url = schema_ocds.extended_schema_file or schema_ocds.release_schema_url
 
             if "records" in json_data:
                 context["conversion"] = None
@@ -231,7 +234,7 @@ def explore_ocds(request, pk):
                         upload_url,
                         file_name,
                         lib_cove_ocds_config,
-                        schema_url=url,
+                        schema_url=schema_url,
                         replace=replace_converted,
                         request=request,
                         flatten=request.POST.get("flatten"),
@@ -276,21 +279,56 @@ def explore_ocds(request, pk):
 
         if schema_ocds.extensions:
             schema_ocds.create_extended_release_schema_file(upload_dir, upload_url)
-        url = schema_ocds.extended_schema_file or schema_ocds.release_schema_url
+        schema_url = schema_ocds.extended_schema_file or schema_ocds.release_schema_url
         pkg_url = schema_ocds.release_pkg_schema_url
 
-        context.update(
-            convert_spreadsheet(
-                upload_dir,
-                upload_url,
-                file_name,
-                file_type,
-                lib_cove_ocds_config,
-                schema_url=url,
-                pkg_schema_url=pkg_url,
-                replace=replace,
+        if file_type != "csv":
+            # ORIGINAL UNFLATTEN
+            conversion_context = convert_spreadsheet(
+                    upload_dir,
+                    upload_url,
+                    file_name,
+                    file_type,
+                    lib_cove_ocds_config,
+                    schema_url=schema_url,
+                    pkg_schema_url=pkg_url,
+                    replace=replace,
             )
-        )
+        else:
+            # Silvereye CSV unflatten
+            # Prepare base_json
+            publisher_name = db_data.publisher.publisher_name
+            publisher_scheme = db_data.publisher.publisher_scheme
+            publisher_uid = db_data.publisher.publisher_id
+
+            base_json = {
+                "version": "1.1",
+                "publisher": {
+                    "name": publisher_name,
+                    "scheme": publisher_scheme,
+                    "uid": publisher_uid,
+                },
+                "publishedDate": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
+                # "license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/",
+                # "publicationPolicy": "https://www.gov.uk/government/publications/open-contracting",
+                "uri": "https://ocds-silvereye.herokuapp.com/"
+            }
+            base_json_path = os.path.join(upload_dir, "base.json")
+            with open(base_json_path, "w") as writer:
+                json.dump(base_json, writer, indent=2)
+
+            conversion_context = convert_csv(
+                    upload_dir,
+                    upload_url,
+                    file_name,
+                    file_type,
+                    lib_cove_ocds_config,
+                    schema_url=schema_url,
+                    replace=replace,
+                    base_json_path=base_json_path
+            )
+
+        context.update(conversion_context)
 
         with open(context["converted_path"], encoding="utf-8") as fp:
             json_data = json.load(
@@ -308,7 +346,7 @@ def explore_ocds(request, pk):
 
     context.update(
         {
-            "data_schema_version": db_data.data_schema_version,
+            "data_schema_version": db_data.schema_version,
             "first_render": not db_data.rendered,
             "validation_errors_grouped": group_validation_errors(
                 context["validation_errors"]

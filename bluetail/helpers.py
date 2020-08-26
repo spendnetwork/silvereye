@@ -9,7 +9,8 @@ from django.db.models import Q
 from ocdskit.combine import merge
 
 from bluetail import models
-from bluetail.models import FlagAttachment, Flag, BODSEntityStatement, BODSOwnershipStatement, BODSPersonStatement, OCDSReleaseJSON, OCDSPackageDataJSON, OCDSRecordJSON, BODSStatementJSON, OCDSTenderer
+from bluetail.models import FlagAttachment, Flag, BODSEntityStatement, BODSOwnershipStatement, BODSPersonStatement, \
+    OCDSReleaseView, OCDSPackageDataJSON, OCDSRecordJSON, BODSStatementJSON, OCDSTenderer, OCDSReleaseJSON
 from silvereye.models import FileSubmission
 
 logger = logging.getLogger('django')
@@ -246,6 +247,37 @@ class UpsertDataHelpers:
                 }
             )
 
+    def upload_release_package(self, package_json, supplied_data=None):
+        """
+        Upload a release package
+            creates a SuppliedData object if not given
+            creates a OCDSPackageDataJSON object
+        """
+        if not supplied_data:
+            supplied_data = FileSubmission()
+            supplied_data.current_app = "bluetail"
+            supplied_data.save()
+
+        package_data = deepcopy(package_json)
+        releases = package_data.pop("releases")
+        package, created = OCDSPackageDataJSON.objects.update_or_create(
+            supplied_data=supplied_data,
+            package_data=package_data
+        )
+
+        for release in releases:
+            ocid = release.get("ocid")
+            release_id = release.get("id")
+            release_json, created = OCDSReleaseJSON.objects.update_or_create(
+                ocid=ocid,
+                release_id=release_id,
+                defaults={
+                    "release_json": release,
+                    "package_data": package,
+
+                }
+            )
+
     def upsert_ocds_data(self, ocds_json_path_or_string, supplied_data=None, process_json=None):
         """
         Takes a path to an OCDS Package or a string containing OCDS JSON data
@@ -274,11 +306,7 @@ class UpsertDataHelpers:
 
         if ocds_json.get("releases"):
             # We have a release package
-            # First we use OCDSkit merge to create a record package
-            rp = merge([ocds_json], published_date=ocds_json.get("publishedDate"), return_package=True)
-            # Then upload the package
-            for r in rp:
-                self.upload_record_package(r, supplied_data=supplied_data)
+            self.upload_release_package(ocds_json, supplied_data=supplied_data)
 
     def upsert_bods_data(self, bods_json_path_or_string, process_json=None):
         """

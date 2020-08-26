@@ -6,7 +6,7 @@ from django.test import TestCase
 
 from bluetail import helpers
 from bluetail.helpers import UpsertDataHelpers
-from bluetail.models import OCDSReleaseJSON, BODSStatementJSON, BODSEntityStatement, BODSPersonStatement
+from bluetail.models import OCDSReleaseView, BODSStatementJSON, BODSEntityStatement, BODSPersonStatement
 from bluetail.tests.fixtures import insert_flags, insert_flag_attachments
 
 PROTOTYPE_DATA_PATH = os.path.join(settings.BLUETAIL_APP_DIR, "data", "prototype")
@@ -19,7 +19,7 @@ class OcdsReleaseTestCase(TestCase):
         helpers.UpsertDataHelpers().upsert_ocds_data(example_ocds_path)
 
     def test_release(self):
-        release = OCDSReleaseJSON.objects.get(ocid="ocds-123abc-PROC-20-0001")
+        release = OCDSReleaseView.objects.get(ocid="ocds-123abc-PROC-20-0001")
         self.assertEqual(release.ocid, "ocds-123abc-PROC-20-0001")
 
 

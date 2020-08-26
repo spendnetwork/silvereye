@@ -1,17 +1,13 @@
 import json
-
 from datetime import datetime, timezone
-
 import logging
-
 import os
-
 import re
+from urllib.parse import urlparse, parse_qsl, urlencode
+
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.core.files.storage import get_storage_class
-from urllib.parse import urlparse, parse_qsl, urlencode
-
 import requests
 
 from bluetail.helpers import UpsertDataHelpers
@@ -22,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 class S3_helpers():
     def retrieve_data_from_S3(self, id):
+        logger.info("Attempting to download file for SuppliedData from S3: %s", id)
 
         upsert_helper = UpsertDataHelpers()
         s3_storage = get_storage_class(settings.S3_FILE_STORAGE)()
@@ -60,6 +57,7 @@ class S3_helpers():
 
 
 def sync_with_s3(supplied_data):
+    logger.info("Syncing supplied_data original_file with S3")
     s3_storage = get_storage_class(settings.S3_FILE_STORAGE)()
     original_filename = supplied_data.original_file.name.split(os.path.sep)[1]
     original_file_path = supplied_data.original_file.path
@@ -83,7 +81,6 @@ def sync_with_s3(supplied_data):
 
             supplied_data.original_file.storage = get_storage_class(settings.DEFAULT_FILE_STORAGE)()
             supplied_data.original_file.save(original_filename, ContentFile(s3_file))
-
 
 
 class GoogleSheetHelpers():
@@ -120,3 +117,37 @@ class GoogleSheetHelpers():
                     url_new = parsed.geturl()
                     return url_new
         return url
+
+
+# CF data prep
+def prepare_base_json_from_release_df(fixed_df, base_json_path=None):
+    max_release_date = datetime.strptime(max(fixed_df["date"]), '%Y-%m-%dT%H:%M:%SZ')
+    base_json = {
+        "version": "1.1",
+        "publisher": {
+            "name": fixed_df.iloc[0]["buyer/name"],
+            "scheme": fixed_df.iloc[0]["buyer/identifier/scheme"],
+            "uid": fixed_df.iloc[0]["buyer/identifier/id"],
+        },
+        "publishedDate": max_release_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
+        # "license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/",
+        # "publicationPolicy": "https://www.gov.uk/government/publications/open-contracting",
+        "uri": "https://ocds-silvereye.herokuapp.com/"
+    }
+    if base_json_path:
+        with open(base_json_path, "w") as writer:
+            json.dump(base_json, writer, indent=2)
+    return base_json
+
+
+def get_published_release_metrics(release_queryset):
+    count_tenders = release_queryset.filter(release_tag__contains="tender").count()
+    count_awards = release_queryset.filter(release_tag__contains="award").count()
+    count_spend = release_queryset.filter(release_tag__contains="spend").count()
+
+    context = {
+            "tenders_count": count_tenders,
+            "awards_count": count_awards,
+            "spend_count": count_spend,
+    }
+    return context

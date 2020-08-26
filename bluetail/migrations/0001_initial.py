@@ -121,7 +121,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.CreateModel(
-            name='OCDSReleaseJSON',
+            name='OCDSReleaseView',
             fields=[
                 ('ocid', models.TextField(primary_key=True, serialize=False)),
                 ('release_id', models.TextField()),

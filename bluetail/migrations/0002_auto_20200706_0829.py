@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
             },
         ),
         migrations.AddField(
-            model_name='ocdsreleasejson',
+            model_name='ocdsreleaseview',
             name='package_data',
             field=models.ForeignKey(null=True, on_delete=None, to='bluetail.OCDSPackageDataJSON'),
         ),
