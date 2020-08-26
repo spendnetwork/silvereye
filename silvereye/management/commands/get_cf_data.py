@@ -96,11 +96,11 @@ def fix_contracts_finder_flat_CSV(df):
     # Set award title/desc from tender as CF don't include it
     fixed_df.loc[fixed_df['releases/0/tag'] == 'award', 'releases/0/awards/0/title'] = fixed_df['releases/0/tender/title']
     fixed_df.loc[fixed_df['releases/0/tag'] == 'award', 'releases/0/awards/0/description'] = fixed_df['releases/0/tender/description']
+
     # Copy items to awards
     for col in fixed_df.columns:
         if "tender/items" in col:
-            new_col = col.replace("releases/0/tender/", "releases/0/awards/0/")
-            fixed_df[new_col] = fixed_df[col]
+            fixed_df.loc[fixed_df['releases/0/tag'] == 'award', col.replace("releases/0/tender/", "releases/0/awards/0/")] = fixed_df[col]
 
 
     return fixed_df
