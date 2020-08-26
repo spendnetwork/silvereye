@@ -151,8 +151,17 @@ def test_create_award_template():
 
 
 def test_convert_simple_csv_to_ocds_csv(simple_csv_submission_path, tmp_path):
-    tmpfile_path = os.path.join(tmp_path, "test.csv")
+    tmpfile_path = os.path.join(tmp_path, "tender.csv")
     shutil.copyfile(simple_csv_submission_path, tmpfile_path)
+    mapper = CSVMapper(csv_path=tmpfile_path)
+    ocds_df = mapper.convert_simple_csv_to_ocds_csv(tmpfile_path)
+
+    assert "initiationType" in ocds_df.columns
+
+
+def test_convert_simple_award_csv_to_ocds_csv(simple_award_csv_submission_path, tmp_path):
+    tmpfile_path = os.path.join(tmp_path, "award.csv")
+    shutil.copyfile(simple_award_csv_submission_path, tmpfile_path)
     mapper = CSVMapper(csv_path=tmpfile_path)
     ocds_df = mapper.convert_simple_csv_to_ocds_csv(tmpfile_path)
 

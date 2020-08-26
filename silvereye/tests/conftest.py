@@ -26,6 +26,12 @@ def simple_csv_submission_path():
 
 
 @pytest.fixture()
+def simple_award_csv_submission_path():
+    csv_path_or_url = join(TESTS_DIR, "fixtures", "CSV_input", "telford-wrekin-council-award_20200727-20200803.csv")
+    return csv_path_or_url
+
+
+@pytest.fixture()
 def simple_csv_submission_df(simple_csv_submission_path):
     df = pd.read_csv(simple_csv_submission_path)
     return df

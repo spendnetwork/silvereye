@@ -57,13 +57,14 @@ class CSVMapper:
         """
         mapping_dict = {}
         # Remove unknown columns
-        df = df[self.simple_mappings_df["csv_header"].to_list()]
+        cols_list = self.simple_mappings_df["csv_header"].to_list()
+        new_df = df[df.columns.intersection(cols_list)]
 
         # rename simple CSV headers to OCDS uri headers
         for i, row in self.simple_mappings_df.iterrows():
             if row["csv_header"]:
                 mapping_dict[row["csv_header"]] = row["uri"]
-        new_df = df.rename(columns=mapping_dict)
+        new_df = new_df.rename(columns=mapping_dict)
         return new_df
 
 
@@ -86,6 +87,11 @@ class CSVMapper:
         for i, row in self.mappings_df.iterrows():
             mapping_dict[row["contracts_finder_daily_csv_path"]] = row["uri"]
         new_df = new_df.rename(columns=mapping_dict)
+
+        # Add columns missing from CF data
+        ocds_headers_list = self.simple_mappings_df["uri"].to_list()
+        missing_headers_list = [i for i in ocds_headers_list if i not in new_df.columns]
+        new_df = pd.concat([new_df, pd.DataFrame(columns=missing_headers_list)])
 
         # Remove ocds prefix from ids for realistic data
         new_df['id'] = new_df['id'].str.replace('ocds-b5fd17-', '')

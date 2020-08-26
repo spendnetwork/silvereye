@@ -3,7 +3,7 @@
 "tag",,"releases/0/tag/0",,,,
 "date","Published Date","releases/0/date","TRUE","TRUE",,
 "ocid",,"releases/0/ocid",,,,
-"tender/id",,"releases/0/tender/id",,,"","id"
+"tender/id",,"releases/0/tender/id",,,,"id"
 "tender/title","Tender Title","releases/0/tender/title",,"TRUE",,
 "tender/description","Tender Description","releases/0/tender/description",,"TRUE",,
 "tender/status",,"releases/0/tender/status",,,,
