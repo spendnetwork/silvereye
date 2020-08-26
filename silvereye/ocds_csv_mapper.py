@@ -9,7 +9,10 @@ import pandas as pd
 from django.conf import settings
 
 
-class CSVMapper():
+class CSVMapper:
+    """
+    Class to handle mapping of CSV headers between simple CSV and flattened OCDS
+    """
     mappings_df = pd.read_csv(settings.CSV_MAPPINGS_PATH, keep_default_na=False)
     notice_types = [
         "tender",
@@ -27,28 +30,51 @@ class CSVMapper():
             self.detect_notice_type(self.input_df)
         else:
            self.input_df = None
-        self.output_df = pd.DataFrame(columns=self.mappings_df["uri"])
-        self.simple_mappings_df = self.mappings_df.loc[self.mappings_df[f'{self.release_type}_csv'] == "TRUE"]
+        if self.release_type:
+            self.simple_mappings_df = self.mappings_df.loc[self.mappings_df[f'{self.release_type}_csv'] == "TRUE"]
 
 
-    def _map_and_crop_df(self, df, mappings_df, map_from_col="orig", map_to_col="target"):
-        """
-        utility func to rename cols and remove any not in the mappings_df
-        """
-
+    # def _map_and_crop_df(self, df, mappings_df, map_from_col="orig", map_to_col="target"):
+    #     """
+    #     utility func to rename cols and remove any not in the mappings_df
+    #     """
+    #     # Clear cols not in mappings
+    #     cols_list = self.simple_mappings_df["contracts_finder_daily_csv_path"].to_list()
+    #     new_df = df[df.columns.intersection(cols_list)]
+    #     mapping_dict = {}
+    #     for i, row in self.mappings_df.iterrows():
+    #         if row[map_from_col]:
+    #             mapping_dict[row[map_from_col]] = row[map_to_col]
+    #     new_df = new_df.rename(columns=mapping_dict)
 
 
     def rename_friendly_cols_to_ocds_uri(self, df):
+        """
+        Use the class.mappings_df to rename simple CSV headers to OCDS URI paths for unflattening
+
+        :param df: pandas dataframe of a simple CSV file
+        :return:
+        """
         mapping_dict = {}
-        for i, row in self.simple_mappings_df.iterrows():
+        for i, row in self.mappings_df.iterrows():
             if row["csv_header"]:
                 mapping_dict[row["csv_header"]] = row["uri"]
-        self.output_df = df.rename(columns=mapping_dict)
-        return self.output_df
+        new_df = df.rename(columns=mapping_dict)
+        return new_df
 
 
     def convert_cf_to_1_1(self, df):
+        """
+        Convenience function to prepare CF data as sample data for submission
 
+        Use provided mappings_df to :
+            - remove columns not wanted for Silvereye
+            - map the CF headers to OCDS release headers
+            - remove OCID prefixes from release ids
+
+        :param df: dataframe of Contracts Finder Daily CSV data
+        :return:
+        """
         # Clear cols not in mappings
         cols_list = self.simple_mappings_df["contracts_finder_daily_csv_path"].to_list()
         new_df = df[df.columns.intersection(cols_list)]
@@ -59,19 +85,29 @@ class CSVMapper():
 
         # Remove ocds prefix from ids for realistic data
         new_df['id'] = new_df['id'].str.replace('ocds-b5fd17-', '')
-        self.output_df = new_df
         return new_df
 
     def augment_cols(self, df):
+        """
+        Use the mappings_df to augment a given dataframe with default/referred fields
+        Needed to populate additional fields for unflattening.
+
+        :param df: dataframe of a simple CSV with headers mapped to OCDS
+        :return:
+        """
         for i, row in self.mappings_df.iterrows():
-            # Set defaults from mapping sheet
+            # Set defaults from mapping sheet where null
             if row["default"]:
                 df[row["uri"]] = row["default"]
             # Set references
             if row["reference"] and row["reference"] in df:
                 df.loc[:, row["uri"]] = df[row["reference"]]
+                # df.loc[:, row["uri"]] = df[row["reference"].isna() == False]
+            # df.assign(uri=np.where(df["mappings_df"], df.uri, df.default))
+
         df["ocid"] = self.ocid_prefix + df['id']
         df["tag"] = self.release_type
+        pass
         return df
 
     def output_simple_csv(self, df):
@@ -83,8 +119,6 @@ class CSVMapper():
         # Clear cols not in simple CSV
         cols_list = [i for i in self.simple_mappings_df["csv_header"].to_list() if i]
         new_df = new_df[new_df.columns.intersection(cols_list)]
-
-        self.output_df = new_df
         return new_df
 
     def convert_simple_csv_to_ocds_csv(self, csv_path):
@@ -93,33 +127,68 @@ class CSVMapper():
         self.detect_notice_type(new_df)
         new_df = self.augment_cols(new_df)
         new_df.to_csv(open(csv_path, "w"), index=False, header=True)
-        self.output_df = new_df
         return new_df
 
-    def create_templates(self, output_dir):
-        os.makedirs(output_dir)
-        tender_mappings_df = self.mappings_df.loc[self.mappings_df['tender_csv'] == "TRUE"]
-        tender_df = pd.DataFrame(columns=tender_mappings_df["uri"])
-        tender_df.to_csv(os.path.join(output_dir, "tender_template.csv"), index=False, header=True)
+    def create_simple_CSV_templates(self, output_dir):
+        """
+        Create all simple CSV templates in given directory
 
-        award_mappings_df = self.mappings_df.loc[self.mappings_df['award_csv'] == "TRUE"]
-        award_df = pd.DataFrame(columns=award_mappings_df["uri"])
-        award_df.to_csv(os.path.join(output_dir, "award_template.csv"), index=False, header=True)
+        :param output_dir: Directory path
+        :return:
+        """
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+
+        tender_csv_path = os.path.join(output_dir, "tender_template.csv")
+        self.create_simple_csv_template(tender_csv_path, "tender")
+
+        tender_csv_path = os.path.join(output_dir, "award_template.csv")
+        self.create_simple_csv_template(tender_csv_path, "award")
+
+    def create_simple_csv_template(self, output_path, release_type):
+        """
+        Create a simple CSV output from the mappings file
+
+        :param output_path: File path of buffer
+        :param release_type: notice type
+        :return:
+        """
+        mappings_df = self.mappings_df.loc[self.mappings_df[f'{release_type}_csv'] == "TRUE"]
+        df = pd.DataFrame(columns=mappings_df["csv_header"])
+        df.to_csv(output_path, index=False, header=True)
 
     def detect_notice_type(self, df):
+        """
+        Attempt to detect the type of notice from a dataframe of either:
+            - simple CSV
+            - flat OCDS release
+
+        :param df: pandas dataframe
+        :return:
+        """
         if "awards/0/id" in df.columns or "Award Title" in df.columns:
             self.release_type = "award"
         else:
             self.release_type = "tender"
 
-    def prepare_base_json_from_release_df(self, fixed_df, base_json_path=None):
-        max_release_date = datetime.strptime(max(fixed_df["date"]), '%Y-%m-%dT%H:%M:%SZ')
+    def prepare_base_json_from_release_df(self, release_df, base_json_path=None):
+        """
+        Function to create a "base_json" file for use in unflattening OCDS releases.
+        Uses first release in the DF to set the publisher metadata in the base_json.
+        For a consistent release package, first filter the release_df to only contain a single buyer.
+        Used to prepare Contracts Finder sample release packages in Silvereye.
+
+        :param release_df: pandas dataframe of releases
+        :param base_json_path: output path to store the JSON file
+        :return:
+        """
+        max_release_date = datetime.strptime(max(release_df["date"]), '%Y-%m-%dT%H:%M:%SZ')
         base_json = {
             "version": "1.1",
             "publisher": {
-                "name": fixed_df.iloc[0]["buyer/name"],
-                "scheme": fixed_df.iloc[0]["buyer/identifier/scheme"],
-                "uid": fixed_df.iloc[0]["buyer/identifier/id"],
+                "name": release_df.iloc[0]["buyer/name"],
+                "scheme": release_df.iloc[0]["buyer/identifier/scheme"],
+                "uid": release_df.iloc[0]["buyer/identifier/id"],
             },
             "publishedDate": max_release_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
             "uri": "https://ocds-silvereye.herokuapp.com/"

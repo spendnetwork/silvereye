@@ -74,7 +74,7 @@ class OCDSRecordJSON(models.Model):
 
 class OCDSReleaseJSON(models.Model):
     """
-    Model to store OCDS JSON records.
+    Model to store OCDS JSON releases.
     """
     ocid = models.TextField(primary_key=True)
     release_id = models.TextField()
@@ -88,8 +88,11 @@ class OCDSReleaseJSON(models.Model):
 
 class OCDSReleaseView(pgviews.View):
     """
-    Model to store OCDS JSON releases.
-    OCID must be unique so multiple releases for a single OCID should be compiled before insertion.
+    Postgres view combining releases stored in OCDSReleaseJSON
+        with the extracted "compiled_release" from the OCDSRecordJSON
+    in to a single queryable model.
+    Use the release_tag to filter; "tender", "award", "compiled".
+    eg. OCDSReleaseView.objects.filter(release_tag__contains="tender").count()
     """
     ocid = models.TextField(primary_key=True)
     release_id = models.TextField()

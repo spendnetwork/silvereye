@@ -54,6 +54,22 @@ def test_upload(publisher):
 
 
 @pytest.mark.django_db
+def test_upload(publisher, simple_csv_submission_path):
+    c = Client()
+    with open(simple_csv_submission_path) as fp:
+        resp = c.post(
+            '/review/',
+            {
+                'original_file': fp,
+                'publisher_id': publisher.id,
+            },
+            follow=True
+        )
+    h = resp.content.decode()
+    assert resp.status_code == 200
+
+
+@pytest.mark.django_db
 def test_missing_instance_pk(publisher):
     c = Client()
     path = os.path.join(TESTS_DIR, "fixtures/CSV_input/input.csv")

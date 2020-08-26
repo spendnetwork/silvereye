@@ -1,57 +1,46 @@
 import json
 import os
 import shutil
-from datetime import datetime
 from os.path import join
 
 import pytest
 import pandas as pd
-from django.test import Client
-from django.urls import reverse
 from flattentool import unflatten
+from six import StringIO
 
 import silvereye
-from silvereye.helpers import GoogleSheetHelpers, prepare_base_json_from_release_df
+from silvereye.helpers import prepare_base_json_from_release_df
 from silvereye.ocds_csv_mapper import CSVMapper
 from silvereye.management.commands.get_cf_data import fix_contracts_finder_flat_CSV
 
-TESTS_DIR = os.path.dirname(os.path.realpath(__file__))
-
 SILVEREYE_DIR = silvereye.__path__[0]
-METRICS_SQL_DIR = os.path.join(SILVEREYE_DIR, "metrics", "sql")
+TESTS_DIR = os.path.dirname(os.path.realpath(__file__))
 CF_DAILY_DIR = os.path.join(SILVEREYE_DIR, "data", "cf_daily_csv")
 HEADERS_LIST = join(CF_DAILY_DIR, "headers_min.txt")
 OCDS_SCHEMA = join(SILVEREYE_DIR, "data", "OCDS", "1.1.4-release-schema.json")
 CF_DIR = join(TESTS_DIR, "fixtures", "CF_CSV")
 
 
-def test_unflatten_cf_daily_csv_to_jsonlist_of_release_packages():
-    csv_path_or_url = join(CF_DIR, "export-2020-08-05.csv")
+def test_unflatten_cf_daily_csv_to_jsonlist_of_release_packages(contracts_finder_daily_csv_df):
     output_file = join(CF_DIR, "working_files", "release_packages.json")
     clean_output_dir = join(CF_DIR, "working_files", "cleaned")
     clean_output_file = join(clean_output_dir, "cleaned.csv")
 
-    df = pd.read_csv(csv_path_or_url)
-    fixed_df = fix_contracts_finder_flat_CSV(df)
+    fixed_df = fix_contracts_finder_flat_CSV(contracts_finder_daily_csv_df)
     shutil.rmtree(clean_output_dir, ignore_errors=True)
     os.makedirs(clean_output_dir)
     fixed_df.to_csv(open(clean_output_file, "w"), index=False, header=True)
     # schema = "https://standard.open-contracting.org/schema/1__1__4/release-package-schema.json"
     schema = OCDS_SCHEMA
-    unflatten(clean_output_dir, output_name=output_file, input_format="csv", root_id="ocid", root_is_list=True, schema=schema)
+    unflatten(clean_output_dir, output_name=output_file, input_format="csv", root_id="ocid", root_is_list=True,
+              schema=schema)
     js = json.load(open(output_file))
     assert js
 
 
-def test_fix_contracts_finder_flat_CSV():
-    csv_path_or_url = join(CF_DIR, "export-2020-08-05.csv")
-    df = pd.read_csv(csv_path_or_url)
-    fixed_df = fix_contracts_finder_flat_CSV(df)
+def test_fix_contracts_finder_flat_CSV(contracts_finder_daily_csv_df):
+    fixed_df = fix_contracts_finder_flat_CSV(contracts_finder_daily_csv_df)
     assert any(fixed_df["releases/0/awards/0/items/0/id"])
-
-
-def test_rename_friendly_cols_to_ocds_uri():
-    pass
 
 
 def convert_cf_to_release_csv(df):
@@ -132,5 +121,41 @@ def test_convert_cf_to_1_1_awards():
 def test_create_templates():
     templates_output_dir = join(CF_DIR, "templates")
     shutil.rmtree(templates_output_dir, ignore_errors=True)
-    create_templates = CSVMapper(release_type="award").create_templates(templates_output_dir)
+    create_templates = CSVMapper(release_type="award").create_simple_CSV_templates(templates_output_dir)
 
+    tender_csv_path = os.path.join(templates_output_dir, "tender_template.csv")
+    assert os.path.exists(tender_csv_path)
+    df = pd.read_csv(tender_csv_path, nrows=0)
+    assert "Tender Title" in df.columns
+
+    award_csv_path = os.path.join(templates_output_dir, "award_template.csv")
+    assert os.path.exists(award_csv_path)
+    df = pd.read_csv(award_csv_path, nrows=0)
+    assert "Award Title" in df.columns
+
+
+def test_create_tender_template():
+    io = StringIO()
+    CSVMapper().create_simple_csv_template(io, release_type="tender")
+    io.seek(0)
+    df = pd.read_csv(io, nrows=0)
+    assert "Tender Title" in df.columns
+
+
+def test_create_award_template():
+    io = StringIO()
+    CSVMapper().create_simple_csv_template(io, release_type="award")
+    io.seek(0)
+    df = pd.read_csv(io, nrows=0)
+    assert "Award Title" in df.columns
+
+
+def test_convert_simple_csv_to_ocds_csv(simple_csv_submission_path):
+    mapper = CSVMapper(csv_path=simple_csv_submission_path)
+    ocds_df = mapper.convert_simple_csv_to_ocds_csv(simple_csv_submission_path)
+    assert "initiationType" in ocds_df.columns
+
+
+def test_rename_friendly_cols_to_ocds_uri(simple_csv_submission_path, simple_csv_submission_df):
+    renamed_df = CSVMapper(simple_csv_submission_path).rename_friendly_cols_to_ocds_uri(simple_csv_submission_df)
+    assert "initiationType" in renamed_df.columns
