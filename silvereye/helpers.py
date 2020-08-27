@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timezone
+from dateutil.relativedelta import relativedelta
 import logging
 import os
 import re
@@ -10,6 +11,8 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import get_storage_class
 import requests
 from django.db import connections
+from django.db.models import Sum
+from django.db.models.functions import Coalesce
 
 import silvereye
 from bluetail.helpers import UpsertDataHelpers
@@ -164,3 +167,91 @@ def update_publisher_monthly_counts():
         sql = open(sql_path).read()
         logger.info(f"Executing metric sql from file {sql_path}")
         cursor.execute(sql)
+
+
+class MetricHelpers():
+
+    def percentage_change_value(self, current, previous):
+        raw_percent = (100 * (current - previous) / previous) if previous else 0
+        return round(raw_percent, 1)
+
+    def period_counts(self, queryset, period_start, period_end):
+        if not (period_start is None and period_end is None):
+            queryset = queryset.filter(date__gte=period_start, date__lt=period_end)
+        return queryset\
+        .aggregate(tenders=Coalesce(Sum('count_tenders'), 0), awards=Coalesce(Sum('count_awards'), 0), spend=Coalesce(Sum('count_spend'), 0))
+
+    def period_data(self, queryset, period_start, period_end):
+        period_counts = self.period_counts(queryset, period_start, period_end)
+        return {
+            "counts": {
+                "tenders": period_counts.get("tenders"),
+                "awards": period_counts.get("awards"),
+                "spend": period_counts.get("spend"),
+            }
+        }
+
+    def comparison_data(self, queryset, comparison_start, comparison_end, period_counts):
+        comparison_counts = self.period_counts(queryset, comparison_start, comparison_end)
+
+        return { "change": {
+                    "tenders": period_counts.get("tenders") - comparison_counts.get("tenders"),
+                    "awards": period_counts.get("awards") - comparison_counts.get("awards"),
+                    "spend": period_counts.get("spend") - comparison_counts.get("spend")
+                    },
+                 "percentages": {
+                    "tenders": self.percentage_change_value(period_counts.get("tenders"), comparison_counts.get("tenders")),
+                    "awards": self.percentage_change_value(period_counts.get("awards"), comparison_counts.get("awards")),
+                    "spend": self.percentage_change_value(period_counts.get("spend"), comparison_counts.get("spend")),
+                    },
+                 "counts": {
+                    "tenders": comparison_counts.get("tenders"),
+                    "awards": comparison_counts.get("awards"),
+                    "spend": comparison_counts.get("spend"),
+                    },
+                }
+
+    def metric_data(self, queryset, reference_date, period_option, comparison_option):
+        data = {}
+
+        period_start, period_end = self.period_bounds(reference_date=reference_date,
+                                                      period_option=period_option)
+        period_data = self.period_data(queryset, period_start, period_end)
+
+        if period_option != 'all':
+            period_data['comparison'] = {}
+            comparison_start, comparison_end = self.comparison_bounds(period_start, period_end, period_option, comparison_option)
+            period_data['comparison'] = self.comparison_data(queryset, comparison_start, comparison_end, period_data['counts'])
+        return period_data
+
+    def period_bounds(self, reference_date, period_option):
+        if period_option == 'all':
+            return (None, None)
+        else:
+            period_span = self.parse_period_option(period_option)
+            period_end = reference_date.replace(day=1)
+            period_start = period_end - relativedelta(months=period_span)
+            return (period_start, period_end)
+
+    def comparison_bounds(self, period_start, period_end, period_option, comparison_option):
+        period_span = self.parse_period_option(period_option)
+        if comparison_option == 'preceding':
+            comparison_start = period_start - relativedelta(months=period_span)
+            comparison_end = period_start
+        else:
+            comparison_span = self.parse_comparison_option(comparison_option)
+            comparison_start = period_start - relativedelta(years=comparison_span)
+            comparison_end = period_end - relativedelta(years=comparison_span)
+        return (comparison_start, comparison_end)
+
+    def parse_comparison_option(self, comparison_option):
+        # 1_year
+        # 2_year
+        return int(comparison_option.split('_')[0])
+
+    def parse_period_option(self, period_option):
+        # 1_month
+        # 3_month
+        # 6_month
+        # 12_month
+        return int(period_option.split('_')[0])
