@@ -120,7 +120,11 @@ class CSVMapper:
                     df.loc[:, ocds_header] = df.apply(lambda row: row[reference_header] if pd.notnull(row[reference_header]) else row[ocds_header], axis=1)
 
         df["ocid"] = self.ocid_prefix + df['id']
-        df["tag"] = self.release_type
+
+        if self.release_type == "spend":
+            df["tag"] = "implementation"
+        else:
+            df["tag"] = self.release_type
 
         return df
 
@@ -159,6 +163,9 @@ class CSVMapper:
         tender_csv_path = os.path.join(output_dir, "award_template.csv")
         self.create_simple_csv_template(tender_csv_path, "award")
 
+        tender_csv_path = os.path.join(output_dir, "spend_template.csv")
+        self.create_simple_csv_template(tender_csv_path, "spend")
+
     def create_simple_csv_template(self, output_path, release_type):
         """
         Create a simple CSV output from the mappings file
@@ -182,6 +189,8 @@ class CSVMapper:
         """
         if "awards/0/id" in df.columns or "Award Title" in df.columns:
             self.release_type = "award"
+        elif "contracts/0/implementation/transactions/0/id" in df.columns or "Transaction ID" in df.columns:
+            self.release_type = "spend"
         else:
             self.release_type = "tender"
 

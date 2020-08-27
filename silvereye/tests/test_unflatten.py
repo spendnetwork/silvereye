@@ -133,6 +133,11 @@ def test_create_templates():
     df = pd.read_csv(award_csv_path, nrows=0)
     assert "Award Title" in df.columns
 
+    award_csv_path = os.path.join(templates_output_dir, "spend_template.csv")
+    assert os.path.exists(award_csv_path)
+    df = pd.read_csv(award_csv_path, nrows=0)
+    assert "Transaction ID" in df.columns
+
 
 def test_create_tender_template():
     io = StringIO()
@@ -148,6 +153,14 @@ def test_create_award_template():
     io.seek(0)
     df = pd.read_csv(io, nrows=0)
     assert "Award Title" in df.columns
+
+
+def test_create_spend_template():
+    io = StringIO()
+    CSVMapper().create_simple_csv_template(io, release_type="spend")
+    io.seek(0)
+    df = pd.read_csv(io, nrows=0)
+    assert "Transaction ID" in df.columns
 
 
 def test_convert_simple_csv_to_ocds_csv(simple_csv_submission_path, tmp_path):
