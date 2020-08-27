@@ -3,7 +3,7 @@ id,Notice ID,releases/0/id,TRUE,TRUE,TRUE,,
 tag,,releases/0/tag/0,,,,,
 date,Published Date,releases/0/date,TRUE,TRUE,TRUE,,
 ocid,,releases/0/ocid,,,,,
-tender/id,,releases/0/tender/id,,,,,id
+tender/id,,releases/0/tender/id,,"TRUE",,,id
 tender/title,Tender Title,releases/0/tender/title,,TRUE,,,
 tender/description,Tender Description,releases/0/tender/description,,TRUE,,,
 tender/status,,releases/0/tender/status,,,,,
@@ -11,15 +11,15 @@ tender/value/amount,Tender Value,releases/0/tender/value/amount,,TRUE,,,
 tender/value/currency,Tender Value-currency,releases/0/tender/value/currency,,TRUE,,,
 tender/tenderPeriod/startDate,Tender Start Date,releases/0/tender/tenderPeriod/startDate,,TRUE,,,
 tender/tenderPeriod/endDate,Tender End Date,releases/0/tender/tenderPeriod/endDate,,TRUE,,,
-tender/items/0/id,,releases/0/tender/items/0/id,,,,tender_item_1,
+tender/items/0/id,,releases/0/tender/items/0/id,,"TRUE",,tender_item_1,
 tender/items/0/description,,releases/0/tender/items/0/description,,,,,
 tender/items/0/classification/scheme,Classification Scheme,releases/0/tender/items/0/classification/scheme,,TRUE,,,
 tender/items/0/classification/id,Classification Code,releases/0/tender/items/0/classification/id,,TRUE,,,
 tender/items/0/classification/description,Classification Description,releases/0/tender/items/0/classification/description,,TRUE,,,
 tender/items/0/classification/uri,,releases/0/tender/items/0/classification/uri,,,,,
 parties/0/name,Buyer Name,releases/0/buyer/name,TRUE,TRUE,TRUE,,
-parties/0/id,,,,,,buyer,parties/0/identifier/id
-parties/0/roles,,,,,,buyer,
+parties/0/id,,,"TRUE","TRUE","TRUE",buyer,parties/0/identifier/id
+parties/0/roles,,,"TRUE","TRUE","TRUE",buyer,
 parties/0/identifier/scheme,Buyer ID-scheme,releases/0/buyer/identifier/scheme,TRUE,TRUE,TRUE,,
 parties/0/identifier/id,Buyer ID,releases/0/buyer/identifier/id,TRUE,TRUE,TRUE,,
 parties/0/address/locality,Buyer Locality,releases/0/buyer/address/locality,TRUE,TRUE,TRUE,,
@@ -27,28 +27,28 @@ parties/0/address/postalCode,,releases/0/buyer/address/postalCode,,,,,
 parties/0/address/countryName,,releases/0/buyer/address/countryName,,,,,
 parties/0/address/streetAddress,,releases/0/buyer/address/streetAddress,,,,,
 parties/1/name,Supplier Name,releases/0/awards/0/suppliers/0/name,TRUE,,TRUE,,
-parties/1/id,,releases/0/awards/0/suppliers/0/id,,,,supplier,parties/1/identifier/id
-parties/1/roles,,,,,,supplier,
+parties/1/id,,releases/0/awards/0/suppliers/0/id,"TRUE",,"TRUE",supplier,parties/1/identifier/id
+parties/1/roles,,,"TRUE",,"TRUE",supplier,
 parties/1/identifier/scheme,Supplier ID-scheme,releases/0/awards/0/suppliers/0/identifier/scheme,TRUE,,TRUE,,
 parties/1/identifier/id,Supplier ID,releases/0/awards/0/suppliers/0/identifier/id,TRUE,,TRUE,,
 parties/1/address/locality,Supplier Address - locality,releases/0/awards/0/suppliers/0/address/locality,TRUE,,TRUE,,
 parties/1/address/postalCode,Supplier Address - postcode,releases/0/awards/0/suppliers/0/address/postalCode,TRUE,,TRUE,,
 parties/1/address/countryName,Supplier Address - country,releases/0/awards/0/suppliers/0/address/countryName,TRUE,,TRUE,,
 parties/1/address/streetAddress,Supplier Address - street address,releases/0/awards/0/suppliers/0/address/streetAddress,TRUE,,TRUE,,
-buyer/name,,,,,,,parties/0/name
-buyer/id,,,,,,buyer,parties/0/identifier/id
-awards/0/id,,releases/0/awards/0/id,,,,award_1,
+buyer/name,,,"TRUE","TRUE","TRUE",,parties/0/name
+buyer/id,,,"TRUE","TRUE","TRUE",buyer,parties/0/identifier/id
+awards/0/id,,releases/0/awards/0/id,"TRUE",,,award_1,
 awards/0/date,Date Contract Awarded,releases/0/awards/0/date,TRUE,,,,
 awards/0/contractPeriod/startDate,Award Start Date,"releases/0/awards/0/contractPeriod/startDate",TRUE,,,,
 awards/0/contractPeriod/endDate,Award End Date,"releases/0/awards/0/contractPeriod/endDate",TRUE,,,,
 awards/0/title,Award Title,releases/0/awards/0/title,TRUE,,,,
 awards/0/description,Award Description,releases/0/awards/0/description,TRUE,,,,
-awards/0/documents/0/id,,,,,,document_url,
+awards/0/documents/0/id,,,"TRUE",,,document_url,
 awards/0/documents/0/url,Award Documents URL,,TRUE,,,,
-awards/0/documents/0/format,,,,,,text/html,
-awards/0/documents/0/language,,,,,,en,
-awards/0/documents/0/documentType,,,,,,awardNotice,
-awards/0/items/0/id,,,,,,award_1_item_1,
+awards/0/documents/0/format,,,"TRUE",,,text/html,
+awards/0/documents/0/language,,,"TRUE",,,en,
+awards/0/documents/0/documentType,,,"TRUE",,,awardNotice,
+awards/0/items/0/id,,,"TRUE",,,award_1_item_1,
 awards/0/items/0/description,,,,,,,
 awards/0/items/0/classification/scheme,Classification Scheme,,TRUE,,,,
 awards/0/items/0/classification/id,Classification Code,,TRUE,,,,
@@ -56,13 +56,13 @@ awards/0/items/0/classification/description,Classification Description,,TRUE,,,,
 awards/0/items/0/classification/uri,,,,,,,
 awards/0/value/amount,Award Value,releases/0/awards/0/value/amount,TRUE,,,,
 awards/0/value/currency,Award Value - currency,releases/0/awards/0/value/currency,TRUE,,,,
-awards/0/suppliers/0/name,,,,,,,parties/1/name
-awards/0/suppliers/0/id,,,,,,supplier,parties/1/identifier/id
-language,,,,,,en,
-initiationType,,,,,,tender,
-contracts/0/id,,,,,,contract_1,
-contracts/0/awardID,,,,,,award_1,
-contracts/0/items/0/id,,,,,"",contract_1_item_1,
+awards/0/suppliers/0/name,,,"TRUE",,,,parties/1/name
+awards/0/suppliers/0/id,,,"TRUE",,,supplier,parties/1/identifier/id
+language,,,"TRUE","TRUE","TRUE",en,
+initiationType,,,"TRUE","TRUE","TRUE",tender,
+contracts/0/id,,,,,"TRUE",contract_1,
+contracts/0/awardID,,,,,"TRUE",award_1,
+contracts/0/items/0/id,,,,,"TRUE",contract_1_item_1,
 contracts/0/items/0/classification/scheme,Classification Scheme,,,,TRUE,,
 contracts/0/items/0/classification/id,Classification Code,,,,TRUE,,
 contracts/0/items/0/classification/description,Classification Description,,,,TRUE,,
@@ -71,7 +71,7 @@ contracts/0/implementation/transactions/0/source,URL for Transaction source data
 contracts/0/implementation/transactions/0/date,Transaction Date,,,,TRUE,,
 contracts/0/implementation/transactions/0/value/amount,Transaction Amount,,,,TRUE,,
 contracts/0/implementation/transactions/0/value/currency,Transaction Currency,,,,TRUE,,
-contracts/0/implementation/transactions/0/payer/name,,,,,,,parties/0/name
-contracts/0/implementation/transactions/0/payer/id,,,,,,buyer,parties/0/identifier/id
-contracts/0/implementation/transactions/0/payee/name,,,,,,,parties/1/name
-contracts/0/implementation/transactions/0/payee/id,,,,,,supplier,parties/1/identifier/id
+contracts/0/implementation/transactions/0/payer/name,,,,,"TRUE",,parties/0/name
+contracts/0/implementation/transactions/0/payer/id,,,,,"TRUE",buyer,parties/0/identifier/id
+contracts/0/implementation/transactions/0/payee/name,,,,,"TRUE",,parties/1/name
+contracts/0/implementation/transactions/0/payee/id,,,,,"TRUE",supplier,parties/1/identifier/id

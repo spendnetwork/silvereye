@@ -194,7 +194,16 @@ def test_default_referenced_mapping(simple_csv_submission_path):
 
     assert new_df.loc[0, "parties/0/id"] == "buyer_id_0"
     assert new_df.loc[1, "parties/0/id"] == "buyer"
+
+    assert "awards/0/suppliers/0/id" not in new_df.columns
+
+def test_default_referenced_award_mapping(simple_award_csv_submission_path):
+    mapper = CSVMapper(simple_award_csv_submission_path)
+    new_df = mapper.rename_friendly_cols_to_ocds_uri(mapper.input_df)
+    mapper.detect_notice_type(new_df)
+    new_df = mapper.augment_cols(new_df)
+
+    assert new_df.loc[0, "parties/0/id"] == "buyer"
     assert new_df.loc[1, "parties/0/id"] == "buyer"
 
-    # TODO stop award data appeaing in tenders
-    assert new_df.loc[0, "awards/0/suppliers/0/id"] == "supplier"
+    assert "awards/0/suppliers/0/id" in new_df.columns

@@ -32,7 +32,7 @@ class CSVMapper:
            self.input_df = None
         if self.release_type:
             self.simple_mappings_df = self.mappings_df.loc[self.mappings_df[f'{self.release_type}_csv'] == "TRUE"]
-
+            self.simple_csv_df = self.mappings_df.loc[(self.mappings_df[f'{self.release_type}_csv'] == "TRUE") & (pd.notnull(self.mappings_df['csv_header']))]
 
     # def _map_and_crop_df(self, df, mappings_df, map_from_col="orig", map_to_col="target"):
     #     """
@@ -105,7 +105,7 @@ class CSVMapper:
         :param df: dataframe of a simple CSV with headers mapped to OCDS
         :return:
         """
-        for i, row in self.mappings_df.iterrows():
+        for i, row in self.simple_mappings_df.iterrows():
             ocds_header = row["uri"]
             default_value = row["default"]
             reference_header = row["reference"]
@@ -135,7 +135,7 @@ class CSVMapper:
         new_df = df.rename(columns=mapping_dict)
 
         # Clear cols not in simple CSV
-        cols_list = [i for i in self.simple_mappings_df["csv_header"].to_list() if i]
+        cols_list = [i for i in self.simple_csv_df["csv_header"].to_list() if i]
         new_df = new_df[new_df.columns.intersection(cols_list)]
         return new_df
 
