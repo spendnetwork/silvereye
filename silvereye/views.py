@@ -5,7 +5,6 @@ from django import forms
 from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db.models import Count, Max, F, Sum
-from dateutil.relativedelta import relativedelta
 from django.db.models.functions import ExtractMonth, ExtractDay, ExtractYear, Coalesce
 
 from cove.input.models import SuppliedData
@@ -13,7 +12,7 @@ from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
 
 from bluetail.models import OCDSPackageData, OCDSReleaseView
-from silvereye.helpers import get_published_release_metrics
+from silvereye.helpers import get_published_release_metrics, MetricHelpers
 from silvereye.models import PublisherMetrics, Publisher, FileSubmission, PublisherMonthlyCounts
 
 
@@ -23,11 +22,24 @@ def home(request):
     recent_submissions = valid_submissions.order_by("-created")[:10]
     packages = OCDSPackageData.objects.all()
 
+    period_option = request.GET.get('period', '1_month')
+    comparison_option = request.GET.get('comparison', 'preceding')
     # metrics from helper
     publisher_metrics = PublisherMonthlyCounts.objects.all()
-    metrics = get_publisher_metrics_context(publisher_metrics)
+    metrics = get_publisher_metrics_context(queryset=publisher_metrics, period_option=period_option, comparison_option=comparison_option)
+    period_descriptions = {'1_month': 'Last month',
+                           '3_month': 'Last 3 months',
+                           '6_month': 'Last 6 months',
+                           '12_month': 'Last 12 months',
+                           'all': 'All time'
+                           }
 
+    comparison_descriptions = {'preceding': 'preceding',
+                               '1_year': 'last year',
+                               '2_year': 'two years ago'}
     context = {
+        "period_option": period_descriptions[period_option],
+        "comparison_option": comparison_descriptions[comparison_option],
         "packages": packages,
         "recent_submissions": recent_submissions,
         "publisher_metrics": metrics,
@@ -55,61 +67,16 @@ def publisher_listing(request):
     }
     return render(request, "silvereye/publisher_listing.html", context)
 
-def percentage_change_value(current, previous):
-    raw_percent = (100 * (current - previous) / previous) if previous else 0
-    return round(raw_percent, 1)
-
-def get_publisher_metrics_context(queryset=None):
-    # Reference
-    # personsMonthlyData = Person.objects.annotate(month=ExtractMonth('added_date')).values('month').annotate(
-    #     count=Count('id')).order_by('month')
-
-    # daily = queryset.annotate(year=ExtractYear('date'), month=ExtractMonth('date'), day=ExtractDay('date'))\
-    #     .values('year', 'month', 'day', 'date')\
-    #     .annotate(tenders=Sum('count_tenders'), awards=Sum('count_awards'), spend=Sum('count_spend'))\
-    #     .order_by('month')
-
+def get_publisher_metrics_context(queryset=None, period_option='1_month', comparison_option='preceding'):
     if not queryset:
         return {}
 
     today = datetime.now().date()
-    this_month = today.replace(day=1)
-    last_month = this_month - relativedelta(months=1)
-
-    last_month_count = queryset\
-        .filter(date__gte=last_month, date__lt=this_month)\
-        .aggregate(tenders=Coalesce(Sum('count_tenders'), 0), awards=Coalesce(Sum('count_awards'), 0), spend=Coalesce(Sum('count_spend'), 0))
-
-    last_month_prev_count = queryset\
-        .filter(date__gte=last_month-relativedelta(months=1), date__lt=last_month)\
-        .aggregate(tenders=Coalesce(Sum('count_tenders'), 0), awards=Coalesce(Sum('count_awards'), 0), spend=Coalesce(Sum('count_spend'), 0))
-
-    context = {
-        "last_month": {
-            "date": last_month,
-            "count": {
-                "tenders": last_month_count.get("tenders"),
-                "awards": last_month_count.get("awards"),
-                "spend": last_month_count.get("spend"),
-            },
-            "change": {
-                "tenders": last_month_count.get("tenders") - last_month_prev_count.get("tenders"),
-                "awards": last_month_count.get("awards") - last_month_prev_count.get("awards"),
-                "spend": last_month_count.get("spend") - last_month_prev_count.get("spend"),
-            },
-            "percentages": {
-                "tenders": percentage_change_value(last_month_count.get("tenders"), last_month_prev_count.get("tenders")),
-                "awards": percentage_change_value(last_month_count.get("awards"), last_month_prev_count.get("awards")),
-                "spend": percentage_change_value(last_month_count.get("spend"), last_month_prev_count.get("spend")),
-            },
-            "prev_date": last_month - relativedelta(months=1),
-            "prev_count": {
-                "tenders": last_month_prev_count.get("tenders"),
-                "awards": last_month_prev_count.get("awards"),
-                "spend": last_month_prev_count.get("spend"),
-            },
-        },
-    }
+    metric_helpers = MetricHelpers()
+    context = metric_helpers.metric_data(queryset=queryset,
+                                              reference_date=today,
+                                              period_option=period_option,
+                                              comparison_option=comparison_option)
     return context
 
 
@@ -132,7 +99,7 @@ def publisher(request, publisher_name):
 
     # metrics from helper
     publisher_metrics = PublisherMonthlyCounts.objects.filter(publisher__publisher_name=publisher_name)
-    metrics = get_publisher_metrics_context(publisher_metrics)
+    metrics = get_publisher_metrics_context(publisher_metrics, period_option=period_option, comparison_option=comparison_option)
 
     poor_performers = None
 
