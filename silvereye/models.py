@@ -84,3 +84,9 @@ class FieldCoverage(models.Model):
     awards_field_coverage = models.FloatField(null=True)
     spend_field_coverage = models.FloatField(null=True)
 
+
+
+class AuthorityType(models.Model):
+    authority_name = models.CharField(max_length=1024)
+    authority_type = models.CharField(max_length=1024)
+    source = models.CharField(max_length=1024)
