@@ -197,6 +197,7 @@ def test_default_referenced_mapping(simple_csv_submission_path):
 
     assert "awards/0/suppliers/0/id" not in new_df.columns
 
+
 def test_default_referenced_award_mapping(simple_award_csv_submission_path):
     mapper = CSVMapper(simple_award_csv_submission_path)
     new_df = mapper.rename_friendly_cols_to_ocds_uri(mapper.input_df)
@@ -207,3 +208,19 @@ def test_default_referenced_award_mapping(simple_award_csv_submission_path):
     assert new_df.loc[1, "parties/0/id"] == "buyer"
 
     assert "awards/0/suppliers/0/id" in new_df.columns
+
+
+@pytest.mark.parametrize(
+    ("cf_header", "expected_mapping"),
+    [
+        ("releases/0/tender/milestones/0/dueDate", "tender/contractPeriod/startDate"),
+        ("releases/0/buyer/name", "parties/0/name"),
+        ("releases/0/awards/0/suppliers/0/name", "parties/1/name")
+    ]
+)
+def test_contracts_finder_mappings(cf_header, expected_mapping):
+    cf_mapper = CSVMapper(
+        mappings_file=os.path.join(SILVEREYE_DIR, "data", "csv_mappings", "contracts_finder_mappings.csv"))
+    df = cf_mapper.mappings_df
+    uri = df[df["contracts_finder_daily_csv_path"] == cf_header].iloc[0].get("uri")
+    assert uri == expected_mapping

@@ -20,7 +20,9 @@ class CSVMapper:
         "spend",
     ]
 
-    def __init__(self, csv_path=None, release_type=None):
+    def __init__(self, csv_path=None, release_type=None, mappings_file=None):
+        if mappings_file:
+            self.mappings_df = pd.read_csv(mappings_file, keep_default_na=False)
         self.csv_path = csv_path
         self.release_type = release_type
         self.ocid_prefix = "ocds-testprefix-"
@@ -68,7 +70,7 @@ class CSVMapper:
         return new_df
 
 
-    def convert_cf_to_1_1(self, df):
+    def convert_cf_to_1_1(self, contracts_finder_df):
         """
         Convenience function to prepare CF data as sample data for submission
 
@@ -77,21 +79,17 @@ class CSVMapper:
             - map the CF headers to OCDS release headers
             - remove OCID prefixes from release ids
 
-        :param df: dataframe of Contracts Finder Daily CSV data
+        :param contracts_finder_df: dataframe of Contracts Finder Daily CSV data
         :return:
         """
         # Clear cols not in mappings
-        cols_list = self.simple_mappings_df["contracts_finder_daily_csv_path"].to_list()
-        new_df = df[df.columns.intersection(cols_list)]
+        cols_list = self.mappings_df["contracts_finder_daily_csv_path"].to_list()
+        new_df = contracts_finder_df[contracts_finder_df.columns.intersection(cols_list)]
+
         mapping_dict = {}
         for i, row in self.mappings_df.iterrows():
             mapping_dict[row["contracts_finder_daily_csv_path"]] = row["uri"]
         new_df = new_df.rename(columns=mapping_dict)
-
-        # Add columns missing from CF data
-        ocds_headers_list = self.simple_mappings_df["uri"].to_list()
-        missing_headers_list = [i for i in ocds_headers_list if i not in new_df.columns]
-        new_df = pd.concat([new_df, pd.DataFrame(columns=missing_headers_list)])
 
         # Remove ocds prefix from ids for realistic data
         new_df['id'] = new_df['id'].str.replace('ocds-b5fd17-', '')
