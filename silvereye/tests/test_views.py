@@ -32,7 +32,7 @@ class HomeViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         expected_metrics = { 'counts': {'tenders': 10, 'awards': 25, 'spend': 0 },
                              'comparison': {
-                                        'percentages': {'tenders': 0, 'awards': 8.7, 'spend': 0 },
+                                        'percentages': {'tenders': 0, 'awards': 9, 'spend': 0 },
                                         'counts': {'tenders': 10, 'awards': 23, 'spend': 0 },
                                         'change': {'tenders': 0, 'awards': 2, 'spend': 0 },
                                 },

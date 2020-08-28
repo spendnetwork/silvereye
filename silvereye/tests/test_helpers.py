@@ -190,6 +190,6 @@ class MetricHelpersTest(TestCase):
         expected_data = {
             'change': {'awards': 2, 'spend': 0, 'tenders': 0},
                        'counts': {'awards': 23, 'spend': 0, 'tenders': 10},
-                       'percentages': {'awards': 8.7, 'spend': 0, 'tenders': 0}}
+                       'percentages': {'awards': 9, 'spend': 0, 'tenders': 0}}
         actual = self.metric_helpers.comparison_data(queryset, date(2020, 6, 1), date(2020, 7, 1), period_counts)
         self.assertEqual(actual, expected_data)

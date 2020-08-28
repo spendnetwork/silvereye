@@ -190,7 +190,7 @@ class MetricHelpers():
 
     def percentage_change_value(self, current, previous):
         raw_percent = (100 * (current - previous) / previous) if previous else 0
-        return round(raw_percent, 1)
+        return round(raw_percent)
 
     def period_counts(self, queryset, period_start, period_end):
         if not (period_start is None and period_end is None):
