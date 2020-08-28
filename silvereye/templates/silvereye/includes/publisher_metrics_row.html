@@ -4,7 +4,7 @@
     <div class="dropdown figures-dropdown mb-2">
       <a class="dropdown-toggle mb-2" href="" role="button" id="dropdownMenuLink" data-toggle="dropdown"
               aria-haspopup="true" aria-expanded="false">
-      {{ period_option }}</a>
+      {{ publisher_metrics.period_option }}</a>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
         <a class="dropdown-item" href="?period=current&comparison={{ request.GET.comparison }}">This month</a>
         <a class="dropdown-item" href="?period=1_month&comparison={{ request.GET.comparison }}">Last month</a>
@@ -18,7 +18,7 @@
     <div class="dropdown figures-dropdown mb-2">
       Compare to <a class="dropdown-toggle" href="" role="button" id="dropdownMenuLink" data-toggle="dropdown"
                     aria-haspopup="true" aria-expanded="false">
-      {{ comparison_option }}</a>
+      {{ publisher_metrics.comparison_option }}</a>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
         <a class="dropdown-item" href="?period={{ request.GET.period }}&comparison=preceding">preceding period</a>
         <a class="dropdown-item" href="?period={{ request.GET.period }}&comparison=1_year">last year</a>

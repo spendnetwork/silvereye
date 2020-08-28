@@ -28,20 +28,7 @@ def home(request):
     # metrics from helper
     publisher_metrics = PublisherMonthlyCounts.objects.all()
     metrics = get_publisher_metrics_context(queryset=publisher_metrics, period_option=period_option, comparison_option=comparison_option)
-    period_descriptions = {'current': 'This month',
-                           '1_month': 'Last month',
-                           '3_month': 'Last 3 months',
-                           '6_month': 'Last 6 months',
-                           '12_month': 'Last 12 months',
-                           'all': 'All time'
-                           }
-
-    comparison_descriptions = {'preceding': 'preceding',
-                               '1_year': 'last year',
-                               '2_year': 'two years ago'}
     context = {
-        "period_option": period_descriptions[period_option],
-        "comparison_option": comparison_descriptions[comparison_option],
         "packages": packages,
         "recent_submissions": recent_submissions,
         "publisher_metrics": metrics,
@@ -79,6 +66,8 @@ def get_publisher_metrics_context(queryset=None, period_option='1_month', compar
                                               reference_date=today,
                                               period_option=period_option,
                                               comparison_option=comparison_option)
+    context["period_option"] = metric_helpers.period_descriptions()[period_option]
+    context["comparison_option"] = metric_helpers.comparison_descriptions()[comparison_option]
     return context
 
 

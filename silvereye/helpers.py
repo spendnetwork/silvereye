@@ -171,6 +171,23 @@ def update_publisher_monthly_counts():
 
 class MetricHelpers():
 
+    def period_descriptions(self):
+        return  {
+            'current': 'This month',
+            '1_month': 'Last month',
+            '3_month': 'Last 3 months',
+            '6_month': 'Last 6 months',
+            '12_month': 'Last 12 months',
+            'all': 'All time'
+        }
+
+    def comparison_descriptions(self):
+        return {
+            'preceding': 'preceding',
+            '1_year': 'last year',
+            '2_year': 'two years ago'
+        }
+
     def percentage_change_value(self, current, previous):
         raw_percent = (100 * (current - previous) / previous) if previous else 0
         return round(raw_percent, 1)
