@@ -246,7 +246,7 @@ class MetricHelpers():
             period_start = None
             period_end = None
         elif period_option == 'current':
-            period_end = reference_date
+            period_end = reference_date + relativedelta(days=1)
             period_start = reference_date.replace(day=1)
         else:
             period_span = self.parse_period_option(period_option)
