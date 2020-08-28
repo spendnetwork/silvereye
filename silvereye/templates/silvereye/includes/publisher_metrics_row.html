@@ -40,9 +40,9 @@
       {% endif %}
       <div class="media-body">
         {% if publisher_metrics.comparison %}
-          <p class="figure-box__change figure-box--up mb-0">{{ publisher_metrics.comparison.change.tenders }} ({{ publisher_metrics.comparison.percentages.tenders }}%)</p>
+          <p class="figure-box__change figure-box--{% if publisher_metrics.comparison.change.tenders > 0 %}up{% elif publisher_metrics.comparison.change.tenders %}down{% else %}up{% endif %} mb-0">{{ publisher_metrics.comparison.change.tenders }} ({{ publisher_metrics.comparison.percentages.tenders }}%)</p>
         {% endif %}
-        <p class="figure-box__main-figure figure-box--up mb-0">{{ publisher_metrics.counts.tenders }}</p>
+        <p class="figure-box__main-figure figure-box--{% if publisher_metrics.comparison.change.tenders > 0 %}up{% elif publisher_metrics.comparison.change.tenders %}down{% else %}up{% endif %} mb-0">{{ publisher_metrics.counts.tenders }}</p>
         {% if publisher_metrics.comparison %}
           <p class="figure-box__compare-figure">{{ publisher_metrics.comparison.counts.tenders }}</p>
         {% endif %}
@@ -63,9 +63,11 @@
       {% endif %}
       <div class="media-body">
         {% if publisher_metrics.comparison %}
-          <p class="figure-box__change figure-box--up mb-0">{{ publisher_metrics.comparison.change.awards }} ({{ publisher_metrics.comparison.percentages.awards }}%)</p>
+          <p class="figure-box__change figure-box--{% if publisher_metrics.comparison.change.awards > 0 %}up{% elif publisher_metrics.comparison.change.awards %}down{% else %}up{% endif %} mb-0">
+            {{ publisher_metrics.comparison.change.awards }} ({{ publisher_metrics.comparison.percentages.awards }}%)
+          </p>
         {% endif %}
-        <p class="figure-box__main-figure figure-box--up mb-0">{{ publisher_metrics.counts.awards }}</p>
+        <p class="figure-box__main-figure figure-box--{% if publisher_metrics.comparison.change.awards > 0 %}up{% elif publisher_metrics.comparison.change.awards %}down{% else %}up{% endif %} mb-0">{{ publisher_metrics.counts.awards }}</p>
         {% if publisher_metrics.comparison %}
           <p class="figure-box__compare-figure">{{ publisher_metrics.comparison.counts.awards }}</p>
         {% endif %}
@@ -86,9 +88,9 @@
       {% endif %}
       <div class="media-body">
         {% if publisher_metrics.comparison %}
-         <p class="figure-box__change figure-box--up mb-0">{{ publisher_metrics.comparison.change.spend }}  ({{ publisher_metrics.comparison.percentages.spend }}%)</p>
+         <p class="figure-box__change figure-box--{% if publisher_metrics.comparison.change.spend > 0 %}up{% elif publisher_metrics.comparison.change.spend %}down{% else %}up{% endif %} mb-0">{{ publisher_metrics.comparison.change.spend }}  ({{ publisher_metrics.comparison.percentages.spend }}%)</p>
         {% endif %}
-        <p class="figure-box__main-figure figure-box--up mb-0">{{ publisher_metrics.counts.spend }}</p>
+        <p class="figure-box__main-figure figure-box--{% if publisher_metrics.comparison.change.spend > 0 %}up{% elif publisher_metrics.comparison.change.spend %}down{% else %}up{% endif %} mb-0">{{ publisher_metrics.counts.spend }}</p>
         {% if publisher_metrics.comparison %}
          <p class="figure-box__compare-figure">{{ publisher_metrics.comparison.counts.spend }}</p>
         {% endif %}
