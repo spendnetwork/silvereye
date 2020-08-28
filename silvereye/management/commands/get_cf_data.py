@@ -7,12 +7,13 @@ from datetime import datetime, timedelta
 import json
 import logging
 import os
-import shutil
 from os.path import join
 import urllib.request
 import shutil
+from random import random
 
 import pandas as pd
+from dateutil.relativedelta import relativedelta
 from django.core.files.base import ContentFile
 from django.core.management import BaseCommand
 from django.core.serializers.json import DjangoJSONEncoder
@@ -35,8 +36,7 @@ WORKING_DIR = os.path.join(CF_DAILY_DIR, "working_files")
 SOURCE_DIR = os.path.join(WORKING_DIR, "source")
 CLEAN_OUTPUT_DIR = join(WORKING_DIR, "cleaned")
 SAMPLE_SUBMISSIONS_DIR = join(WORKING_DIR, "submissions")
-
-HEADERS_LIST = join(CF_DAILY_DIR, "headers_min.txt")
+CF_MAPPINGS_FILE = os.path.join(SILVEREYE_DIR, "data", "csv_mappings", "contracts_finder_mappings.csv")
 OCDS_RELEASE_SCHEMA = join(SILVEREYE_DIR, "data", "OCDS", "1.1.4-release-schema.json")
 
 
@@ -57,11 +57,14 @@ def get_publisher_names():
                   ]
     return publishers
 
+
 def create_uid(row):
     return slugify(row['publisher/name'])
 
+
 def create_uri(row):
     return "http://www.example.com/" + row['publisher/uid']
+
 
 def new_ocid_prefix(row):
     ocid = row['releases/0/ocid']
@@ -71,16 +74,17 @@ def new_ocid_prefix(row):
     new_ocid_prefix = 'ocds-' + ''.join(map(str, new_ocid))[0:6]
     return ocid.replace(ocid_prefix, new_ocid_prefix, 1)
 
+
 def fix_contracts_finder_flat_CSV(df):
     """
     Process raw CF CSV:
-        - Filter columns using headers in HEADERS_LIST file
+        - Filter columns using headers in CF mappings file
         - fix array issue with tags
         - Use the first buyer name in the release as the publisher name and
           create example publisher attributes
     """
-    cols_list = open(HEADERS_LIST).readlines()
-    cols_list = [x.strip() for x in cols_list]
+    cf_mapper = CSVMapper(mappings_file=CF_MAPPINGS_FILE)
+    cols_list = cf_mapper.mappings_df["contracts_finder_daily_csv_path"].to_list()
     fixed_df = df[df.columns.intersection(cols_list)]
     fixed_df = fixed_df.rename(columns={
         'releases/0/tag/0': 'releases/0/tag'
@@ -92,19 +96,24 @@ def fix_contracts_finder_flat_CSV(df):
     fixed_df['publisher/uid'] = fixed_df.apply(lambda row: create_uid(row), axis=1)
     fixed_df['publisher/uri'] = fixed_df.apply(lambda row: create_uri(row), axis=1)
     fixed_df['releases/0/ocid'] = fixed_df.apply(lambda row: new_ocid_prefix(row), axis=1)
+    fixed_df['releases/0/id'] = fixed_df.apply(lambda row: row['releases/0/id'].replace('ocds-b5fd17-', ''), axis=1)
 
     # CF does not move info from tender section to award section, so we need to do this
     # Set award title/desc from tender as CF don't include it
     fixed_df.loc[fixed_df['releases/0/tag'] == 'award', 'releases/0/awards/0/title'] = fixed_df['releases/0/tender/title']
     fixed_df.loc[fixed_df['releases/0/tag'] == 'award', 'releases/0/awards/0/description'] = fixed_df['releases/0/tender/description']
+    fixed_df.loc[fixed_df['releases/0/tag'] == 'award', 'awards/0/contractPeriod/startDate'] = fixed_df['releases/0/tender/milestones/0/dueDate']
+    fixed_df.loc[fixed_df['releases/0/tag'] == 'award', 'awards/0/contractPeriod/endDate'] = fixed_df['releases/0/tender/milestones/1/dueDate']
 
     # Copy items to awards
     for col in fixed_df.columns:
         if "tender/items" in col:
-            fixed_df.loc[fixed_df['releases/0/tag'] == 'award', col.replace("releases/0/tender/", "releases/0/awards/0/")] = fixed_df[col]
-
+            fixed_df.loc[
+                fixed_df['releases/0/tag'] == 'award', col.replace("releases/0/tender/", "releases/0/awards/0/")] = \
+            fixed_df[col]
 
     return fixed_df
+
 
 def get_ocid_prefix(ocid):
     """
@@ -114,6 +123,7 @@ def get_ocid_prefix(ocid):
     :param ocid: The OCID
     """
     return '-'.join(ocid.split('-')[:2])
+
 
 def create_package_from_json(contracts_finder_id, package):
     """
@@ -135,17 +145,17 @@ def create_package_from_json(contracts_finder_id, package):
     logger.info("Creating or updating Publisher %s (id %s)", publisher_name, publisher_id)
 
     publisher, created = Publisher.objects.update_or_create(
-            publisher_scheme=publisher_scheme,
-            publisher_id=publisher_id,
-            defaults={
-                "publisher_name": publisher_name,
-                "publisher_id": publisher_id,
-                "publisher_scheme": publisher_scheme,
-                "uri": publisher_uri,
-                "ocid_prefix": ocid_prefix
-            }
+        publisher_scheme=publisher_scheme,
+        publisher_id=publisher_id,
+        defaults={
+            "publisher_name": publisher_name,
+            "publisher_id": publisher_id,
+            "publisher_scheme": publisher_scheme,
+            "uri": publisher_uri,
+            "ocid_prefix": ocid_prefix
+        }
 
-        )
+    )
 
     logger.info("Creating FileSubmission %s uri %s date %s", publisher_name, contracts_finder_id, published_date)
     # Create FileSubmission entry
@@ -226,8 +236,15 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
                 source_data.append(fixed_df)
             except pd.errors.EmptyDataError:
                 pass
+            except:
+                logger.exception("error preprocessing %s", file_name)
 
     source_df = pd.concat(source_data, ignore_index=True)
+
+    # Used to create CF mappings
+    # source_combined_path = os.path.join(WORKING_DIR, "combined.csv")
+    # source_df.to_csv(source_combined_path, index=False)
+
     source_df['publishedDate'] = pd.to_datetime(source_df['publishedDate'])
 
     # Filter for publisher names
@@ -235,7 +252,6 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
         logger.info("Filtering for named publishers")
         named_publishers = source_df['publisher/name'].isin(publisher_names)
         source_df = source_df[named_publishers]
-        # source_df.to_csv()
 
     if not start_date:
         create_output_files(file_name, source_df, CLEAN_OUTPUT_DIR, load_data)
@@ -262,6 +278,36 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
             create_output_files('all', period_df, period_dir, load_data)
 
 
+# Augment award with transaction
+def augment_award_row_with_spend(row):
+    row["releases/0/tag"] = "spend"
+    # Change IDs
+    row["releases/0/ocid"] = row["releases/0/ocid"] + "_trans1"
+    row["releases/0/id"] = row["releases/0/id"] + "_trans1"
+    # Set published date some time later than award
+    days_between_publishing_award_and_spend = int(random() * 100) + 30
+    award_pub_datetime = datetime.strptime(row["releases/0/date"], '%Y-%m-%dT%H:%M:%SZ')
+    trans_pub_datetime = datetime.strftime(
+        award_pub_datetime + relativedelta(days=days_between_publishing_award_and_spend), '%Y-%m-%dT%H:%M:%SZ')
+    row["releases/0/date"] = trans_pub_datetime
+    # Set Transaction date
+    days_between_awarded_date_and_trans_date = int(random() * 100) + 30
+    awarded_datetime = datetime.strptime(row["releases/0/awards/0/date"], '%Y-%m-%dT%H:%M:%SZ')
+    trans_datetime = datetime.strftime(awarded_datetime + relativedelta(days=days_between_awarded_date_and_trans_date),
+                                       '%Y-%m-%dT%H:%M:%SZ')
+    row["releases/0/contracts/0/implementation/transactions/0/date"] = trans_datetime
+    # Copy award value to transaction
+    row["releases/0/contracts/0/implementation/transactions/0/value/amount"] = row["releases/0/awards/0/value/amount"]
+    row["releases/0/contracts/0/implementation/transactions/0/value/currency"] = row[
+        "releases/0/awards/0/value/currency"]
+    # Copy items to contract
+    for col, value in row.iteritems():
+        if "tender/items" in col:
+            row[col.replace("releases/0/tender/", "releases/0/contracts/0/")] = row[col]
+
+    return row
+
+
 def create_output_files(name, df, parent_directory, load_data):
     """
     Create a set of JSON format release package files from the DataFrame
@@ -273,7 +319,10 @@ def create_output_files(name, df, parent_directory, load_data):
     :param parent_directory: Path to the parent directory to create the files
     :param load_data: Boolean indicating that the data should be loaded
     """
-    release_types = ['tender', 'award']
+    release_types = ['tender',
+                     'award',
+                     'spend'
+                     ]
     for release_type in release_types:
         logger.info("Creating output files for %s %s", name, release_type)
 
@@ -283,7 +332,13 @@ def create_output_files(name, df, parent_directory, load_data):
         json_file_path = join(output_dir, release_name + ".json")
 
         # Filter the DataFrame
-        df_release_type = df[df['releases/0/tag'] == release_type]
+        if release_type == "spend":
+            # Use award data and add fake spend
+            df_release_type = df[df['releases/0/tag'] == "award"]
+            df_release_type = df_release_type.apply(augment_award_row_with_spend, axis=1)
+        else:
+            df_release_type = df[df['releases/0/tag'] == release_type]
+
         if df_release_type.shape[0] > 0:
             csv_file_name = release_name + ".csv"
             csv_file_path = join(output_dir, csv_file_name)
@@ -296,21 +351,24 @@ def create_output_files(name, df, parent_directory, load_data):
             # Create fake simple submission CSV
             period_dir_name = os.path.basename(parent_directory)
             simple_csv_file_path = join(SAMPLE_SUBMISSIONS_DIR, f"{release_name}_{period_dir_name}.csv")
+            cf_mapper = CSVMapper(mappings_file=CF_MAPPINGS_FILE)
+            ocds_1_1_release_df = cf_mapper.convert_cf_to_1_1(df_release_type)
             mapper = CSVMapper(release_type=release_type)
-            ocds_1_1_release_df = mapper.convert_cf_to_1_1(df_release_type)
             simple_csv_df = mapper.output_simple_csv(ocds_1_1_release_df)
             simple_csv_df.to_csv(open(simple_csv_file_path, "w"), index=False, header=True)
 
             # Turn the CSV into releases package JSON
             schema = OCDS_RELEASE_SCHEMA
-            unflatten(output_dir, output_name=json_file_path, input_format="csv", root_id="ocid", root_is_list=True, schema=schema)
+            unflatten(output_dir, output_name=json_file_path, input_format="csv", root_id="ocid", root_is_list=True,
+                      schema=schema)
 
             # Combine the packages from the file into one release package and
             # write it back to the file
             js = json.load(open(json_file_path))
             publisher = js[0]["publisher"]
             uri = js[0]["uri"]
-            release_package = combine_release_packages(js, uri=uri, publisher=publisher, published_date=last_published_date, version='1.1')
+            release_package = combine_release_packages(js, uri=uri, publisher=publisher,
+                                                       published_date=last_published_date, version='1.1')
             release_package = json.dumps(
                 release_package,
                 indent=2,
@@ -340,6 +398,7 @@ def remake_dir(directory):
     shutil.rmtree(directory, ignore_errors=True)
     os.makedirs(directory)
 
+
 class Command(BaseCommand):
     help = "Inserts Contracts Finder data using Flat CSV OCDS from the CF API.\nhttps://www.contractsfinder.service.gov.uk/apidocumentation/Notices/1/GET-Harvester-Notices-Data-CSV"
 
@@ -347,7 +406,8 @@ class Command(BaseCommand):
         parser.add_argument("--start_date", default=argparse.SUPPRESS, help="Import from date. YYYY-MM-DD")
         parser.add_argument("--end_date", default=argparse.SUPPRESS, help="Import to date. YYYY-MM-DD")
         parser.add_argument("--file_path", type=str, help="File path to CSV data to insert.")
-        parser.add_argument("--publisher_submissions", action='store_true', help="Group data into publisher submissions")
+        parser.add_argument("--publisher_submissions", action='store_true',
+                            help="Group data into publisher submissions")
         parser.add_argument("--load_data", action='store_true', help="Load data into database")
 
     def handle(self, *args, **kwargs):
@@ -374,8 +434,10 @@ class Command(BaseCommand):
             for date in daterange:
                 try:
                     date_string = f"{date.year}/{date.month:02}/{date.day:02}"
+                    save_path = join(SOURCE_DIR, slugify(date_string) + ".csv")
                     url = f"https://www.contractsfinder.service.gov.uk/Harvester/Notices/Data/CSV/{date_string}"
-                    urllib.request.urlretrieve(url, join(SOURCE_DIR, slugify(date_string) + ".csv"))
+                    if not os.path.exists(save_path):
+                        urllib.request.urlretrieve(url, save_path)
                     logger.info("Downloading URL: %s", url)
                 except TypeError:
                     logger.exception("Error with URL: %s", url)

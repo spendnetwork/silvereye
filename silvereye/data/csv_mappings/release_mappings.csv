@@ -39,8 +39,8 @@
 "buyer/id",,"TRUE","TRUE","TRUE","buyer","parties/0/identifier/id"
 "awards/0/id",,"TRUE",,,"award_1",
 "awards/0/date","Date Contract Awarded","TRUE",,,,
-"awards/0/contractPeriod/startDate","Award Start Date","TRUE",,,,
-"awards/0/contractPeriod/endDate","Award End Date","TRUE",,,,
+"awards/0/contractPeriod/startDate","Contract Start Date","TRUE",,,,
+"awards/0/contractPeriod/endDate","Contract End Date","TRUE",,,,
 "awards/0/title","Award Title","TRUE",,,,
 "awards/0/description","Award Description","TRUE",,,,
 "awards/0/documents/0/id",,"TRUE",,,"document_url",
