@@ -92,28 +92,30 @@ def test_unflatten_cf_daily_csv_using_base_json():
 
 def test_convert_cf_to_1_1_tenders():
     csv_path_or_url = join(CF_DIR, "export-2020-08-01-tenders.csv")
-    flat_processor = CSVMapper(csv_path=csv_path_or_url, release_type="tender")
-    fixed_df = flat_processor.convert_cf_to_1_1(flat_processor.input_df)
-    fixed_df = flat_processor.augment_cols(fixed_df)
+    simple_csv_mapper = CSVMapper(csv_path=csv_path_or_url, release_type="tender")
+    cf_mapper = CSVMapper(
+        mappings_file=os.path.join(SILVEREYE_DIR, "data", "csv_mappings", "contracts_finder_mappings.csv"))
+    fixed_df = cf_mapper.convert_cf_to_1_1(simple_csv_mapper.input_df)
 
     clean_output_file = join(CF_DIR, "converted.csv")
     fixed_df.to_csv(open(clean_output_file, "w"), index=False, header=True)
 
-    simple_df = flat_processor.output_simple_csv(fixed_df)
+    simple_df = simple_csv_mapper.output_simple_csv(fixed_df)
     simple_output_file = join(CF_DIR, "tenders.csv")
     simple_df.to_csv(open(simple_output_file, "w"), index=False, header=True)
 
 
 def test_convert_cf_to_1_1_awards():
     csv_path_or_url = join(CF_DIR, "export-2020-07-01_awards.csv")
-    flat_processor = CSVMapper(release_type="award", csv_path=csv_path_or_url)
-    fixed_df = flat_processor.convert_cf_to_1_1(flat_processor.input_df)
-    fixed_df = flat_processor.augment_cols(fixed_df)
+    simple_csv_mapper = CSVMapper(release_type="award", csv_path=csv_path_or_url)
+    cf_mapper = CSVMapper(
+        mappings_file=os.path.join(SILVEREYE_DIR, "data", "csv_mappings", "contracts_finder_mappings.csv"))
+    fixed_df = cf_mapper.convert_cf_to_1_1(simple_csv_mapper.input_df)
 
     clean_output_file = join(CF_DIR, "converted.csv")
     fixed_df.to_csv(open(clean_output_file, "w"), index=False, header=True)
 
-    simple_df = flat_processor.output_simple_csv(fixed_df)
+    simple_df = simple_csv_mapper.output_simple_csv(fixed_df)
     simple_output_file = join(CF_DIR, "awards.csv")
     simple_df.to_csv(open(simple_output_file, "w"), index=False, header=True)
 
