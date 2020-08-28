@@ -22,9 +22,7 @@ def home(request):
     recent_submissions = valid_submissions.order_by("-created")[:10]
     packages = OCDSPackageData.objects.all()
 
-    period_option = request.GET.get('period', '1_month') or '1_month'
-    comparison_option = request.GET.get('comparison', 'preceding') or 'preceding'
-
+    period_option, comparison_option = get_metric_options(request)
     # metrics from helper
     publisher_metrics = PublisherMonthlyCounts.objects.all()
     metrics = get_publisher_metrics_context(queryset=publisher_metrics, period_option=period_option, comparison_option=comparison_option)
@@ -56,6 +54,11 @@ def publisher_listing(request):
     }
     return render(request, "silvereye/publisher_listing.html", context)
 
+def get_metric_options(request):
+    period_option = request.GET.get('period', '1_month') or '1_month'
+    comparison_option = request.GET.get('comparison', 'preceding') or 'preceding'
+    return (period_option, comparison_option)
+
 def get_publisher_metrics_context(queryset=None, period_option='1_month', comparison_option='preceding'):
     if not queryset:
         return {}
@@ -81,6 +84,7 @@ def publisher(request, publisher_name):
 
     packages = OCDSPackageData.objects.filter(publisher_name=publisher_name)
 
+    period_option, comparison_option = get_metric_options(request)
     # metrics from cached model
     publisher_metrics = PublisherMetrics.objects.filter(publisher_id=publisher_name).first()
 
