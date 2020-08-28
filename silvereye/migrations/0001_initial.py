@@ -43,9 +43,17 @@ class Migration(migrations.Migration):
                 ('average_last3months', models.IntegerField(null=True)),
                 ('average_last12months', models.IntegerField(null=True)),
             ],
-            options={
-                'db_table': 'silvereye_publisher_metrics',
-            },
+        ),
+        migrations.CreateModel(
+            name='PublisherMonthlyCounts',
+            fields=[
+                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('date', models.DateField(null=True)),
+                ('count_tenders', models.IntegerField(null=True)),
+                ('count_awards', models.IntegerField(null=True)),
+                ('count_spend', models.IntegerField(null=True)),
+                ('publisher', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, to='silvereye.Publisher')),
+            ],
         ),
         migrations.CreateModel(
             name='FileSubmission',

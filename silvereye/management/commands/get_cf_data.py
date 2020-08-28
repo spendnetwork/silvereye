@@ -22,6 +22,7 @@ from flattentool import unflatten
 
 import silvereye
 from bluetail.helpers import UpsertDataHelpers
+from silvereye.helpers import update_publisher_monthly_counts
 from silvereye.ocds_csv_mapper import CSVMapper
 from silvereye.models import Publisher, FileSubmission
 
@@ -383,3 +384,6 @@ class Command(BaseCommand):
             sys.exit()
 
         process_contracts_finder_csv(publisher_names, start_date, end_date, options)
+
+        # Update publisher metrics
+        update_publisher_monthly_counts()

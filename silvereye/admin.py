@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from silvereye.models import Publisher, PublisherMetrics, FileSubmission
+from silvereye.models import Publisher, PublisherMetrics, FileSubmission, PublisherMonthlyCounts
 
 
 class PublisherAdmin(admin.ModelAdmin):
@@ -31,6 +31,14 @@ class PublisherMetricsAdmin(admin.ModelAdmin):
 
 
 admin.site.register(PublisherMetrics, PublisherMetricsAdmin)
+
+
+class PublisherMonthlyCountsAdmin(admin.ModelAdmin):
+    list_display = [field.name for field in PublisherMonthlyCounts._meta.get_fields()]
+    readonly_fields = [field.name for field in PublisherMonthlyCounts._meta.get_fields()]
+
+
+admin.site.register(PublisherMonthlyCounts, PublisherMonthlyCountsAdmin)
 
 
 class FileSubmissionAdmin(admin.ModelAdmin):
