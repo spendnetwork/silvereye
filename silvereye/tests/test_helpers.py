@@ -73,6 +73,16 @@ class MetricHelpersTest(TestCase):
                   'comparison_option': 'preceding'}
         self.compare_bounds(params)
 
+    def test_setting_current_period_preceding_comparison_bounds(self):
+        params = {'reference_date': '2020-08-28',
+                  'period_start': '2020-08-01',
+                  'period_end': '2020-08-28',
+                  'comparison_start': '2020-07-01',
+                  'comparison_end': '2020-08-01',
+                  'period_option': 'current',
+                  'comparison_option': 'preceding'}
+        self.compare_bounds(params)
+
     def test_setting_one_month_period_previous_year_comparison_bounds(self):
         params = {'reference_date': '2020-08-28',
                   'period_start': '2020-07-01',
@@ -104,6 +114,16 @@ class MetricHelpersTest(TestCase):
                   'comparison_option': '1_year'}
         self.compare_bounds(params)
 
+    def test_setting_current_period_previous_year_comparison_bounds(self):
+        params = {'reference_date': '2020-08-28',
+                  'period_start': '2020-08-01',
+                  'period_end': '2020-08-28',
+                  'comparison_start': '2019-08-01',
+                  'comparison_end': '2019-09-01',
+                  'period_option': 'current',
+                  'comparison_option': '1_year'}
+        self.compare_bounds(params)
+
     def test_setting_one_month_period_two_year_comparison_bounds(self):
         params = {'reference_date': '2020-08-28',
                   'period_start': '2020-07-01',
@@ -132,6 +152,16 @@ class MetricHelpersTest(TestCase):
                   'comparison_start': '2018-02-01',
                   'comparison_end': '2018-08-01',
                   'period_option': '6_month',
+                  'comparison_option': '2_year'}
+        self.compare_bounds(params)
+
+    def test_setting_current_period_two_year_comparison_bounds(self):
+        params = {'reference_date': '2020-08-28',
+                  'period_start': '2020-08-01',
+                  'period_end': '2020-08-28',
+                  'comparison_start': '2018-08-01',
+                  'comparison_end': '2018-09-01',
+                  'period_option': 'current',
                   'comparison_option': '2_year'}
         self.compare_bounds(params)
 

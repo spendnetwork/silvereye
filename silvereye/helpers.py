@@ -226,15 +226,23 @@ class MetricHelpers():
 
     def period_bounds(self, reference_date, period_option):
         if period_option == 'all':
-            return (None, None)
+            period_start = None
+            period_end = None
+        elif period_option == 'current':
+            period_end = reference_date
+            period_start = reference_date.replace(day=1)
         else:
             period_span = self.parse_period_option(period_option)
             period_end = reference_date.replace(day=1)
             period_start = period_end - relativedelta(months=period_span)
-            return (period_start, period_end)
+        return (period_start, period_end)
 
     def comparison_bounds(self, period_start, period_end, period_option, comparison_option):
-        period_span = self.parse_period_option(period_option)
+        if period_option == 'current':
+            period_span = 1
+            period_end = period_start.replace(day=1) + relativedelta(months=period_span)
+        else:
+            period_span = self.parse_period_option(period_option)
         if comparison_option == 'preceding':
             comparison_start = period_start - relativedelta(months=period_span)
             comparison_end = period_start

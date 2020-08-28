@@ -22,12 +22,14 @@ def home(request):
     recent_submissions = valid_submissions.order_by("-created")[:10]
     packages = OCDSPackageData.objects.all()
 
-    period_option = request.GET.get('period', '1_month')
-    comparison_option = request.GET.get('comparison', 'preceding')
+    period_option = request.GET.get('period', '1_month') or '1_month'
+    comparison_option = request.GET.get('comparison', 'preceding') or 'preceding'
+
     # metrics from helper
     publisher_metrics = PublisherMonthlyCounts.objects.all()
     metrics = get_publisher_metrics_context(queryset=publisher_metrics, period_option=period_option, comparison_option=comparison_option)
-    period_descriptions = {'1_month': 'Last month',
+    period_descriptions = {'current': 'This month',
+                           '1_month': 'Last month',
                            '3_month': 'Last 3 months',
                            '6_month': 'Last 6 months',
                            '12_month': 'Last 12 months',

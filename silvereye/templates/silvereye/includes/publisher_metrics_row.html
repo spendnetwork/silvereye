@@ -6,10 +6,11 @@
               aria-haspopup="true" aria-expanded="false">
       {{ period_option }}</a>
       <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-        <a class="dropdown-item" href="?period=1_month&comparison={{ request.GET.comparison }}">1 month</a>
-        <a class="dropdown-item" href="?period=3_month&comparison={{ request.GET.comparison }}">3 months</a>
-        <a class="dropdown-item" href="?period=6_month&comparison={{ request.GET.comparison }}">6 months</a>
-        <a class="dropdown-item" href="?period=12_month&comparison={{ request.GET.comparison }}">12 months</a>
+        <a class="dropdown-item" href="?period=current&comparison={{ request.GET.comparison }}">This month</a>
+        <a class="dropdown-item" href="?period=1_month&comparison={{ request.GET.comparison }}">Last month</a>
+        <a class="dropdown-item" href="?period=3_month&comparison={{ request.GET.comparison }}">Last 3 months</a>
+        <a class="dropdown-item" href="?period=6_month&comparison={{ request.GET.comparison }}">Last 6 months</a>
+        <a class="dropdown-item" href="?period=12_month&comparison={{ request.GET.comparison }}">Last 12 months</a>
         <a class="dropdown-item" href="?period=all&comparison={{ request.GET.comparison }}">All time</a>
       </div>
     </div>
