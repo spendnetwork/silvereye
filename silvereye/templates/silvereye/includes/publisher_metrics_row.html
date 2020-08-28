@@ -40,7 +40,7 @@
       {% endif %}
       <div class="media-body">
         {% if publisher_metrics.comparison %}
-          <p class="figure-box__change figure-box--{% if publisher_metrics.comparison.change.tenders > 0 %}up{% elif publisher_metrics.comparison.change.tenders %}down{% else %}up{% endif %} mb-0">{{ publisher_metrics.comparison.change.tenders }} ({{ publisher_metrics.comparison.percentages.tenders }}%)</p>
+          <p class="figure-box__change figure-box--{% if publisher_metrics.comparison.change.tenders > 0 %}up{% elif publisher_metrics.comparison.change.tenders %}down{% else %}up{% endif %} mb-0">{{ publisher_metrics.comparison.change.tenders }} {% if publisher_metrics.comparison.counts.tenders > 0 %}({{ publisher_metrics.comparison.percentages.tenders }}%){% else %}(-){% endif %}</p>
         {% endif %}
         <p class="figure-box__main-figure figure-box--{% if publisher_metrics.comparison.change.tenders > 0 %}up{% elif publisher_metrics.comparison.change.tenders %}down{% else %}up{% endif %} mb-0">{{ publisher_metrics.counts.tenders }}</p>
         {% if publisher_metrics.comparison %}
@@ -64,7 +64,7 @@
       <div class="media-body">
         {% if publisher_metrics.comparison %}
           <p class="figure-box__change figure-box--{% if publisher_metrics.comparison.change.awards > 0 %}up{% elif publisher_metrics.comparison.change.awards %}down{% else %}up{% endif %} mb-0">
-            {{ publisher_metrics.comparison.change.awards }} ({{ publisher_metrics.comparison.percentages.awards }}%)
+            {{ publisher_metrics.comparison.change.awards }} {% if publisher_metrics.comparison.counts.awards > 0 %}({{ publisher_metrics.comparison.percentages.awards }}%){% else %}(-){% endif %}
           </p>
         {% endif %}
         <p class="figure-box__main-figure figure-box--{% if publisher_metrics.comparison.change.awards > 0 %}up{% elif publisher_metrics.comparison.change.awards %}down{% else %}up{% endif %} mb-0">{{ publisher_metrics.counts.awards }}</p>
@@ -88,7 +88,7 @@
       {% endif %}
       <div class="media-body">
         {% if publisher_metrics.comparison %}
-         <p class="figure-box__change figure-box--{% if publisher_metrics.comparison.change.spend > 0 %}up{% elif publisher_metrics.comparison.change.spend %}down{% else %}up{% endif %} mb-0">{{ publisher_metrics.comparison.change.spend }}  ({{ publisher_metrics.comparison.percentages.spend }}%)</p>
+         <p class="figure-box__change figure-box--{% if publisher_metrics.comparison.change.spend > 0 %}up{% elif publisher_metrics.comparison.change.spend %}down{% else %}up{% endif %} mb-0">{{ publisher_metrics.comparison.change.spend }} {% if publisher_metrics.comparison.counts.spend > 0 %}({{ publisher_metrics.comparison.percentages.spend }}%){% else %}(-){% endif %}</p>
         {% endif %}
         <p class="figure-box__main-figure figure-box--{% if publisher_metrics.comparison.change.spend > 0 %}up{% elif publisher_metrics.comparison.change.spend %}down{% else %}up{% endif %} mb-0">{{ publisher_metrics.counts.spend }}</p>
         {% if publisher_metrics.comparison %}
