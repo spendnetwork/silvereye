@@ -280,7 +280,7 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
 
 # Augment award with transaction
 def augment_award_row_with_spend(row):
-    row["releases/0/tag"] = "spend"
+    row["releases/0/tag"] = "implementation"
     # Change IDs
     row["releases/0/ocid"] = row["releases/0/ocid"] + "_trans1"
     row["releases/0/id"] = row["releases/0/id"] + "_trans1"
@@ -335,7 +335,8 @@ def create_output_files(name, df, parent_directory, load_data):
         if release_type == "spend":
             # Use award data and add fake spend
             df_release_type = df[df['releases/0/tag'] == "award"]
-            df_release_type = df_release_type.apply(augment_award_row_with_spend, axis=1)
+            for i, row in df_release_type.iterrows():
+                df_release_type.loc[i] = augment_award_row_with_spend(row)
         else:
             df_release_type = df[df['releases/0/tag'] == release_type]
 
