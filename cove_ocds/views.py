@@ -344,6 +344,14 @@ def explore_ocds(request, pk):
     if schema_ocds.json_deref_error:
         exceptions.raise_json_deref_error(schema_ocds.json_deref_error)
 
+    schema_version = getattr(schema_ocds, "version", None)
+    if schema_version:
+        db_data.schema_version = schema_version
+    if not db_data.rendered:
+        db_data.rendered = True
+
+    db_data.save()
+
     context.update(
         {
             "data_schema_version": db_data.schema_version,
@@ -353,14 +361,6 @@ def explore_ocds(request, pk):
             ),
         }
     )
-
-    schema_version = getattr(schema_ocds, "version", None)
-    if schema_version:
-        db_data.schema_version = schema_version
-    if not db_data.rendered:
-        db_data.rendered = True
-
-    db_data.save()
 
     ocds_show_schema = SchemaOCDS()
     ocds_show_deref_schema = ocds_show_schema.get_release_schema_obj(deref=True)
