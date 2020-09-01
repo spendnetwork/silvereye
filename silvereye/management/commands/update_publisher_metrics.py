@@ -8,7 +8,7 @@ from django.core.management import BaseCommand
 from django.db import connections
 
 import silvereye
-from silvereye.helpers import
+from silvereye.helpers import update_publisher_monthly_counts
 
 logger = logging.getLogger('django')
 
