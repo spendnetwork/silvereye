@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.files.base import ContentFile
 from django.db.models import Count, Max, F, Sum
 from django.db.models.functions import ExtractMonth, ExtractDay, ExtractYear, Coalesce
+from django.http import HttpResponse
 
 from cove.input.models import SuppliedData
 from django.shortcuts import render, redirect
@@ -14,6 +15,7 @@ from django.utils.translation import ugettext_lazy as _
 from bluetail.models import OCDSPackageData, OCDSReleaseView
 from silvereye.helpers import get_published_release_metrics, MetricHelpers
 from silvereye.models import PublisherMetrics, Publisher, FileSubmission, PublisherMonthlyCounts
+from silvereye.ocds_csv_mapper import CSVMapper
 
 
 def home(request):
@@ -207,3 +209,12 @@ def data_input(request, *args, **kwargs):
             return redirect(data.get_absolute_url())
 
     return render(request, settings.COVE_CONFIG.get('input_template', 'input.html'), {'forms': forms})
+
+
+def download_csv_template(request, notice_type="tender"):
+   response = HttpResponse(content_type='text/csv')
+   filename = f"{notice_type}_template.csv"
+   response['Content-Disposition'] = u'attachment; filename="{0}"'.format(filename)
+   CSVMapper().create_simple_csv_template(response, release_type=notice_type)
+
+   return response
