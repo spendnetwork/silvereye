@@ -59,11 +59,14 @@ def get_metric_options(request):
     comparison_option = request.GET.get('comparison', 'preceding') or 'preceding'
     return (period_option, comparison_option)
 
+def date_today():
+    return datetime.now().date()
+
 def get_publisher_metrics_context(queryset=None, period_option='1_month', comparison_option='preceding'):
     if not queryset:
         return {}
 
-    today = datetime.now().date()
+    today = date_today()
     metric_helpers = MetricHelpers()
     context = metric_helpers.metric_data(queryset=queryset,
                                               reference_date=today,
