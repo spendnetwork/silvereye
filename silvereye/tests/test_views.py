@@ -1,7 +1,8 @@
 from django.test import TestCase
 from django.urls import reverse
 
-from datetime import date
+from unittest import mock
+from datetime import date, datetime
 
 from silvereye.models import Publisher, PublisherMonthlyCounts
 
@@ -27,7 +28,9 @@ class HomeViewTest(TestCase):
         response = self.client.get('/publisher-hub/')
         self.assertEqual(response.status_code, 200)
 
-    def test_sets_publisher_metrics_in_context(self):
+    @mock.patch('silvereye.views.date_today')
+    def test_sets_publisher_metrics_in_context(self, mock_today):
+        mock_today.return_value = datetime(2020, 8, 25)
         response = self.client.get(reverse('publisher-hub'))
         self.assertEqual(response.status_code, 200)
         expected_metrics = { 'counts': {'tenders': 10, 'awards': 25, 'spend': 0 },
