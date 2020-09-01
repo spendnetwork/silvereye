@@ -23,6 +23,8 @@ from flattentool import unflatten
 
 import silvereye
 from bluetail.helpers import UpsertDataHelpers
+from cove_ocds.views import convert_simple_csv_submission
+from libcoveocds.config import LibCoveOCDSConfig
 from silvereye.helpers import update_publisher_monthly_counts
 from silvereye.ocds_csv_mapper import CSVMapper
 from silvereye.models import Publisher, FileSubmission
@@ -133,31 +135,10 @@ def create_package_from_json(contracts_finder_id, package):
     :param contracts_finder_id: ID to use in constructing the FileSubmission ID
     :param package: JSON OCDS package
     """
+    publisher = create_publisher_from_package_json(package)
+
     published_date = package["publishedDate"]
-    publisher = package["publisher"]
-    publisher_name = publisher.get("name")
-    publisher_id = publisher.get("uid")
-    publisher_scheme = publisher.get("scheme")
-    publisher_uri = publisher.get("uri")
-
-    ocid_prefix = get_ocid_prefix(package["releases"][0]["ocid"])
-
-    logger.info("Creating or updating Publisher %s (id %s)", publisher_name, publisher_id)
-
-    publisher, created = Publisher.objects.update_or_create(
-        publisher_scheme=publisher_scheme,
-        publisher_id=publisher_id,
-        defaults={
-            "publisher_name": publisher_name,
-            "publisher_id": publisher_id,
-            "publisher_scheme": publisher_scheme,
-            "uri": publisher_uri,
-            "ocid_prefix": ocid_prefix
-        }
-
-    )
-
-    logger.info("Creating FileSubmission %s uri %s date %s", publisher_name, contracts_finder_id, published_date)
+    logger.info("Creating FileSubmission %s uri %s date %s", publisher.publisher_name, contracts_finder_id, published_date)
     # Create FileSubmission entry
     supplied_data, created = FileSubmission.objects.update_or_create(
         id=contracts_finder_id,
@@ -179,7 +160,30 @@ def create_package_from_json(contracts_finder_id, package):
     UpsertDataHelpers().upsert_ocds_data(json_string, supplied_data)
 
 
-def get_date_boundaries(start_date, end_date, df, days=7):
+def create_publisher_from_package_json(package):
+    publisher = package["publisher"]
+    publisher_name = publisher.get("name")
+    publisher_id = publisher.get("uid")
+    publisher_scheme = publisher.get("scheme")
+    publisher_uri = publisher.get("uri")
+    ocid_prefix = get_ocid_prefix(package["releases"][0]["ocid"])
+    logger.info("Creating or updating Publisher %s (id %s)", publisher_name, publisher_id)
+    publisher, created = Publisher.objects.update_or_create(
+        publisher_scheme=publisher_scheme,
+        publisher_id=publisher_id,
+        defaults={
+            "publisher_name": publisher_name,
+            "publisher_id": publisher_id,
+            "publisher_scheme": publisher_scheme,
+            "uri": publisher_uri,
+            "ocid_prefix": ocid_prefix
+        }
+
+    )
+    return publisher
+
+
+def get_date_boundaries(start_date, end_date, df, days=7, unflatten_cf_data=False):
     """
     Return an iterator of tuples of the start and end dates for a set of weekly
     periods that will include the period defined by the start and end date
@@ -285,21 +289,20 @@ def augment_award_row_with_spend(row):
     row["releases/0/ocid"] = row["releases/0/ocid"] + "_trans1"
     row["releases/0/id"] = row["releases/0/id"] + "_trans1"
     # Set published date some time later than award
-    days_between_publishing_award_and_spend = int(random() * 100) + 30
+    days_between_publishing_award_and_spend = int(random() * 10) + 30
     award_pub_datetime = datetime.strptime(row["releases/0/date"], '%Y-%m-%dT%H:%M:%SZ')
     trans_pub_datetime = datetime.strftime(
         award_pub_datetime + relativedelta(days=days_between_publishing_award_and_spend), '%Y-%m-%dT%H:%M:%SZ')
     row["releases/0/date"] = trans_pub_datetime
     # Set Transaction date
-    days_between_awarded_date_and_trans_date = int(random() * 100) + 30
+    days_between_awarded_date_and_trans_date = int(random() * 10) + 20
     awarded_datetime = datetime.strptime(row["releases/0/awards/0/date"], '%Y-%m-%dT%H:%M:%SZ')
     trans_datetime = datetime.strftime(awarded_datetime + relativedelta(days=days_between_awarded_date_and_trans_date),
                                        '%Y-%m-%dT%H:%M:%SZ')
     row["releases/0/contracts/0/implementation/transactions/0/date"] = trans_datetime
     # Copy award value to transaction
     row["releases/0/contracts/0/implementation/transactions/0/value/amount"] = row["releases/0/awards/0/value/amount"]
-    row["releases/0/contracts/0/implementation/transactions/0/value/currency"] = row[
-        "releases/0/awards/0/value/currency"]
+    row["releases/0/contracts/0/implementation/transactions/0/value/currency"] = row["releases/0/awards/0/value/currency"]
     # Copy items to contract
     for col, value in row.iteritems():
         if "tender/items" in col:
@@ -308,7 +311,7 @@ def augment_award_row_with_spend(row):
     return row
 
 
-def create_output_files(name, df, parent_directory, load_data):
+def create_output_files(name, df, parent_directory, load_data, unflatten_contracts_finder_data=False):
     """
     Create a set of JSON format release package files from the DataFrame
     supplied for the releases where the type is tender or award. Load the data
@@ -335,8 +338,12 @@ def create_output_files(name, df, parent_directory, load_data):
         if release_type == "spend":
             # Use award data and add fake spend
             df_release_type = df[df['releases/0/tag'] == "award"]
+            spend_df = pd.DataFrame()
             for i, row in df_release_type.iterrows():
-                df_release_type.loc[i] = augment_award_row_with_spend(row)
+                rowdf = df_release_type.loc[[i]]
+                new_row_df = rowdf.apply(augment_award_row_with_spend, axis=1)
+                spend_df = spend_df.append(new_row_df)
+            df_release_type = spend_df
         else:
             df_release_type = df[df['releases/0/tag'] == release_type]
 
@@ -358,36 +365,98 @@ def create_output_files(name, df, parent_directory, load_data):
             simple_csv_df = mapper.output_simple_csv(ocds_1_1_release_df)
             simple_csv_df.to_csv(open(simple_csv_file_path, "w"), index=False, header=True)
 
-            # Turn the CSV into releases package JSON
-            schema = OCDS_RELEASE_SCHEMA
-            unflatten(output_dir, output_name=json_file_path, input_format="csv", root_id="ocid", root_is_list=True,
-                      schema=schema)
-
-            # Combine the packages from the file into one release package and
-            # write it back to the file
-            js = json.load(open(json_file_path))
-            publisher = js[0]["publisher"]
-            uri = js[0]["uri"]
-            release_package = combine_release_packages(js, uri=uri, publisher=publisher,
-                                                       published_date=last_published_date, version='1.1')
-            release_package = json.dumps(
-                release_package,
-                indent=2,
-                sort_keys=True,
-                cls=DjangoJSONEncoder
-            )
-            release_file = open(json_file_path, "w")
-            release_file.write(release_package)
-            release_file.close()
-
-            # Load the data from the file into the database
+            # Upload simple CSV to DB
             if load_data:
-                logger.info("Loading data from %s", json_file_path)
+                try:
+                    publisher_name = df_release_type.iloc[0]["publisher/name"]
+                    publisher_scheme = df_release_type.iloc[0]["publisher/scheme"]
+                    publisher_id = df_release_type.iloc[0]["publisher/uid"]
+                    publisher_uri = df_release_type.iloc[0]["publisher/uri"]
+                    ocid_prefix = get_ocid_prefix(df_release_type.iloc[0]["releases/0/ocid"])
+
+                    # helpers.SimpleSubmissionHelpers().load_simple_csv_into_database(simple_csv_df, publisher)
+                    # Load data from Simple CSV
+                    logger.info("Creating or updating Publisher %s (id %s)", publisher_name, publisher_id)
+                    publisher, created = Publisher.objects.update_or_create(
+                        publisher_scheme=publisher_scheme,
+                        publisher_id=publisher_id,
+                        defaults={
+                            "publisher_name": publisher_name,
+                            "publisher_id": publisher_id,
+                            "publisher_scheme": publisher_scheme,
+                            "uri": publisher_uri,
+                            "ocid_prefix": ocid_prefix
+                        }
+                    )
+
+                    published_date = df_release_type.iloc[0]["publishedDate"]
+
+                    uri = df_release_type.iloc[0]["uri"]
+                    contracts_finder_id = os.path.splitext(os.path.split(uri)[1])[0]
+
+                    logger.info("Creating FileSubmission %s uri %s date %s", publisher.publisher_name, contracts_finder_id, published_date)
+                    # Create FileSubmission entry
+                    supplied_data, created = FileSubmission.objects.update_or_create(
+                        id=contracts_finder_id,
+                        defaults={
+                            "current_app": "silvereye",
+                        }
+                    )
+                    supplied_data.publisher = publisher
+                    supplied_data.created = published_date
+                    supplied_data.original_file.save("simple.csv", ContentFile(open(simple_csv_file_path).read()))
+                    supplied_data.save()
+
+                    lib_cove_ocds_config = LibCoveOCDSConfig()
+
+                    conversion_context = convert_simple_csv_submission(
+                        supplied_data,
+                        lib_cove_ocds_config,
+                        OCDS_RELEASE_SCHEMA
+                    )
+                    converted_path = conversion_context.get("converted_path")
+                    UpsertDataHelpers().upsert_ocds_data(converted_path, supplied_data)
+                except:
+                    logger.exception("Error loading data for %s in %s", name, parent_directory)
+
+            if unflatten_contracts_finder_data:
+                # Turn the fixed CF CSV into releases package JSON
+                # Used in earlier work to test and debug the CF preprocessing pipeline, before the simple CSV conversion
+                # Left here for debugging purposes
+                schema = OCDS_RELEASE_SCHEMA
+                unflatten(output_dir, output_name=json_file_path, input_format="csv", root_id="ocid", root_is_list=True,
+                          schema=schema)
+
+                # Combine the packages from the file into one release package and
+                # write it back to the file
                 js = json.load(open(json_file_path))
-                # Extract the Contracts Finder ID from the uri of the first
-                # release to use as an ID
-                contracts_finder_id = os.path.splitext(os.path.split(uri)[1])[0]
-                create_package_from_json(contracts_finder_id, js)
+                publisher = js[0]["publisher"]
+                uri = js[0]["uri"]
+                release_package = combine_release_packages(
+                    js,
+                    uri=uri,
+                    publisher=publisher,
+                    published_date=last_published_date,
+                    version='1.1'
+                )
+                release_package = json.dumps(
+                    release_package,
+                    indent=2,
+                    sort_keys=True,
+                    cls=DjangoJSONEncoder
+                )
+                release_file = open(json_file_path, "w")
+                release_file.write(release_package)
+                release_file.close()
+
+                # Load the data from the file into the database
+                if load_data:
+                    logger.info("Loading data from %s", json_file_path)
+                    js = json.load(open(json_file_path))
+                    # Extract the Contracts Finder ID from the uri of the first
+                    # release to use as an ID
+                    contracts_finder_id = os.path.splitext(os.path.split(uri)[1])[0]
+                    create_package_from_json(contracts_finder_id, js)
 
 
 def remake_dir(directory):
