@@ -30,7 +30,8 @@ class CSVMapper:
         if csv_path:
             self.input_df = pd.read_csv(csv_path)
             self.input_df = self.input_df.replace({np.nan: None})
-            self.detect_notice_type(self.input_df)
+            if not release_type:
+                self.detect_notice_type(self.input_df)
         else:
            self.input_df = None
         if self.release_type:
