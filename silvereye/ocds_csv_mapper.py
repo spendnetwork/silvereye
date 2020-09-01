@@ -14,7 +14,8 @@ class CSVMapper:
     """
     Class to handle mapping of CSV headers between simple CSV and flattened OCDS
     """
-    mappings_df = pd.read_csv(settings.CSV_MAPPINGS_PATH, keep_default_na=False)
+    mappings_file = settings.CSV_MAPPINGS_PATH
+
     notice_types = [
         "tender",
         "award",
@@ -23,20 +24,25 @@ class CSVMapper:
 
     def __init__(self, csv_path=None, release_type=None, mappings_file=None):
         if mappings_file:
-            self.mappings_df = pd.read_csv(mappings_file, keep_default_na=False)
+            self.mappings_file = mappings_file
+        self.mappings_df = self._read_csv_to_dataframe(self.mappings_file)
         self.csv_path = csv_path
         self.release_type = release_type
         self.ocid_prefix = "ocds-testprefix-"
         if csv_path:
-            self.input_df = pd.read_csv(csv_path)
-            self.input_df = self.input_df.replace({np.nan: None})
+            self.input_df = self._read_csv_to_dataframe(csv_path)
             if not release_type:
                 self.detect_notice_type(self.input_df)
         else:
            self.input_df = None
         if self.release_type:
-            self.simple_mappings_df = self.mappings_df.loc[self.mappings_df[f'{self.release_type}_csv'] == "TRUE"]
-            self.simple_csv_df = self.mappings_df.loc[(self.mappings_df[f'{self.release_type}_csv'] == "TRUE") & (pd.notnull(self.mappings_df['csv_header']))]
+            self.simple_mappings_df = self.mappings_df.loc[self.mappings_df[f'{self.release_type}_csv'] == True]
+            self.simple_csv_df = self.mappings_df.loc[(self.mappings_df[f'{self.release_type}_csv'] == True) & (pd.notnull(self.mappings_df['csv_header']))]
+
+    def _read_csv_to_dataframe(self, mappings_csv_path):
+        df = pd.read_csv(mappings_csv_path, na_values=[""])
+        df = df.replace({np.nan: None})
+        return df
 
     # def _map_and_crop_df(self, df, mappings_df, map_from_col="orig", map_to_col="target"):
     #     """
@@ -179,8 +185,9 @@ class CSVMapper:
         :param release_type: notice type
         :return:
         """
-        mappings_df = self.mappings_df.loc[self.mappings_df[f'{release_type}_csv'] == "TRUE"]
-        df = pd.DataFrame(columns=mappings_df["csv_header"])
+        self.simple_csv_df = self.mappings_df.loc[
+            (self.mappings_df[f'{release_type}_csv'] == True) & (pd.notnull(self.mappings_df['csv_header']))]
+        df = pd.DataFrame(columns=self.simple_csv_df["csv_header"])
         df.to_csv(output_path, index=False, header=True)
 
     def detect_notice_type(self, df):
