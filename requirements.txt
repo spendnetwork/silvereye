@@ -35,6 +35,7 @@ faker==4.1.2              # via -r requirements.in
 flattentool==0.11.0       # via -r requirements.in, libcove, libcoveocds
 idna==2.9                 # via requests
 ijson==3.1.1              # via ocdskit
+importlib-metadata==1.7.0  # via jsonschema
 jdcal==1.4.1              # via openpyxl
 jmespath==0.10.0          # via boto3, botocore
 json-merge-patch==0.2     # via -r requirements.in, libcove, libcoveocds, libcoveweb, ocdsextensionregistry
@@ -78,7 +79,7 @@ waitress==1.4.3           # via -r requirements.in
 webencodings==0.5.1       # via bleach
 whitenoise==5.0.1         # via -r requirements.in
 xmltodict==0.12.0         # via -r requirements.in, flattentool, libcoveweb
-zipp==1.2.0               # via libcoveweb
+zipp==1.2.0               # via importlib-metadata, libcoveweb
 
 # The following packages are considered to be unsafe in a requirements file:
 # pip
