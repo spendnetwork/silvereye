@@ -295,37 +295,13 @@ def explore_ocds(request, pk):
                     replace=replace,
             )
         else:
-            # Silvereye CSV unflatten
-            # Prepare base_json
-            publisher_name = db_data.publisher.publisher_name
-            publisher_scheme = db_data.publisher.publisher_scheme
-            publisher_uid = db_data.publisher.publisher_id
+            # Convert Simple CSV to flat OCDS and return context
 
-            base_json = {
-                "version": "1.1",
-                "publisher": {
-                    "name": publisher_name,
-                    "scheme": publisher_scheme,
-                    "uid": publisher_uid,
-                },
-                "publishedDate": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
-                # "license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/",
-                # "publicationPolicy": "https://www.gov.uk/government/publications/open-contracting",
-                "uri": "https://ocds-silvereye.herokuapp.com/"
-            }
-            base_json_path = os.path.join(upload_dir, "base.json")
-            with open(base_json_path, "w") as writer:
-                json.dump(base_json, writer, indent=2)
-
-            conversion_context = convert_csv(
-                    upload_dir,
-                    upload_url,
-                    file_name,
-                    file_type,
-                    lib_cove_ocds_config,
-                    schema_url=schema_url,
-                    replace=replace,
-                    base_json_path=base_json_path
+            conversion_context = convert_simple_csv_submission(
+                db_data,
+                lib_cove_ocds_config,
+                schema_url,
+                replace=replace,
             )
 
         context.update(conversion_context)
@@ -431,6 +407,45 @@ def explore_ocds(request, pk):
             UpsertDataHelpers().upsert_ocds_data(json_string, supplied_data=db_data)
 
     return render(request, template, context)
+
+
+def convert_simple_csv_submission(db_data, lib_cove_ocds_config, schema_url, file_type="csv", replace=True):
+    # Silvereye CSV unflatten
+    # Prepare base_json
+    upload_dir = db_data.upload_dir()
+    upload_url = db_data.upload_url()
+    file_name = db_data.original_file.file.name
+
+    base_json_path = os.path.join(upload_dir, "base.json")
+    prepare_simple_csv_submission_base_json(base_json_path, db_data.publisher)
+    conversion_context = convert_csv(
+        upload_dir,
+        upload_url,
+        file_name,
+        file_type,
+        lib_cove_ocds_config,
+        schema_url=schema_url,
+        replace=replace,
+        base_json_path=base_json_path
+    )
+    return conversion_context
+
+
+def prepare_simple_csv_submission_base_json(base_json_path, publisher):
+    base_json = {
+        "version": "1.1",
+        "publisher": {
+            "name": publisher.publisher_name,
+            "scheme": publisher.publisher_scheme,
+            "uid": publisher.publisher_id,
+        },
+        "publishedDate": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
+        # "license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/",
+        # "publicationPolicy": "https://www.gov.uk/government/publications/open-contracting",
+        "uri": "https://ocds-silvereye.herokuapp.com/"
+    }
+    with open(base_json_path, "w") as writer:
+        json.dump(base_json, writer, indent=2)
 
 
 # This should only be run when data is small.

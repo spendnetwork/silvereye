@@ -37,7 +37,7 @@
 "parties/1/address/streetAddress","Supplier Address - street address","TRUE",,"TRUE",,
 "buyer/name",,"TRUE","TRUE","TRUE",,"parties/0/name"
 "buyer/id",,"TRUE","TRUE","TRUE","buyer","parties/0/identifier/id"
-"awards/0/id",,"TRUE",,,"award_1",
+"awards/0/id",,"TRUE",,,"award_1","id"
 "awards/0/date","Date Contract Awarded","TRUE",,,,
 "awards/0/contractPeriod/startDate","Contract Start Date","TRUE",,,,
 "awards/0/contractPeriod/endDate","Contract End Date","TRUE",,,,
@@ -66,8 +66,8 @@
 "contracts/0/items/0/classification/scheme","Classification Scheme",,,"TRUE",,
 "contracts/0/items/0/classification/id","Classification Code",,,"TRUE",,
 "contracts/0/items/0/classification/description","Classification Description",,,"TRUE",,
-"contracts/0/implementation/transactions/0/id","Transaction ID",,,"TRUE",,
-"contracts/0/implementation/transactions/0/source","URL for Transaction source data",,,"TRUE",,
+"contracts/0/implementation/transactions/0/id","Transaction ID",,,"TRUE",,"id"
+"contracts/0/implementation/transactions/0/source","",,,"TRUE",,
 "contracts/0/implementation/transactions/0/date","Transaction Date",,,"TRUE",,
 "contracts/0/implementation/transactions/0/value/amount","Transaction Amount",,,"TRUE",,
 "contracts/0/implementation/transactions/0/value/currency","Transaction Currency",,,"TRUE",,
