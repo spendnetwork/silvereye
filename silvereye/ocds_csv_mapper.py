@@ -1,4 +1,5 @@
 import json
+from collections import OrderedDict
 
 from datetime import datetime
 
@@ -127,7 +128,7 @@ class CSVMapper:
         return df
 
     def output_simple_csv(self, df):
-        mapping_dict = {}
+        mapping_dict = OrderedDict()
         for i, row in self.simple_mappings_df.iterrows():
             mapping_dict[row["uri"]] = row["csv_header"]
         new_df = df.rename(columns=mapping_dict)
@@ -135,12 +136,17 @@ class CSVMapper:
         # Clear cols not in simple CSV
         cols_list = [i for i in self.simple_csv_df["csv_header"].to_list() if i]
         new_df = new_df[new_df.columns.intersection(cols_list)]
+
+        # Augment expected simple CSV cols
+        new_df = new_df.reindex(columns=cols_list)
+
         return new_df
 
     def convert_simple_csv_to_ocds_csv(self, csv_path):
         df = pd.read_csv(csv_path)
         new_df = self.rename_friendly_cols_to_ocds_uri(df)
-        self.detect_notice_type(new_df)
+        if not self.release_type:
+            self.detect_notice_type(new_df)
         new_df = self.augment_cols(new_df)
         new_df.to_csv(open(csv_path, "w"), index=False, header=True)
         return new_df
@@ -185,12 +191,14 @@ class CSVMapper:
         :param df: pandas dataframe
         :return:
         """
-        if "awards/0/id" in df.columns or "Award Title" in df.columns:
+        if "awards/0/title" in df.columns or "Award Title" in df.columns:
             self.release_type = "award"
         elif "contracts/0/implementation/transactions/0/id" in df.columns or "Transaction ID" in df.columns:
             self.release_type = "spend"
-        else:
+        elif "tender/title" in df.columns or "Tender Title" in df.columns:
             self.release_type = "tender"
+        else:
+            raise ValueError("Unknown notice type")
 
     def prepare_base_json_from_release_df(self, release_df, base_json_path=None):
         """
