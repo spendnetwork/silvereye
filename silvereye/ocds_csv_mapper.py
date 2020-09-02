@@ -125,7 +125,7 @@ class CSVMapper:
                 else:
                     df.loc[:, ocds_header] = df.apply(lambda row: row[reference_header] if pd.notnull(row[reference_header]) else row[ocds_header], axis=1)
 
-        df["ocid"] = self.ocid_prefix + df['id']
+        df["ocid"] = self.ocid_prefix + str(df['id'])
 
         if self.release_type == "spend":
             df["tag"] = "implementation"
