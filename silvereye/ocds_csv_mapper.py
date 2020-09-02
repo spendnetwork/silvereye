@@ -252,7 +252,7 @@ class CSVMapper:
             "completed_fields_counts": (list) The number of completed fields per row.
 
         """
-        coverage_results = check_coverage(self.input_df, self.mappings_df, notice_type=self.release_type)
+        coverage_results = check_coverage(self.input_df, self.simple_csv_df, notice_type=self.release_type)
 
         # TODO add these to db or separate report?
         # self.completion = coverage_results["completion"]

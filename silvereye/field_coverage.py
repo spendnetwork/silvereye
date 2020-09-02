@@ -10,18 +10,18 @@ sample_submisisons = os.path.join(data_dir, 'cf_daily_csv/sample_submissions')
 def check_coverage(input_df, mappings_df, notice_type="tender"):
 
     if notice_type == "tender":
-        mappings_df = mappings_df.loc[mappings_df["tender_csv"] == 'TRUE']
+        mappings_df = mappings_df.loc[mappings_df["tender_csv"] == True]
         expected_fields = len(mappings_df)
     elif notice_type == "award":
-        mappings_df = mappings_df.loc[mappings_df["award_csv"] == 'TRUE']
+        mappings_df = mappings_df.loc[mappings_df["award_csv"] == True]
         expected_fields = len(mappings_df)
     else:
-        mappings_df = mappings_df.loc[mappings_df["spend_csv"] == 'TRUE']
+        mappings_df = mappings_df.loc[mappings_df["spend_csv"] == True]
         expected_fields = len(mappings_df)
 
     coverage_output = []
     completed_fields_counts = []
-    critical_fields = mappings_df.loc[mappings_df['nullable'] == False, 'csv_header'].values.tolist()
+    critical_fields = mappings_df.loc[mappings_df['required'] == True, 'csv_header'].values.tolist()
     for i, row in input_df.iterrows():
 
         completed_fields_counts.append(row.count())
