@@ -352,7 +352,7 @@ def explore_ocds(request, pk):
                 json_data, ocds_show_deref_schema
             )
     else:
-        template = "cove_ocds/explore_release.html"
+        template = "silvereye/explore_release.html"
         if hasattr(json_data, "get") and hasattr(json_data.get("releases"), "__iter__"):
             context["releases"] = json_data["releases"]
             if (
