@@ -34,10 +34,11 @@ class CSVMapper:
             if not release_type:
                 self.detect_notice_type(self.input_df)
         else:
-           self.input_df = None
+            self.input_df = None
         if self.release_type:
             self.simple_mappings_df = self.mappings_df.loc[self.mappings_df[f'{self.release_type}_csv'] == True]
-            self.simple_csv_df = self.mappings_df.loc[(self.mappings_df[f'{self.release_type}_csv'] == True) & (pd.notnull(self.mappings_df['csv_header']))]
+            self.simple_csv_df = self.mappings_df.loc[
+                (self.mappings_df[f'{self.release_type}_csv'] == True) & (pd.notnull(self.mappings_df['csv_header']))]
 
     def _read_csv_to_dataframe(self, mappings_csv_path):
         df = pd.read_csv(mappings_csv_path, na_values=[""])
@@ -56,7 +57,6 @@ class CSVMapper:
     #         if row[map_from_col]:
     #             mapping_dict[row[map_from_col]] = row[map_to_col]
     #     new_df = new_df.rename(columns=mapping_dict)
-
 
     def rename_friendly_cols_to_ocds_uri(self, df):
         """
@@ -77,7 +77,6 @@ class CSVMapper:
         new_df = new_df.rename(columns=mapping_dict)
         return new_df
 
-
     def convert_cf_to_1_1(self, contracts_finder_df):
         """
         Convenience function to prepare CF data as sample data for submission
@@ -91,13 +90,17 @@ class CSVMapper:
         :return:
         """
         # Clear cols not in mappings
-        cols_list = self.mappings_df["contracts_finder_daily_csv_path"].to_list()
+        cf_mappings = self.mappings_df.loc[pd.notnull(self.mappings_df['uri'])]
+        cols_list = cf_mappings["contracts_finder_daily_csv_path"].to_list()
         new_df = contracts_finder_df[contracts_finder_df.columns.intersection(cols_list)]
 
         mapping_dict = {}
-        for i, row in self.mappings_df.iterrows():
+        for i, row in cf_mappings.iterrows():
             mapping_dict[row["contracts_finder_daily_csv_path"]] = row["uri"]
         new_df = new_df.rename(columns=mapping_dict)
+
+        # Add buyer refs
+        new_df['buyer/name'] = new_df['parties/0/name']
 
         # Remove ocds prefix from ids for realistic data
         new_df['id'] = new_df['id'].str.replace('ocds-b5fd17-', '')
@@ -123,7 +126,9 @@ class CSVMapper:
                 if not ocds_header in df.columns:
                     df.loc[:, ocds_header] = df[reference_header]
                 else:
-                    df.loc[:, ocds_header] = df.apply(lambda row: row[reference_header] if pd.notnull(row[reference_header]) else row[ocds_header], axis=1)
+                    df.loc[:, ocds_header] = df.apply(
+                        lambda row: row[reference_header] if pd.notnull(row[reference_header]) else row[ocds_header],
+                        axis=1)
 
         df["ocid"] = self.ocid_prefix + str(df['id'])
 
@@ -171,11 +176,11 @@ class CSVMapper:
         tender_csv_path = os.path.join(output_dir, "tender_template.csv")
         self.create_simple_csv_template(tender_csv_path, "tender")
 
-        tender_csv_path = os.path.join(output_dir, "award_template.csv")
-        self.create_simple_csv_template(tender_csv_path, "award")
+        award_csv_path = os.path.join(output_dir, "award_template.csv")
+        self.create_simple_csv_template(award_csv_path, "award")
 
-        tender_csv_path = os.path.join(output_dir, "spend_template.csv")
-        self.create_simple_csv_template(tender_csv_path, "spend")
+        spend_csv_path = os.path.join(output_dir, "spend_template.csv")
+        self.create_simple_csv_template(spend_csv_path, "spend")
 
     def create_simple_csv_template(self, output_path, release_type):
         """
@@ -224,8 +229,8 @@ class CSVMapper:
             "version": "1.1",
             "publisher": {
                 "name": release_df.iloc[0]["buyer/name"],
-                "scheme": release_df.iloc[0]["buyer/identifier/scheme"],
-                "uid": release_df.iloc[0]["buyer/identifier/id"],
+                "scheme": release_df.iloc[0]["parties/0/identifier/scheme"],
+                "uid": release_df.iloc[0]["parties/0/identifier/id"],
             },
             "publishedDate": max_release_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
             "uri": "https://ocds-silvereye.herokuapp.com/"
