@@ -1,4 +1,5 @@
 import json
+from collections import OrderedDict
 
 from datetime import datetime
 
@@ -13,26 +14,36 @@ class CSVMapper:
     """
     Class to handle mapping of CSV headers between simple CSV and flattened OCDS
     """
-    mappings_df = pd.read_csv(settings.CSV_MAPPINGS_PATH, keep_default_na=False)
+    mappings_file = settings.CSV_MAPPINGS_PATH
+
     notice_types = [
         "tender",
         "award",
         "spend",
     ]
 
-    def __init__(self, csv_path=None, release_type=None):
+    def __init__(self, csv_path=None, release_type=None, mappings_file=None):
+        if mappings_file:
+            self.mappings_file = mappings_file
+        self.mappings_df = self._read_csv_to_dataframe(self.mappings_file)
         self.csv_path = csv_path
         self.release_type = release_type
         self.ocid_prefix = "ocds-testprefix-"
         if csv_path:
-            self.input_df = pd.read_csv(csv_path)
-            self.input_df = self.input_df.replace({np.nan: None})
-            self.detect_notice_type(self.input_df)
+            self.input_df = self._read_csv_to_dataframe(csv_path)
+            if not release_type:
+                self.detect_notice_type(self.input_df)
         else:
-           self.input_df = None
+            self.input_df = None
         if self.release_type:
-            self.simple_mappings_df = self.mappings_df.loc[self.mappings_df[f'{self.release_type}_csv'] == "TRUE"]
+            self.simple_mappings_df = self.mappings_df.loc[self.mappings_df[f'{self.release_type}_csv'] == True]
+            self.simple_csv_df = self.mappings_df.loc[
+                (self.mappings_df[f'{self.release_type}_csv'] == True) & (pd.notnull(self.mappings_df['csv_header']))]
 
+    def _read_csv_to_dataframe(self, mappings_csv_path):
+        df = pd.read_csv(mappings_csv_path, na_values=[""])
+        df = df.replace({np.nan: None})
+        return df
 
     # def _map_and_crop_df(self, df, mappings_df, map_from_col="orig", map_to_col="target"):
     #     """
@@ -46,7 +57,6 @@ class CSVMapper:
     #         if row[map_from_col]:
     #             mapping_dict[row[map_from_col]] = row[map_to_col]
     #     new_df = new_df.rename(columns=mapping_dict)
-
 
     def rename_friendly_cols_to_ocds_uri(self, df):
         """
@@ -67,8 +77,7 @@ class CSVMapper:
         new_df = new_df.rename(columns=mapping_dict)
         return new_df
 
-
-    def convert_cf_to_1_1(self, df):
+    def convert_cf_to_1_1(self, contracts_finder_df):
         """
         Convenience function to prepare CF data as sample data for submission
 
@@ -77,21 +86,21 @@ class CSVMapper:
             - map the CF headers to OCDS release headers
             - remove OCID prefixes from release ids
 
-        :param df: dataframe of Contracts Finder Daily CSV data
+        :param contracts_finder_df: dataframe of Contracts Finder Daily CSV data
         :return:
         """
         # Clear cols not in mappings
-        cols_list = self.simple_mappings_df["contracts_finder_daily_csv_path"].to_list()
-        new_df = df[df.columns.intersection(cols_list)]
+        cf_mappings = self.mappings_df.loc[pd.notnull(self.mappings_df['uri'])]
+        cols_list = cf_mappings["contracts_finder_daily_csv_path"].to_list()
+        new_df = contracts_finder_df[contracts_finder_df.columns.intersection(cols_list)]
+
         mapping_dict = {}
-        for i, row in self.mappings_df.iterrows():
+        for i, row in cf_mappings.iterrows():
             mapping_dict[row["contracts_finder_daily_csv_path"]] = row["uri"]
         new_df = new_df.rename(columns=mapping_dict)
 
-        # Add columns missing from CF data
-        ocds_headers_list = self.simple_mappings_df["uri"].to_list()
-        missing_headers_list = [i for i in ocds_headers_list if i not in new_df.columns]
-        new_df = pd.concat([new_df, pd.DataFrame(columns=missing_headers_list)])
+        # Add buyer refs
+        new_df['buyer/name'] = new_df['parties/0/name']
 
         # Remove ocds prefix from ids for realistic data
         new_df['id'] = new_df['id'].str.replace('ocds-b5fd17-', '')
@@ -105,7 +114,7 @@ class CSVMapper:
         :param df: dataframe of a simple CSV with headers mapped to OCDS
         :return:
         """
-        for i, row in self.mappings_df.iterrows():
+        for i, row in self.simple_mappings_df.iterrows():
             ocds_header = row["uri"]
             default_value = row["default"]
             reference_header = row["reference"]
@@ -117,28 +126,39 @@ class CSVMapper:
                 if not ocds_header in df.columns:
                     df.loc[:, ocds_header] = df[reference_header]
                 else:
-                    df.loc[:, ocds_header] = df.apply(lambda row: row[reference_header] if pd.notnull(row[reference_header]) else row[ocds_header], axis=1)
+                    df.loc[:, ocds_header] = df.apply(
+                        lambda row: row[reference_header] if pd.notnull(row[reference_header]) else row[ocds_header],
+                        axis=1)
 
-        df["ocid"] = self.ocid_prefix + df['id']
-        df["tag"] = self.release_type
+        df["ocid"] = self.ocid_prefix + str(df['id'])
+
+        if self.release_type == "spend":
+            df["tag"] = "implementation"
+        else:
+            df["tag"] = self.release_type
 
         return df
 
     def output_simple_csv(self, df):
-        mapping_dict = {}
+        mapping_dict = OrderedDict()
         for i, row in self.simple_mappings_df.iterrows():
             mapping_dict[row["uri"]] = row["csv_header"]
         new_df = df.rename(columns=mapping_dict)
 
         # Clear cols not in simple CSV
-        cols_list = [i for i in self.simple_mappings_df["csv_header"].to_list() if i]
+        cols_list = [i for i in self.simple_csv_df["csv_header"].to_list() if i]
         new_df = new_df[new_df.columns.intersection(cols_list)]
+
+        # Augment expected simple CSV cols
+        new_df = new_df.reindex(columns=cols_list)
+
         return new_df
 
     def convert_simple_csv_to_ocds_csv(self, csv_path):
         df = pd.read_csv(csv_path)
         new_df = self.rename_friendly_cols_to_ocds_uri(df)
-        self.detect_notice_type(new_df)
+        if not self.release_type:
+            self.detect_notice_type(new_df)
         new_df = self.augment_cols(new_df)
         new_df.to_csv(open(csv_path, "w"), index=False, header=True)
         return new_df
@@ -156,8 +176,11 @@ class CSVMapper:
         tender_csv_path = os.path.join(output_dir, "tender_template.csv")
         self.create_simple_csv_template(tender_csv_path, "tender")
 
-        tender_csv_path = os.path.join(output_dir, "award_template.csv")
-        self.create_simple_csv_template(tender_csv_path, "award")
+        award_csv_path = os.path.join(output_dir, "award_template.csv")
+        self.create_simple_csv_template(award_csv_path, "award")
+
+        spend_csv_path = os.path.join(output_dir, "spend_template.csv")
+        self.create_simple_csv_template(spend_csv_path, "spend")
 
     def create_simple_csv_template(self, output_path, release_type):
         """
@@ -167,8 +190,9 @@ class CSVMapper:
         :param release_type: notice type
         :return:
         """
-        mappings_df = self.mappings_df.loc[self.mappings_df[f'{release_type}_csv'] == "TRUE"]
-        df = pd.DataFrame(columns=mappings_df["csv_header"])
+        self.simple_csv_df = self.mappings_df.loc[
+            (self.mappings_df[f'{release_type}_csv'] == True) & (pd.notnull(self.mappings_df['csv_header']))]
+        df = pd.DataFrame(columns=self.simple_csv_df["csv_header"])
         df.to_csv(output_path, index=False, header=True)
 
     def detect_notice_type(self, df):
@@ -180,10 +204,14 @@ class CSVMapper:
         :param df: pandas dataframe
         :return:
         """
-        if "awards/0/id" in df.columns or "Award Title" in df.columns:
+        if "awards/0/title" in df.columns or "Award Title" in df.columns:
             self.release_type = "award"
-        else:
+        elif "contracts/0/implementation/transactions/0/id" in df.columns or "Transaction ID" in df.columns:
+            self.release_type = "spend"
+        elif "tender/title" in df.columns or "Tender Title" in df.columns:
             self.release_type = "tender"
+        else:
+            raise ValueError("Unknown notice type")
 
     def prepare_base_json_from_release_df(self, release_df, base_json_path=None):
         """
@@ -201,8 +229,8 @@ class CSVMapper:
             "version": "1.1",
             "publisher": {
                 "name": release_df.iloc[0]["buyer/name"],
-                "scheme": release_df.iloc[0]["buyer/identifier/scheme"],
-                "uid": release_df.iloc[0]["buyer/identifier/id"],
+                "scheme": release_df.iloc[0]["parties/0/identifier/scheme"],
+                "uid": release_df.iloc[0]["parties/0/identifier/id"],
             },
             "publishedDate": max_release_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
             "uri": "https://ocds-silvereye.herokuapp.com/"

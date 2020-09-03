@@ -4,7 +4,7 @@ WITH daily_sum as (
            DATE_TRUNC('month',TO_DATE(release_json ->> 'date', 'YYYY-MM-DD'))                          as date,
            SUM(CASE WHEN release_json -> 'tag' ->> 0 = 'tender' THEN 1 ELSE 0 END) as count_tenders,
            SUM(CASE WHEN release_json -> 'tag' ->> 0 = 'award' THEN 1 ELSE 0 END)  as count_awards,
-           SUM(CASE WHEN release_json -> 'tag' ->> 0 = 'spend' THEN 1 ELSE 0 END)  as count_spend
+           SUM(CASE WHEN release_json -> 'tag' ->> 0 = 'implementation' THEN 1 ELSE 0 END)  as count_spend
     from bluetail_ocds_release_json_view rel
              LEFT JOIN bluetail_ocds_package_data_view pac ON (rel.package_data_id = pac.id)
              LEFT JOIN input_supplieddata sup on (pac.supplied_data_id = sup.id)

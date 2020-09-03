@@ -76,7 +76,7 @@ class OCDSReleaseJSON(models.Model):
     """
     Model to store OCDS JSON releases.
     """
-    ocid = models.TextField(primary_key=True)
+    ocid = models.TextField()
     release_id = models.TextField()
     release_json = JSONField()
     package_data = models.ForeignKey(OCDSPackageDataJSON, on_delete=None, null=True)
@@ -84,6 +84,7 @@ class OCDSReleaseJSON(models.Model):
     class Meta:
         app_label = 'bluetail'
         db_table = 'bluetail_ocds_release_json'
+        unique_together = (("ocid", "release_id"),)
 
 
 class OCDSReleaseView(pgviews.View):

@@ -126,27 +126,6 @@ class GoogleSheetHelpers():
         return url
 
 
-# CF data prep
-def prepare_base_json_from_release_df(fixed_df, base_json_path=None):
-    max_release_date = datetime.strptime(max(fixed_df["date"]), '%Y-%m-%dT%H:%M:%SZ')
-    base_json = {
-        "version": "1.1",
-        "publisher": {
-            "name": fixed_df.iloc[0]["buyer/name"],
-            "scheme": fixed_df.iloc[0]["buyer/identifier/scheme"],
-            "uid": fixed_df.iloc[0]["buyer/identifier/id"],
-        },
-        "publishedDate": max_release_date.strftime('%Y-%m-%dT%H:%M:%SZ'),
-        # "license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/",
-        # "publicationPolicy": "https://www.gov.uk/government/publications/open-contracting",
-        "uri": "https://ocds-silvereye.herokuapp.com/"
-    }
-    if base_json_path:
-        with open(base_json_path, "w") as writer:
-            json.dump(base_json, writer, indent=2)
-    return base_json
-
-
 def get_published_release_metrics(release_queryset):
     count_tenders = release_queryset.filter(release_tag__contains="tender").count()
     count_awards = release_queryset.filter(release_tag__contains="award").count()
