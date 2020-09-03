@@ -332,6 +332,7 @@ def augment_award_row_with_spend(row):
     trans_pub_datetime = datetime.strftime(
         award_pub_datetime + relativedelta(days=days_between_publishing_award_and_spend), '%Y-%m-%dT%H:%M:%SZ')
     row["releases/0/date"] = trans_pub_datetime
+    row["publishedDate"] = trans_pub_datetime
     # Set Transaction date
     days_between_awarded_date_and_trans_date = int(random() * 10) + 20
     awarded_datetime = datetime.strptime(row["releases/0/awards/0/date"], '%Y-%m-%dT%H:%M:%SZ')
@@ -386,7 +387,8 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                 rowdf = df_release_type.loc[[i]]
                 new_row_df = rowdf.apply(augment_award_row_with_spend, axis=1)
                 spend_df = spend_df.append(new_row_df)
-            df_release_type = spend_df
+
+            df_release_type = spend_df.loc[spend_df["publishedDate"] < str(datetime.now())]
         else:
             df_release_type = df[df['releases/0/tag'] == release_type]
 
