@@ -117,6 +117,44 @@ def fix_contracts_finder_flat_CSV(df):
     return fixed_df
 
 
+def unflatten_cf_data(json_file_path, last_published_date, load_data, output_dir):
+    # Turn the fixed CF CSV into releases package JSON
+    # Used in earlier work to test and debug the CF preprocessing pipeline, before the simple CSV conversion
+    # Left here for debugging purposes
+    schema = OCDS_RELEASE_SCHEMA
+    unflatten(output_dir, output_name=json_file_path, input_format="csv", root_id="ocid", root_is_list=True,
+              schema=schema)
+    # Combine the packages from the file into one release package and
+    # write it back to the file
+    js = json.load(open(json_file_path))
+    publisher = js[0]["publisher"]
+    uri = js[0]["uri"]
+    release_package = combine_release_packages(
+        js,
+        uri=uri,
+        publisher=publisher,
+        published_date=last_published_date,
+        version='1.1'
+    )
+    release_package = json.dumps(
+        release_package,
+        indent=2,
+        sort_keys=True,
+        cls=DjangoJSONEncoder
+    )
+    release_file = open(json_file_path, "w")
+    release_file.write(release_package)
+    release_file.close()
+    # Load the data from the file into the database
+    if load_data:
+        logger.info("Loading data from %s", json_file_path)
+        js = json.load(open(json_file_path))
+        # Extract the Contracts Finder ID from the uri of the first
+        # release to use as an ID
+        contracts_finder_id = os.path.splitext(os.path.split(uri)[1])[0]
+        create_package_from_json(contracts_finder_id, js)
+
+
 def get_ocid_prefix(ocid):
     """
     Return an 11 digit OCID prefix for a publisher from an OCID e.g
@@ -425,43 +463,7 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                     logger.exception("Error loading data for %s in %s", name, parent_directory)
 
             if unflatten_contracts_finder_data:
-                # Turn the fixed CF CSV into releases package JSON
-                # Used in earlier work to test and debug the CF preprocessing pipeline, before the simple CSV conversion
-                # Left here for debugging purposes
-                schema = OCDS_RELEASE_SCHEMA
-                unflatten(output_dir, output_name=json_file_path, input_format="csv", root_id="ocid", root_is_list=True,
-                          schema=schema)
-
-                # Combine the packages from the file into one release package and
-                # write it back to the file
-                js = json.load(open(json_file_path))
-                publisher = js[0]["publisher"]
-                uri = js[0]["uri"]
-                release_package = combine_release_packages(
-                    js,
-                    uri=uri,
-                    publisher=publisher,
-                    published_date=last_published_date,
-                    version='1.1'
-                )
-                release_package = json.dumps(
-                    release_package,
-                    indent=2,
-                    sort_keys=True,
-                    cls=DjangoJSONEncoder
-                )
-                release_file = open(json_file_path, "w")
-                release_file.write(release_package)
-                release_file.close()
-
-                # Load the data from the file into the database
-                if load_data:
-                    logger.info("Loading data from %s", json_file_path)
-                    js = json.load(open(json_file_path))
-                    # Extract the Contracts Finder ID from the uri of the first
-                    # release to use as an ID
-                    contracts_finder_id = os.path.splitext(os.path.split(uri)[1])[0]
-                    create_package_from_json(contracts_finder_id, js)
+                unflatten_cf_data(json_file_path, last_published_date, load_data, output_dir)
 
 
 def remake_dir(directory):
