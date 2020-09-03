@@ -262,7 +262,11 @@ class UpsertDataHelpers:
         releases = package_data.pop("releases")
         package, created = OCDSPackageDataJSON.objects.update_or_create(
             supplied_data=supplied_data,
-            package_data=package_data
+            defaults={
+                "supplied_data": supplied_data,
+                "package_data": package_data,
+
+            }
         )
 
         for release in releases:

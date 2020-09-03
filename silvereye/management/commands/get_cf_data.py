@@ -308,6 +308,11 @@ def augment_award_row_with_spend(row):
         if "tender/items" in col:
             row[col.replace("releases/0/tender/", "releases/0/contracts/0/")] = row[col]
 
+    uri = row["uri"]
+    contracts_finder_id = os.path.splitext(os.path.split(uri)[1])[0]
+    spend_contracts_finder_id = contracts_finder_id[:-4] + "1234"
+    row["uri"] = row["uri"].replace(contracts_finder_id, spend_contracts_finder_id)
+
     return row
 
 
