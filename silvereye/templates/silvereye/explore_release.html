@@ -102,6 +102,57 @@
         </div>
     </div>
 
+  {% if field_coverage %}
+    <h2 class="h3 mt-5 mb-0">Field coverage</h2>
+    <div class="row mt-3 mb-5">
+        <div class="col-6 col-sm-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    Expected columns
+                    <strong class="d-block h3 mb-0">{{ field_coverage.total_expected_fields }}</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-sm-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    Average filled columns
+                  {% if field_coverage.average_field_completion == field_coverage.total_expected_fields %}
+                    <strong class="d-flex align-items-center justify-content-center h3 mb-0 text-success">
+                        <svg width="0.75em" height="0.75em" viewBox="0 0 16 16" class="bi bi-check-circle-fill mr-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" title="Good">
+                            <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+                        </svg>
+                        {{ field_coverage.average_field_completion|floatformat }}
+                    </strong>
+                  {% else %}
+                    <strong class="d-flex align-items-center justify-content-center h3 mb-0 text-danger">
+                        <svg width="0.75em" height="0.75em" viewBox="0 0 16 16" class="bi bi-exclamation-circle-fill mr-2" fill="currentColor" xmlns="http://www.w3.org/2000/svg" title="Warning">
+                            <path fill-rule="evenodd" d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                        </svg>
+                        {{ field_coverage.average_field_completion|floatformat }}
+                    </strong>
+                  {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-sm-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    Fewest filled columns
+                    <strong class="d-block h3 mb-0">{{ field_coverage.minimum_field_completion|floatformat }}</strong>
+                </div>
+            </div>
+        </div>
+        <div class="col-6 col-sm-3">
+            <div class="card text-center">
+                <div class="card-body">
+                    Most filled columns
+                    <strong class="d-block h3 mb-0">{{ field_coverage.maximum_field_completion|floatformat }}</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+  {% endif %}
 
     <h2 class="h3 mt-5 mb-0">Data preview</h2>
   {% if releases|length > 10 %}
@@ -163,17 +214,6 @@
 
     <table class="table mt-3 mb-5">
     </table>
-  {% endif %}
-
-  {% if field_coverage %}
-    <h2 class="d-flex align-items-center">
-        <span class="badge badge-pill badge-warning mr-3">{{ count }}</span> Field Coverage
-    </h2>
-
-    <p>Expected fields: {{ field_coverage.total_expected_fields }}</p>
-    <p>Average field coverage: {{ field_coverage.average_field_completion }}</p>
-    <p>Minimum field coverage: {{ field_coverage.minimum_field_completion }}</p>
-    <p>Maximum field coverage: {{ field_coverage.maximum_field_completion }}</p>
   {% endif %}
 
   {% if validation_errors or structure_warnings %}
