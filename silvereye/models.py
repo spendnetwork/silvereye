@@ -67,6 +67,7 @@ class PublisherMonthlyCounts(models.Model):
 class FileSubmission(SuppliedData):
     supplied_data = models.OneToOneField(SuppliedData, on_delete=models.CASCADE, parent_link=True, primary_key=True, serialize=False)
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, null=True)
+    notice_type = models.CharField(max_length=128, null=True)
 
     @receiver(post_save, sender=SuppliedData)
     def create_file_submission(sender, instance, created, **kwargs):

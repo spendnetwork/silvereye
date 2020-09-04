@@ -1,19 +1,19 @@
 <h2 class="h6">Submitted Files</h2>
 <ol class="list-unstyled timeline">
 
-    {% for supplieddata in recent_submissions %}
-        {#                    {{ item.ocdspackagedata_set.all.0 }}#}
-        {% with package_data=supplieddata.ocdspackagedata_set.all|first %}
-            <li>
-                <div class="timeline__entry">
-                    {{ supplieddata.created }} Received a new <a href="{% url "explore" supplieddata.id %}"> submission </a> from <a
-                        href="{% url "publisher" package_data.publisher_name %}"> {{ package_data.publisher_name }}</a>
-                </div>
-            </li>
-        {% endwith %}
+  {% for supplieddata in recent_submissions %}
+    {% with package_data=supplieddata.ocdspackagedata_set.all|first %}
+      <li>
+        <div class="timeline__entry">
+          {{ supplieddata.created }} Received a new <a href="{% url "explore" supplieddata.id %}">{{ supplieddata.notice_type }} submission </a> from
+          <a href="{% url "publisher" package_data.publisher_name %}"> {{ package_data.publisher_name }}</a>
+        </div>
+      </li>
+    {% endwith %}
+  {% endfor %}
 
-    {% endfor %}
 </ol>
+
 {#<h2 class="h6">Yesterday</h2>#}
 {#<ol class="list-unstyled timeline">#}
 {#    <li>#}

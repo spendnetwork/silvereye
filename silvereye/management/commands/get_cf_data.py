@@ -445,6 +445,7 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                         id=contracts_finder_id,
                         defaults={
                             "current_app": "silvereye",
+                            "notice_type": mapper.release_type,
                         }
                     )
                     supplied_data.publisher = publisher
