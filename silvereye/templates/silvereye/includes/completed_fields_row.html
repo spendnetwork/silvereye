@@ -1,96 +1,86 @@
 {% load l10n %}
 {% load mathfilters %}
 
-<div class="row">
-  <div class="col">
-    <h3 class="h6">Completed fields average</h3>
-  </div>
-  <div class="col">
-    <h3 class="h6">Tenders</h3>
-    <div class="figure-box media">
-      {% if coverage_metrics.comparison %}
-        {% if coverage_metrics.comparison.change.tenders > 0 %}
-          {% include "silvereye/includes/up_arrow.svg" %}
-        {% elif coverage_metrics.comparison.change.tenders < 0 %}
-          {% include "silvereye/includes/down_arrow.svg" %}
-        {% else %}
-          {% include "silvereye/includes/up_arrow.svg" %}
-        {% endif %}
-      {% endif %}
-      <div class="media-body">
-        {% if coverage_metrics.comparison %}
-          <p class="figure-box__change figure-box--{% if coverage_metrics.comparison.change.tenders > 0 %}up{% elif coverage_metrics.comparison.change.tenders %}down{% else %}up{% endif %} mb-0">
-            {{ coverage_metrics.comparison.change.tenders|floatformat:1|localize }}
-            {% if coverage_metrics.comparison.change.tenders|abs > 0 %}
-              ({{ coverage_metrics.comparison.percentages.tenders }}%)
-            {% else %}(-){% endif %}</p>
-        {% endif %}
-        <p class="figure-box__main-figure figure-box--up mb-0">
-          {{ coverage_metrics.counts.tenders|floatformat:1|localize }}
-        </p>
-        <p class="figure-box__compare-figure">
-          {{ coverage_metrics.comparison.counts.tenders|floatformat:1|localize }}
-        </p>
-      </div>
+<div class="row mb-5">
+    <div class="col-sm">
+        <div class="card">
+            <div class="card-body text-center">
+                Tenders
+                <strong class="d-block h3 my-1">{{ coverage_metrics.counts.tenders|floatformat|localize }}</strong>
+              {% if coverage_metrics.comparison %}
+                {% if coverage_metrics.comparison.change.tenders > 0 %}
+                    <span class="d-flex align-items-center justify-content-center text-success">
+                        {% include "silvereye/includes/caret_up_fill.svg" with extra_classes="mr-1" %}
+                        {{ coverage_metrics.comparison.percentages.tenders }}%
+                    </span>
+                {% elif coverage_metrics.comparison.change.tenders < 0 %}
+                    <span class="d-flex align-items-center justify-content-center text-danger">
+                        {% include "silvereye/includes/caret_down_fill.svg" with extra_classes="mr-1" %}
+                        {{ coverage_metrics.comparison.percentages.tenders }}%
+                    </span>
+                {% else %}
+                    <span class="text-muted">
+                        no change
+                    </span>
+                {% endif %}
+              {% else %}
+                {{ coverage_metrics.comparison.percentages.tenders }}%
+              {% endif %}
+            </div>
+        </div>
     </div>
-  </div>
-  <div class="col">
-    <h3 class="h6">Contract awards</h3>
-    <div class="figure-box media">
-      {% if coverage_metrics.comparison %}
-        {% if coverage_metrics.comparison.change.awards > 0 %}
-          {% include "silvereye/includes/up_arrow.svg" %}
-        {% elif coverage_metrics.comparison.change.awards < 0 %}
-          {% include "silvereye/includes/down_arrow.svg" %}
-        {% else %}
-          {% include "silvereye/includes/up_arrow.svg" %}
-        {% endif %}
-      {% endif %}
-      <div class="media-body">
-        {% if coverage_metrics.comparison %}
-          <p class="figure-box__change figure-box--{% if coverage_metrics.comparison.change.awards > 0 %}up{% elif coverage_metrics.comparison.change.awards %}down{% else %}up{% endif %} mb-0">
-            {{ coverage_metrics.comparison.change.awards|floatformat:1|localize }}
-            {% if coverage_metrics.comparison.change.awards|abs > 0 %}
-              ({{ coverage_metrics.comparison.percentages.awards }}%)
-            {% else %}(-){% endif %}</p>
-        {% endif %}
-        <p class="figure-box__main-figure figure-box--up mb-0">
-          {{ coverage_metrics.counts.awards|floatformat:1|localize }}
-        </p>
-        <p class="figure-box__compare-figure">
-          {{ coverage_metrics.comparison.counts.awards|floatformat:1|localize }}
-        </p>
-      </div>
+    <div class="col-sm">
+        <div class="card">
+            <div class="card-body text-center">
+                Contract awards
+                <strong class="d-block h3 my-1">{{ coverage_metrics.counts.awards|floatformat|localize }}</strong>
+              {% if coverage_metrics.comparison %}
+                {% if coverage_metrics.comparison.change.awards > 0 %}
+                    <span class="d-flex align-items-center justify-content-center text-success">
+                        {% include "silvereye/includes/caret_up_fill.svg" with extra_classes="mr-1" %}
+                        {{ coverage_metrics.comparison.percentages.awards }}%
+                    </span>
+                {% elif coverage_metrics.comparison.change.awards < 0 %}
+                    <span class="d-flex align-items-center justify-content-center text-danger">
+                        {% include "silvereye/includes/caret_down_fill.svg" with extra_classes="mr-1" %}
+                        {{ coverage_metrics.comparison.percentages.awards }}%
+                    </span>
+                {% else %}
+                    <span class="text-muted">
+                        no change
+                    </span>
+                {% endif %}
+              {% else %}
+                {{ coverage_metrics.comparison.percentages.awards }}%
+              {% endif %}
+            </div>
+        </div>
     </div>
-  </div>
-
-  <div class="col">
-    <h3 class="h6">Spend files</h3>
-    <div class="figure-box media">
-      {% if coverage_metrics.comparison %}
-        {% if coverage_metrics.comparison.change.spend > 0 %}
-          {% include "silvereye/includes/up_arrow.svg" %}
-        {% elif coverage_metrics.comparison.change.spend < 0 %}
-          {% include "silvereye/includes/down_arrow.svg" %}
-        {% else %}
-          {% include "silvereye/includes/up_arrow.svg" %}
-        {% endif %}
-      {% endif %}
-      <div class="media-body">
-        {% if coverage_metrics.comparison %}
-          <p class="figure-box__change figure-box--{% if coverage_metrics.comparison.change.spend > 0 %}up{% elif coverage_metrics.comparison.change.spend %}down{% else %}up{% endif %} mb-0">
-            {{ coverage_metrics.comparison.change.spend|floatformat:1|localize }}
-            {% if coverage_metrics.comparison.change.spend|abs > 0 %}
-              ({{ coverage_metrics.comparison.percentages.spend }}%)
-            {% else %}(-){% endif %}</p>
-        {% endif %}
-        <p class="figure-box__main-figure figure-box--up mb-0">
-          {{ coverage_metrics.counts.spend|floatformat:1|localize }}
-        </p>
-        <p class="figure-box__compare-figure">
-          {{ coverage_metrics.comparison.counts.spend|floatformat:1|localize }}
-        </p>
-      </div>
+    <div class="col-sm">
+        <div class="card">
+            <div class="card-body text-center">
+                Spend files
+                <strong class="d-block h3 my-1">{{ coverage_metrics.counts.spend|floatformat|localize }}</strong>
+              {% if coverage_metrics.comparison %}
+                {% if coverage_metrics.comparison.change.spend > 0 %}
+                    <span class="d-flex align-items-center justify-content-center text-success">
+                        {% include "silvereye/includes/caret_up_fill.svg" with extra_classes="mr-1" %}
+                        {{ coverage_metrics.comparison.percentages.spend }}%
+                    </span>
+                {% elif coverage_metrics.comparison.change.spend < 0 %}
+                    <span class="d-flex align-items-center justify-content-center text-danger">
+                        {% include "silvereye/includes/caret_down_fill.svg" with extra_classes="mr-1" %}
+                        {{ coverage_metrics.comparison.percentages.spend }}%
+                    </span>
+                {% else %}
+                    <span class="text-muted">
+                        no change
+                    </span>
+                {% endif %}
+              {% else %}
+                {{ coverage_metrics.comparison.percentages.spend }}%
+              {% endif %}
+            </div>
+        </div>
     </div>
-  </div>
 </div>

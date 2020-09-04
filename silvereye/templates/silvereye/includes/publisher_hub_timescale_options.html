@@ -1,0 +1,27 @@
+<div class="d-flex align-items-center flex-wrap">
+    Showing metrics for
+    <div class="dropdown mx-2">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="periodOptions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{ publisher_metrics.period_option }}
+        </button>
+        <div class="dropdown-menu" aria-labelledby="periodOptions">
+            <a class="dropdown-item" href="?period=current&comparison={{ request.GET.comparison }}">this month</a>
+            <a class="dropdown-item" href="?period=1_month&comparison={{ request.GET.comparison }}">last month</a>
+            <a class="dropdown-item" href="?period=3_month&comparison={{ request.GET.comparison }}">last 3 months</a>
+            <a class="dropdown-item" href="?period=6_month&comparison={{ request.GET.comparison }}">last 6 months</a>
+            <a class="dropdown-item" href="?period=12_month&comparison={{ request.GET.comparison }}">last 12 months</a>
+            <a class="dropdown-item" href="?period=all&comparison={{ request.GET.comparison }}">all time</a>
+        </div>
+    </div>
+    with difference to
+    <div class="dropdown mx-2">
+        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="comparisonOptions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            {{ publisher_metrics.comparison_option }}
+        </button>
+        <div class="dropdown-menu" aria-labelledby="comparisonOptions">
+            <a class="dropdown-item" href="?period={{ request.GET.period }}&comparison=preceding">preceding period</a>
+            <a class="dropdown-item" href="?period={{ request.GET.period }}&comparison=1_year">last year</a>
+            <a class="dropdown-item" href="?period={{ request.GET.period }}&comparison=2_year">two years ago</a>
+        </div>
+    </div>
+</div>
