@@ -28,10 +28,21 @@ def home(request):
     # metrics from helper
     publisher_metrics = PublisherMonthlyCounts.objects.all()
     metrics = get_publisher_metrics_context(queryset=publisher_metrics, period_option=period_option, comparison_option=comparison_option)
+
+    coverage_metrics = FieldCoverage.objects.all()
+    coverage_metrics_context = get_coverage_metrics_context(coverage_metrics, period_option=period_option, comparison_option=comparison_option)
+
+    publishers = Publisher.objects.all() \
+        .annotate(last_submission=Max("filesubmission__created")) \
+        .annotate(age=Cast(ExtractDay(TruncDate(Now()) - TruncDate(F('last_submission'))), IntegerField())) \
+        .order_by('-age') \
+
     context = {
         "packages": packages,
         "recent_submissions": recent_submissions,
         "publisher_metrics": metrics,
+        'coverage_metrics': coverage_metrics_context,
+        "publishers": publishers[:5],
     }
     return render(request, "silvereye/publisher_hub_home.html", context)
 
