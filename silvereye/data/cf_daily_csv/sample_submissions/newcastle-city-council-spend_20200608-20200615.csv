@@ -1,0 +1,6 @@
+Notice ID,Published Date,Buyer Name,Buyer ID-scheme,Buyer ID,Buyer Locality,Supplier Name,Supplier ID-scheme,Supplier ID,Supplier Address - locality,Supplier Address - postcode,Supplier Address - country,Supplier Address - street address,Classification Scheme,Classification Code,Classification Description,Transaction ID,Transaction Date,Transaction Amount,Transaction Currency
+be041667-db12-4c85-bb97-63f6867909ac-362976-007237_trans1,2020-07-09T12:36:03Z,Newcastle City Council,GB-SRS,sid4gov.cabinetoffice.gov.uk/FY63t84q,NEWCASTLE UPON TYNE,SPECIALIST COMPUTER CENTRES PLC,GB-COH,01428210,,,,"James House,Warwick Road, Sparkhill
+BIRMINGHAM
+West Midlands
+B11 2LE
+GB",CPV,72000000,"IT services: consulting, software development, Internet and support",,2020-06-25T00:00:00Z,70000.0,GBP

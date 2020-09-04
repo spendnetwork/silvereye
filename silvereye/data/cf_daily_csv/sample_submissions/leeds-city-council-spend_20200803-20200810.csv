@@ -1,0 +1,9 @@
+Notice ID,Published Date,Buyer Name,Buyer ID-scheme,Buyer ID,Buyer Locality,Supplier Name,Supplier ID-scheme,Supplier ID,Supplier Address - locality,Supplier Address - postcode,Supplier Address - country,Supplier Address - street address,Classification Scheme,Classification Code,Classification Description,Transaction ID,Transaction Date,Transaction Amount,Transaction Currency
+95769169-94de-48f7-8f55-e57fe1bfad94-373998-leedscity001-dn483911-22863517_trans1,2020-09-08T09:43:55Z,Leeds City Council,,,Leeds,Security Surveillance Group (SSG),,,,,,"Boundary Farm Complex
+Grave Yard Lane
+Bickerstaffe
+Lancashire
+L39 9EG",CPV,45421131,Installation of doors,,2020-09-01T00:00:00Z,51610.0,GBP
+ea2106ff-fcc8-4fa4-add4-a1f44d9f62ab-374354-leedscity001-dn491119-25634215_trans1,2020-09-10T12:50:40Z,Leeds City Council,,,Leeds,University of Leeds,,,,,,LS2 9JT,CPV,92600000,Sporting services,,2020-02-07T00:00:00Z,26842.0,GBP
+11df6da6-8b22-4938-bf9d-3200e0e16f4b-374260-leedscity001-dn491061-73473358_trans1,2020-09-11T10:04:04Z,Leeds City Council,,,Leeds,University of Leeds,,,,,,LS2 9JT,CPV,92600000,Sporting services,,2019-11-21T00:00:00Z,17302.56,GBP
+f87a282e-d2fd-4dfe-b499-bde9f0164464-374223-leedscity001-dn488748-40600662_trans1,2020-09-11T07:35:41Z,Leeds City Council,,,Leeds,Leeds Older People's Forum,,,,,,LS3 1AB,CPV,85000000,Health and social work services,,2020-04-21T00:00:00Z,31600.0,GBP

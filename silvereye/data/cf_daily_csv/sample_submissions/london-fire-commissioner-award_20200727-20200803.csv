@@ -1,5 +1,40 @@
-Notice ID,Published Date,Buyer Name,Buyer Locality,Award Title,Award Description,Date Contract Awarded,Award Value,Award Value - currency,Supplier ID-scheme,Supplier ID,Supplier Name,Supplier Address - street address,Supplier Address - locality,Supplier Address - postcode,Supplier Address - country,Buyer ID-scheme,Buyer ID
-487325bb-66aa-41c3-bfeb-a50a98dd3b2f-373692-20200801003028-33133,2020-08-01T00:30:32Z,London Fire Commissioner,London,Provision of Information and Library Services,"The London Fire Commissioner requires an information service covering the following areas of activity:
+Notice ID,Published Date,Buyer Name,Buyer ID-scheme,Buyer ID,Buyer Locality,Supplier Name,Supplier ID-scheme,Supplier ID,Supplier Address - locality,Supplier Address - postcode,Supplier Address - country,Supplier Address - street address,Date Contract Awarded,Contract Start Date,Contract End Date,Award Title,Award Description,Award Documents URL,Classification Scheme,Classification Code,Classification Description,Award Value,Award Value - currency
+e74b90e0-293f-49e2-b0bf-c58baa614d86-373259-20200729232803-33133,2020-07-29T23:28:06Z,London Fire Commissioner,,,London,Narrow Aisle Limited,,,,,,"Great Western Way 
+Great Bridge 
+Tipton 
+West Midlands 
+DY4 7AU",2019-06-18T00:00:00Z,2019-06-24T00:00:00Z,2026-06-23T00:00:00Z,Provision of Mechanical Handling Equipment,A contract for the hire of mechanical handling equipment (i.e. an electric narrow aisle forklift) to operate for a period of 7 years at the London Fire Brigade's Operations Support Centre in Croydon.,,,,,42564.0,GBP
+49d6d6c0-fe6a-49e0-88ca-61a0f183001d-373257-20200729224637-33133,2020-07-29T22:46:41Z,London Fire Commissioner,,,London,BT Global Services,,,,,,"81 Newgate Street
+London
+EC1A 7AJ",2020-07-29T00:00:00Z,2020-02-18T00:00:00Z,2023-02-17T00:00:00Z,Replacement of Wireless Access Points,"To replace all the existing wireless access points at all Brigade premises with up to date hardware. In addition, the contract will ask the supplier to work with the LFB network team to re-design the Wi-Fi (s) for a variety of purposes including Mobile Data Terminal access to Wi-Fi at stations and staff / guest / defibrillator access to Wi-Fi in relevant Brigade premises.",,,,,453000.0,GBP
+14deae83-9a7d-467a-bb23-97322f001276-373256-20200729221549-33133,2020-07-29T22:15:52Z,London Fire Commissioner,,,London,BT Global Services,,,,,,"81 Newgate Street
+London
+EC1A 7AJ",2019-07-16T00:00:00Z,2019-07-16T00:00:00Z,2021-07-15T00:00:00Z,Provision of a Cyber Defence System,The London Fire Commissioner is looking to engage a supplier to supply a cyber threat detection and defence system.,,,,,212000.0,GBP
+7dd78e10-c86e-4daf-92aa-6066a4e1de87-373216-20200729161025-33133,2020-07-29T16:10:53Z,London Fire Commissioner,,,London,UBM (UK) Limited t/a Barbour EHS,,,,,,"5 Howick Place
+London
+SW1P 1WG",2019-11-01T00:00:00Z,2019-11-01T00:00:00Z,2024-10-31T00:00:00Z,"Online library for regulatory standards, guidance and legislation","A service to provide online access to regulatory standards, guidance and legation about fire safety and health and safety including British and international standards and building codes.",,,,,55000.0,GBP
+ae708d77-5967-40d2-a533-798b8ea465b3-373058-20200728210026-33133,2020-07-28T21:00:31Z,London Fire Commissioner,,,London,Rivo Software Limited,,,,,,"Innovation Centre, Warwick Technology Park, Gallows Hill, Warwick, Warwickshire, CV34 6UW",2017-06-05T00:00:00Z,2017-06-05T00:00:00Z,2019-06-05T00:00:00Z,Accident Reporting and Recording Software Replacment Provision,To replace the current SERD and CASS Core provision that is currently provided and maintained by Warwick International Computing Systems.,,,,,115000.0,GBP
+ca085112-6fa4-46ed-9841-f434d895d824-373056-20200728203136-33133,2020-07-28T20:31:38Z,London Fire Commissioner,,,London,Social Sign In Trading as Orlo,,,,,,"Orlo
+Company trading name:
+SocialSignIn LTD Trading as Orlo
+Social Sign In, Centre City House, 5-7 Hill Street
+B5 4UA
+Birmingham
+United Kingdom",2019-12-02T00:00:00Z,2019-12-15T00:00:00Z,2021-12-15T00:00:00Z,Social Media Management Platform,Supply of a social media management and monitoring tool to allow the Brigade to measure and improve social media activity.,,,,,28352.0,GBP
+b3eca5ec-8284-4cb3-8c90-8b9cc44c5e18-373383-20200730135443-33133,2020-07-30T13:54:46Z,London Fire Commissioner,,,London,Maven Public Sector (AON UK Ltd),,,,,,"122 Leadenhall Street
+London
+EC3CV 4AN",2020-07-30T00:00:00Z,2020-07-31T00:00:00Z,2023-06-30T00:00:00Z,Insurance for Combined Liability,"Tender for Insurance Coverage and Associated Services Lot 1 (Combined Liability Insurance)
+
+Lot 2 (Motor Fleet Insurance)",,,,,5806482.0,GBP
+f888bc17-bea4-4356-a739-8239c66570f6-373260-20200730011135-33133,2020-07-30T01:11:40Z,London Fire Commissioner,,,London,BT Global Services,,,,,,"81 Newgate Street
+London
+EC1A 7AJ",2019-07-25T00:00:00Z,2019-08-01T00:00:00Z,2022-07-31T00:00:00Z,Provision of Citrix Netscalers and Support,The London Fire Commissioner currently uses Citrix Netscalers for a variety of essential security and load balancing roles.  There are currently 7 Citrix Netscalers in the LFB infrastructure.  The 2 Netscalers that are used for remote access are end of life and require replacing.  These devices provide remote access functionality and security for all LFB remote access staff and 3rd parties that require access.,,,,,73470.49,GBP
+487325bb-66aa-41c3-bfeb-a50a98dd3b2f-373692-20200801003028-33133,2020-08-01T00:30:32Z,London Fire Commissioner,,,London,Idox Software Ltd,,,,,,"2nd Floor
+Waterside 1310
+Arlington Business Park
+Theale
+Berkshire
+RG7 4SA",2019-03-12T00:00:00Z,2019-04-01T00:00:00Z,2023-03-31T00:00:00Z,Provision of Information and Library Services,"The London Fire Commissioner requires an information service covering the following areas of activity:
 1.  Provision of an enquiry service (covering a range of activities from profiling to literature searching).
 2.  Production of alerting bulletins, highlighting new policy announcements, reports, official statistics, publications and research articles across a range of policy subject areas.
 3.  Supply of a daily information bulletin covering all policy areas relevant to the GLA.
@@ -10,9 +45,4 @@ Notice ID,Published Date,Buyer Name,Buyer Locality,Award Title,Award Description
 8.  Contract management.
 9.  Hosting and server support.
 
-The Commissioner will be entering into a Shared Services agreement with the Greater London Authority (GLA) to provide information services to their staff.  The Contractor shall provide services to both the Commissioner and the GLA.  The Commissioner shall be acting as contract manager on behalf of both parties.",2019-03-12T00:00:00Z,724440.0,GBP,,,Idox Software Ltd,"2nd Floor
-Waterside 1310
-Arlington Business Park
-Theale
-Berkshire
-RG7 4SA",,,,,
+The Commissioner will be entering into a Shared Services agreement with the Greater London Authority (GLA) to provide information services to their staff.  The Contractor shall provide services to both the Commissioner and the GLA.  The Commissioner shall be acting as contract manager on behalf of both parties.",,,,,724440.0,GBP
