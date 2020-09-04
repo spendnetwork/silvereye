@@ -4,60 +4,68 @@
 
 {% block content %}
 
-    <nav aria-label="breadcrumb">
-      <ol class="breadcrumb my-4">
-        <li class="breadcrumb-item"><a href="{% url 'publisher-hub' %}">Publisher Hub</a></li>
-        <li class="breadcrumb-item"><a href="{% url 'publisher-listing' %}">Publishers</a></li>
-        <li class="breadcrumb-item active" aria-current="page">{{ publisher.publisher_name }}</li>
-      </ol>
-    </nav>
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb my-4">
+      <li class="breadcrumb-item"><a href="{% url 'publisher-hub' %}">Publisher Hub</a></li>
+      <li class="breadcrumb-item"><a href="{% url 'publisher-listing' %}">Publishers</a></li>
+      <li class="breadcrumb-item active" aria-current="page">{{ publisher.publisher_name }}</li>
+    </ol>
+  </nav>
 
-    <h1 class="mt-4 d-md-flex align-items-center justify-content-between">
-      <span class="d-block">{{ publisher.publisher_name }}</span>
-      <a href="{% url 'index' %}?publisher={{ publisher.publisher_name }}" class="btn btn-primary mt-3 mt-md-0 ml-md-3 flex-shrink-0">Upload data</a>
-    </h1>
+  <h1 class="mt-4 d-md-flex align-items-center justify-content-between">
+    <span class="d-block">{{ publisher.publisher_name }}</span>
+    <a href="{% url 'index' %}?publisher={{ publisher.publisher_name }}"
+       class="btn btn-primary mt-3 mt-md-0 ml-md-3 flex-shrink-0">Upload data</a>
+  </h1>
 
-    <hr class="mb-5"/>
+  <hr class="mb-5"/>
 
-    <div class="row">
-      <div class="col-sm-12 col-md-8" role="main">
+  <div class="row">
+    <div class="col-sm-12 col-md-8" role="main">
 
-        {% include "silvereye/includes/publisher_metrics_row.html" %}
+      {% include "silvereye/includes/publisher_metrics_row.html" %}
 
-        <hr class="my-5"/>
+      <hr class="my-5"/>
 
-        {% include "silvereye/includes/completed_fields_row.html" %}
+      {% include "silvereye/includes/completed_fields_row.html" %}
 
-        <hr class="my-5"/>
+      <hr class="my-5"/>
 
-        {% include "silvereye/includes/file_history.html" with recent_submissions=recent_submissions %}
+      {% include "silvereye/includes/file_history.html" with recent_submissions=recent_submissions %}
 
+    </div>
+
+    <div class="col-sm-12 col-md-4 pl-md-4">
+      <h4>Publisher data</h4>
+
+      {#        <div class="nav flex-column nav-pills mb-5" role="navigation">#}
+      {#          <a class="nav-link active" href="#" aria-selected="true">Home</a>#}
+      {#          <a class="nav-link" href="#" role="tab" aria-selected="false">Tenders</a>#}
+      {#          <a class="nav-link" href="#" role="tab" aria-selected="false">Contract award notices</a>#}
+      {#          <a class="nav-link" href="#" role="tab" aria-selected="false">Spend files</a>#}
+      {#        </div>#}
+      <div class="contact-details mb-5">
+        <p class="mb-1">Name: {{ publisher.publisher_name }}</p>
+        <p class="mb-1">ID: [{{ publisher.publisher_scheme }}] {{ publisher.publisher_id }}</p>
       </div>
 
-      <div class="col-sm-12 col-md-4 pl-md-4">
-        <div class="nav flex-column nav-pills mb-5" role="navigation">
-          <a class="nav-link active" href="#" aria-selected="true">Home</a>
-          <a class="nav-link" href="#" role="tab" aria-selected="false">Tenders</a>
-          <a class="nav-link" href="#" role="tab" aria-selected="false">Contract award notices</a>
-          <a class="nav-link" href="#" role="tab" aria-selected="false">Spend files</a>
+      <div class="contact-details mb-5">
+        <div class="row">
+          <div class="col-8"><h2 class="h5">Contact details</h2></div>
         </div>
-        <div class="contact-details mb-5">
-          <div class="row">
-            <div class="col-8"><h2 class="h5">Contact details</h2></div>
-          </div>
 
-          <p class="mb-1">{{ publisher.contact_name }}</p>
-          <p class="mb-1"><a
-                  href="mailto:{{ publisher.contact_email }}">{{ publisher.contact_email }}</a></p>
-          <p class="mb-0"><a
-                  href="tel:{{ publisher.contact_telephone }}">{{ publisher.contact_telephone }}</a>
-          </p>
-        </div>
-        <div>
-          <button type="button" class="btn btn-secondary btn-block">Download data <small>– 1282 rows, 128kb</small>
-          </button>
-        </div>
+        <p class="mb-1">{{ publisher.contact_name }}</p>
+        <p class="mb-1"><a
+                href="mailto:{{ publisher.contact_email }}">{{ publisher.contact_email }}</a></p>
+        <p class="mb-0"><a
+                href="tel:{{ publisher.contact_telephone }}">{{ publisher.contact_telephone }}</a>
+        </p>
+      </div>
+      <div>
+        <button type="button" class="btn btn-secondary btn-block">Download data <small>– 1282 rows, 128kb</small>
+        </button>
       </div>
     </div>
+  </div>
 
 {% endblock %}

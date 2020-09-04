@@ -28,7 +28,6 @@ class Command(BaseCommand):
             contact = pub.release_json["buyer"].get("contactPoint")
             if contact:
                 Publisher.objects.update_or_create(
-                    publisher_id=pub.package_data.publisher_name,
                     publisher_name=pub.package_data.publisher_name,
                     defaults={
                         "contact_name": contact.get("name", ""),
