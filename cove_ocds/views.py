@@ -370,6 +370,14 @@ def explore_ocds(request, pk):
                         release["date"] = parser.parse(release["date"])
                     else:
                         release["date"] = None
+
+                try:
+                    trans_date = release["contracts"][0]["implementation"]["transactions"][0]["date"]
+                    parsed_trans_date = parser.parse(trans_date)
+                    release["contracts"][0]["implementation"]["transactions"][0]["date"] = parsed_trans_date
+                except KeyError:
+                    pass
+
             if context.get("releases_aggregates"):
                 date_fields = [
                     "max_award_date",

@@ -1,24 +1,27 @@
 {% load i18n %}
+{% load humanize %}
 
 <table class="table table-bordered mt-3 mb-5" style="font-size: 0.875rem">
-    <thead>
-        <tr>
-            <th>{% blocktrans %}Notice ID{% endblocktrans %}</th>
-            <th>{% blocktrans %}Published Date{% endblocktrans %}</th>
-            <th>{% blocktrans %}Transaction ID{% endblocktrans %}</th>
-            <th>{% blocktrans %}Transaction Date{% endblocktrans %}</th>
-            <th>{% blocktrans %}Transaction Amount{% endblocktrans %}</th>
-        </tr>
-    </thead>
-    <tbody>
-      {% for release in releases|slice:":10" %}
-        <tr>
-            <td>{{ release.id }}</td>
-            <td>{{ release.date|date:"j M Y, H:i (e)" }}</td>
-            <td>{{ release.contracts.0.implementation.transactions.0.id }}</td>
-            <td>{{ release.contracts.0.implementation.transactions.0.date|date:"j M Y, H:i (e)" }}</td>
-            <td>{{ release.contracts.0.implementation.transactions.0.amount }} {{ release.contracts.0.implementation.transactions.0.currency }}</td>
-        </tr>
-      {% endfor %}
-    </tbody>
+  <thead>
+  <tr>
+    <th>{% blocktrans %}Notice ID{% endblocktrans %}</th>
+    <th>{% blocktrans %}Published Date{% endblocktrans %}</th>
+    <th>{% blocktrans %}Date{% endblocktrans %}</th>
+    <th>{% blocktrans %}Buyer{% endblocktrans %}</th>
+    <th>{% blocktrans %}Supplier{% endblocktrans %}</th>
+    <th>{% blocktrans %}Amount{% endblocktrans %}</th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for release in releases|slice:":10" %}
+    <tr>
+      <td>{{ release.id }}</td>
+      <td>{{ release.date|date:"j M Y, H:i (e)" }}</td>
+      <td>{{ release.contracts.0.implementation.transactions.0.date|date:"j M Y" }}</td>
+      <td>{{ release.contracts.0.implementation.transactions.0.payer.name }}</td>
+      <td>{{ release.contracts.0.implementation.transactions.0.payee.name }}</td>
+      <td>{{ release.contracts.0.implementation.transactions.0.value.amount|intcomma }} {{ release.contracts.0.implementation.transactions.0.value.currency }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
 </table>
