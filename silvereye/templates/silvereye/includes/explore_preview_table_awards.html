@@ -1,0 +1,24 @@
+{% load i18n %}
+
+<table class="table table-bordered mt-3 mb-5" style="font-size: 0.875rem">
+  <thead>
+  <tr>
+    <th>{% blocktrans %}Notice ID{% endblocktrans %}</th>
+    <th>{% blocktrans %}Published Date{% endblocktrans %}</th>
+    <th>{% blocktrans %}Supplier{% endblocktrans %}</th>
+    <th>{% blocktrans %}Award Title{% endblocktrans %}</th>
+    <th>{% blocktrans %}Award Description{% endblocktrans %}</th>
+  </tr>
+  </thead>
+  <tbody>
+  {% for release in releases|slice:":10" %}
+    <tr>
+      <td>{{ release.id }}</td>
+      <td>{{ release.date|date:"j M Y, H:i (e)" }}</td>
+      <td>{{ release.awards.0.suppliers.0.name }}</td>
+      <td>{{ release.awards.0.title }}</td>
+      <td>{{ release.awards.0.description }}</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
