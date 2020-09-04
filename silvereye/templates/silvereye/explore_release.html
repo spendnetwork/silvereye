@@ -165,6 +165,17 @@
     </table>
   {% endif %}
 
+  {% if field_coverage %}
+    <h2 class="d-flex align-items-center">
+        <span class="badge badge-pill badge-warning mr-3">{{ count }}</span> Field Coverage
+    </h2>
+
+    <p>Expected fields: {{ field_coverage.total_expected_fields }}</p>
+    <p>Average field coverage: {{ field_coverage.average_field_completion }}</p>
+    <p>Minimum field coverage: {{ field_coverage.minimum_field_completion }}</p>
+    <p>Maximum field coverage: {{ field_coverage.maximum_field_completion }}</p>
+  {% endif %}
+
   {% if validation_errors or structure_warnings %}
     <h2 class="h3">This data has not been submitted because there are errors</h2>
     <p>To add your data, fix the errors, and upload your file again.</p>
