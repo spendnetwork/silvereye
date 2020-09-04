@@ -61,7 +61,7 @@ def publisher_listing(request):
 
     local_authority_name_to_type = {at.authority_name: at.authority_type for at in AuthorityType.objects.all()}
     for publisher in publishers:
-        publisher['type'] = local_authority_name_to_type.get(publisher['publisher_name'])
+        publisher['type'] = local_authority_name_to_type.get(publisher['publisher_name'], "Unknown")
 
     filter_authority_types = request.GET.getlist('authority_type')
     if filter_authority_types:
@@ -74,6 +74,7 @@ def publisher_listing(request):
         .values_list('authority_type', flat=True)
 
     known_types = [(kt, kt in filter_authority_types) for kt in unique_authority_types]
+    known_types.extend([("Unknown", "Unknown" in filter_authority_types)])
 
     context = {
         'publishers': publishers,
