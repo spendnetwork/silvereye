@@ -271,10 +271,11 @@ class CSVMapper:
         min_completion = min(completed_fields_counts)
         max_completion = max(completed_fields_counts)
 
-        coverage_context = {
-            "total expected fields": expected_fields,
-            "average field completion": av_completion,
-            "minimum field completion": min_completion,
-            "maximum field completion": max_completion,
+        context = {
+            "total_expected_fields": expected_fields,
+            "average_field_completion": av_completion,
+            "minimum_field_completion": min_completion,
+            "maximum_field_completion": max_completion,
         }
-        return coverage_context
+
+        return context

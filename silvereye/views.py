@@ -164,7 +164,7 @@ def data_input(request, *args, **kwargs):
     request_data = None
     if "source_url" in request.GET:
         request_data = request.GET
-    if request.POST:
+    if request.POST or request.FILES:
         request_data = request.POST
     if request_data:
         if 'source_url' in request_data:

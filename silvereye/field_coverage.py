@@ -20,44 +20,29 @@ def check_coverage(input_df, mappings_df, notice_type="tender"):
         expected_fields = len(mappings_df)
 
     coverage_output = []
+    required_missing = []
     completed_fields_counts = []
-    critical_fields = mappings_df.loc[mappings_df['required'] == True, 'csv_header'].values.tolist()
+    required_fields = mappings_df.loc[mappings_df['required'] == True, 'csv_header'].values.tolist()
     for i, row in input_df.iterrows():
-
         completed_fields_counts.append(row.count())
 
-        critical_nulls = row.isnull()[critical_fields]
-        critical_missing = critical_nulls[critical_nulls].index.tolist()
-        if critical_missing:
-            coverage_output.append({'Notice ID': row['Notice ID'], 'Critical Missing Fields': critical_missing})
+        critical_nulls = row.isnull()[required_fields]
+        required_missing = critical_nulls[critical_nulls].index.tolist()
+        if required_missing:
+            coverage_output.append({'Notice ID': row['Notice ID'], 'Critical Missing Fields': required_missing})
 
     completion = input_df.count().div(len(input_df)).mul(100)
     missingcounts = input_df.isna().sum()
-    missing_counts = missingcounts[missingcounts != 0].sort_values(ascending=False)
+    missing_counts_nonzero = missingcounts[missingcounts != 0].sort_values(ascending=False)
     critical_report = pd.DataFrame(coverage_output)
 
     report = {
         "expected_fields": expected_fields,
-        "completion": completion,
-        "counts_missing_fields": missing_counts,
+        "required_fields": required_fields,
+        "required_fields_missing": required_missing,
+        "field_completion_percentage": completion,
+        "counts_missing_fields": missing_counts_nonzero,
         "critical_fields_missing_by_id": critical_report,
         "completed_fields_counts": completed_fields_counts
     }
     return report
-
-
-def create_context(expected_fields, completed_fields_counts):
-
-    av_completion = np.mean(completed_fields_counts)
-    min_completion = min(completed_fields_counts)
-    max_completion = max(completed_fields_counts)
-
-    context = {
-        "total expected fields": expected_fields,
-        "average field completion": av_completion,
-        "minimum field completion": min_completion,
-        "maximum field completion": max_completion,
-    }
-
-    return context
-
