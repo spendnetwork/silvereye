@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'django_pgviews',
     'pipeline',
     'debug_toolbar',
+    'mathfilters',
 ]
 
 

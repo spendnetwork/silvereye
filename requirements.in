@@ -40,3 +40,4 @@ pandas
 elasticsearch
 elasticsearch-dsl
 faker
+django-mathfilters

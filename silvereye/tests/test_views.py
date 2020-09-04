@@ -28,7 +28,7 @@ class HomeViewTest(TestCase):
         response = self.client.get('/publisher-hub/')
         self.assertEqual(response.status_code, 200)
 
-    @mock.patch('silvereye.views.date_today')
+    @mock.patch('silvereye.helpers.date_today')
     def test_sets_publisher_metrics_in_context(self, mock_today):
         mock_today.return_value = datetime(2020, 8, 25)
         response = self.client.get(reverse('publisher-hub'))

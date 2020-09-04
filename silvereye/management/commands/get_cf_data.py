@@ -13,6 +13,7 @@ import shutil
 from random import random
 
 import pandas as pd
+import numpy as np
 from dateutil.relativedelta import relativedelta
 from django.core.files.base import ContentFile
 from django.core.management import BaseCommand
@@ -27,7 +28,7 @@ from cove_ocds.views import convert_simple_csv_submission
 from libcoveocds.config import LibCoveOCDSConfig
 from silvereye.helpers import update_publisher_monthly_counts
 from silvereye.ocds_csv_mapper import CSVMapper
-from silvereye.models import Publisher, FileSubmission
+from silvereye.models import Publisher, FileSubmission, FieldCoverage
 
 logger = logging.getLogger('django')
 
@@ -282,6 +283,7 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
                 logger.exception("error preprocessing %s", file_name)
 
     source_df = pd.concat(source_data, ignore_index=True)
+    source_df = source_df.replace({np.nan: None})
 
     # Used to create CF mappings
     # source_combined_path = os.path.join(WORKING_DIR, "combined.csv")
@@ -327,14 +329,14 @@ def augment_award_row_with_spend(row):
     row["releases/0/ocid"] = row["releases/0/ocid"] + "_trans1"
     row["releases/0/id"] = row["releases/0/id"] + "_trans1"
     # Set published date some time later than award
-    days_between_publishing_award_and_spend = int(random() * 10) + 30
+    days_between_publishing_award_and_spend = int(random() * 10) + 10
     award_pub_datetime = datetime.strptime(row["releases/0/date"], '%Y-%m-%dT%H:%M:%SZ')
     trans_pub_datetime = datetime.strftime(
         award_pub_datetime + relativedelta(days=days_between_publishing_award_and_spend), '%Y-%m-%dT%H:%M:%SZ')
     row["releases/0/date"] = trans_pub_datetime
     row["publishedDate"] = trans_pub_datetime
     # Set Transaction date
-    days_between_awarded_date_and_trans_date = int(random() * 10) + 20
+    days_between_awarded_date_and_trans_date = int(random() * 10) + 10
     awarded_datetime = datetime.strptime(row["releases/0/awards/0/date"], '%Y-%m-%dT%H:%M:%SZ')
     trans_datetime = datetime.strftime(awarded_datetime + relativedelta(days=days_between_awarded_date_and_trans_date),
                                        '%Y-%m-%dT%H:%M:%SZ')
@@ -387,8 +389,8 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                 rowdf = df_release_type.loc[[i]]
                 new_row_df = rowdf.apply(augment_award_row_with_spend, axis=1)
                 spend_df = spend_df.append(new_row_df)
-
-            df_release_type = spend_df.loc[spend_df["publishedDate"] < str(datetime.now())]
+            if not df_release_type.empty:
+                df_release_type = spend_df.loc[spend_df["publishedDate"] < str(datetime.now())]
         else:
             df_release_type = df[df['releases/0/tag'] == release_type]
 
@@ -403,7 +405,8 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
 
             # Create fake simple submission CSV
             period_dir_name = os.path.basename(parent_directory)
-            simple_csv_file_path = join(SAMPLE_SUBMISSIONS_DIR, f"{release_name}_{period_dir_name}.csv")
+            simple_csv_file_name = f"{release_name}_{period_dir_name}.csv"
+            simple_csv_file_path = join(SAMPLE_SUBMISSIONS_DIR, simple_csv_file_name)
             cf_mapper = CSVMapper(mappings_file=CF_MAPPINGS_FILE)
             ocds_1_1_release_df = cf_mapper.convert_cf_to_1_1(df_release_type)
             mapper = CSVMapper(release_type=release_type)
@@ -422,6 +425,10 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                     # helpers.SimpleSubmissionHelpers().load_simple_csv_into_database(simple_csv_df, publisher)
                     # Load data from Simple CSV
                     logger.info("Creating or updating Publisher %s (id %s)", publisher_name, publisher_id)
+                    contact_name = df_release_type.iloc[0]["releases/0/buyer/contactPoint/name"]
+                    contact_email = df_release_type.iloc[0]["releases/0/buyer/contactPoint/email"]
+                    contact_telephone = df_release_type.iloc[0]["releases/0/buyer/contactPoint/telephone"]
+
                     publisher, created = Publisher.objects.update_or_create(
                         publisher_scheme=publisher_scheme,
                         publisher_id=publisher_id,
@@ -430,7 +437,10 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                             "publisher_id": publisher_id,
                             "publisher_scheme": publisher_scheme,
                             "uri": publisher_uri,
-                            "ocid_prefix": ocid_prefix
+                            "ocid_prefix": ocid_prefix,
+                            "contact_name": contact_name if contact_name else "",
+                            "contact_email": contact_email if contact_email else "",
+                            "contact_telephone": contact_telephone if contact_telephone else "",
                         }
                     )
 
@@ -445,12 +455,26 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                         id=contracts_finder_id,
                         defaults={
                             "current_app": "silvereye",
+                            "notice_type": mapper.release_type,
                         }
                     )
                     supplied_data.publisher = publisher
                     supplied_data.created = published_date
-                    supplied_data.original_file.save("simple.csv", ContentFile(open(simple_csv_file_path).read()))
+                    supplied_data.original_file.save(simple_csv_file_name, ContentFile(open(simple_csv_file_path).read()))
                     supplied_data.save()
+
+                    # Store field coverage
+                    mapper = CSVMapper(csv_path=simple_csv_file_path)
+                    coverage_context = mapper.get_coverage_context()
+                    average_field_completion = coverage_context.get("average_field_completion")
+                    inst, created = FieldCoverage.objects.update_or_create(
+                        file_submission=supplied_data,
+                        defaults={
+                            "tenders_field_coverage": average_field_completion if mapper.release_type == "tender" else None,
+                            "awards_field_coverage": average_field_completion if mapper.release_type == "award" else None,
+                            "spend_field_coverage": average_field_completion if mapper.release_type == "spend" else None,
+                        }
+                    )
 
                     lib_cove_ocds_config = LibCoveOCDSConfig()
 

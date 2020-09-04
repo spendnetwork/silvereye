@@ -67,6 +67,7 @@ class PublisherMonthlyCounts(models.Model):
 class FileSubmission(SuppliedData):
     supplied_data = models.OneToOneField(SuppliedData, on_delete=models.CASCADE, parent_link=True, primary_key=True, serialize=False)
     publisher = models.ForeignKey(Publisher, on_delete=models.CASCADE, null=True)
+    notice_type = models.CharField(max_length=128, null=True)
 
     @receiver(post_save, sender=SuppliedData)
     def create_file_submission(sender, instance, created, **kwargs):
@@ -75,3 +76,11 @@ class FileSubmission(SuppliedData):
 
     def __str__(self):
         return f"{self.supplied_data.original_file}"
+
+
+class FieldCoverage(models.Model):
+    file_submission = models.OneToOneField(FileSubmission, on_delete=models.CASCADE, primary_key=True)
+    tenders_field_coverage = models.FloatField(null=True)
+    awards_field_coverage = models.FloatField(null=True)
+    spend_field_coverage = models.FloatField(null=True)
+

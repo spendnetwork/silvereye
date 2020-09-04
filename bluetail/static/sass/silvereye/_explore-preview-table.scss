@@ -1,0 +1,10 @@
+.explore-preview-table {
+    font-size: 0.875em;
+    table-layout: fixed;
+
+    td {
+        overflow: auto;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
