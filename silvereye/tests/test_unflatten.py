@@ -9,16 +9,15 @@ from flattentool import unflatten
 from six import StringIO
 
 import silvereye
-from silvereye.helpers import prepare_base_json_from_release_df
 from silvereye.ocds_csv_mapper import CSVMapper
 from silvereye.management.commands.get_cf_data import fix_contracts_finder_flat_CSV
 
 SILVEREYE_DIR = silvereye.__path__[0]
 TESTS_DIR = os.path.dirname(os.path.realpath(__file__))
 CF_DAILY_DIR = os.path.join(SILVEREYE_DIR, "data", "cf_daily_csv")
-HEADERS_LIST = join(CF_DAILY_DIR, "headers_min.txt")
 OCDS_SCHEMA = join(SILVEREYE_DIR, "data", "OCDS", "1.1.4-release-schema.json")
 CF_DIR = join(TESTS_DIR, "fixtures", "CF_CSV")
+CF_MAPPINGS_FILE = os.path.join(SILVEREYE_DIR, "data", "csv_mappings", "contracts_finder_mappings.csv")
 
 
 def test_unflatten_cf_daily_csv_to_jsonlist_of_release_packages(contracts_finder_daily_csv_df):
@@ -43,26 +42,6 @@ def test_fix_contracts_finder_flat_CSV(contracts_finder_daily_csv_df):
     assert any(fixed_df["releases/0/awards/0/items/0/id"])
 
 
-def convert_cf_to_release_csv(df):
-    """
-    Process raw CF CSV:
-        - Filter columns using headers in HEADERS_LIST file
-        - fix array issue with tags
-    """
-    CF_HEADERS_LIST = join(CF_DIR, "headers_min.txt")
-    cols_list = open(CF_HEADERS_LIST).readlines()
-    cols_list = [x.strip() for x in cols_list]
-    fixed_df = df[df.columns.intersection(cols_list)]
-    # Remove releases/0
-    map_dict = dict([(col, col.replace('releases/0/', '')) for col in cols_list])
-    fixed_df = fixed_df.rename(columns=map_dict)
-    fixed_df = fixed_df.rename(columns={
-        # 'extensions/0': 'extensions',
-        'tag/0': 'tag'
-    })
-    return fixed_df
-
-
 def test_unflatten_cf_daily_csv_using_base_json():
     CF_DIR = join(TESTS_DIR, "fixtures", "CF_CSV")
     working_dir = join(CF_DIR, "working_files")
@@ -74,10 +53,14 @@ def test_unflatten_cf_daily_csv_using_base_json():
     os.makedirs(clean_output_dir)
 
     df = pd.read_csv(csv_path_or_url)
-    fixed_df = convert_cf_to_release_csv(df)
+
+    cf_mapper = CSVMapper(mappings_file=CF_MAPPINGS_FILE)
+    fixed_df = fix_contracts_finder_flat_CSV(df)
+    fixed_df = cf_mapper.convert_cf_to_1_1(fixed_df)
+
     fixed_df.to_csv(open(clean_output_file, "w"), index=False, header=True)
     base_json_path = join(CF_DIR, "working_files", "base.json")
-    base_json = prepare_base_json_from_release_df(fixed_df, base_json_path)
+    base_json = cf_mapper.prepare_base_json_from_release_df(fixed_df, base_json_path)
     unflatten(clean_output_dir,
               base_json=base_json_path,
               output_name=output_file,
@@ -135,9 +118,9 @@ def test_create_templates():
     df = pd.read_csv(award_csv_path, nrows=0)
     assert "Award Title" in df.columns
 
-    award_csv_path = os.path.join(templates_output_dir, "spend_template.csv")
-    assert os.path.exists(award_csv_path)
-    df = pd.read_csv(award_csv_path, nrows=0)
+    spend_csv_path = os.path.join(templates_output_dir, "spend_template.csv")
+    assert os.path.exists(spend_csv_path)
+    df = pd.read_csv(spend_csv_path, nrows=0)
     assert "Transaction ID" in df.columns
 
 

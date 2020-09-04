@@ -117,6 +117,44 @@ def fix_contracts_finder_flat_CSV(df):
     return fixed_df
 
 
+def unflatten_cf_data(json_file_path, last_published_date, load_data, output_dir):
+    # Turn the fixed CF CSV into releases package JSON
+    # Used in earlier work to test and debug the CF preprocessing pipeline, before the simple CSV conversion
+    # Left here for debugging purposes
+    schema = OCDS_RELEASE_SCHEMA
+    unflatten(output_dir, output_name=json_file_path, input_format="csv", root_id="ocid", root_is_list=True,
+              schema=schema)
+    # Combine the packages from the file into one release package and
+    # write it back to the file
+    js = json.load(open(json_file_path))
+    publisher = js[0]["publisher"]
+    uri = js[0]["uri"]
+    release_package = combine_release_packages(
+        js,
+        uri=uri,
+        publisher=publisher,
+        published_date=last_published_date,
+        version='1.1'
+    )
+    release_package = json.dumps(
+        release_package,
+        indent=2,
+        sort_keys=True,
+        cls=DjangoJSONEncoder
+    )
+    release_file = open(json_file_path, "w")
+    release_file.write(release_package)
+    release_file.close()
+    # Load the data from the file into the database
+    if load_data:
+        logger.info("Loading data from %s", json_file_path)
+        js = json.load(open(json_file_path))
+        # Extract the Contracts Finder ID from the uri of the first
+        # release to use as an ID
+        contracts_finder_id = os.path.splitext(os.path.split(uri)[1])[0]
+        create_package_from_json(contracts_finder_id, js)
+
+
 def get_ocid_prefix(ocid):
     """
     Return an 11 digit OCID prefix for a publisher from an OCID e.g
@@ -294,6 +332,7 @@ def augment_award_row_with_spend(row):
     trans_pub_datetime = datetime.strftime(
         award_pub_datetime + relativedelta(days=days_between_publishing_award_and_spend), '%Y-%m-%dT%H:%M:%SZ')
     row["releases/0/date"] = trans_pub_datetime
+    row["publishedDate"] = trans_pub_datetime
     # Set Transaction date
     days_between_awarded_date_and_trans_date = int(random() * 10) + 20
     awarded_datetime = datetime.strptime(row["releases/0/awards/0/date"], '%Y-%m-%dT%H:%M:%SZ')
@@ -307,6 +346,11 @@ def augment_award_row_with_spend(row):
     for col, value in row.iteritems():
         if "tender/items" in col:
             row[col.replace("releases/0/tender/", "releases/0/contracts/0/")] = row[col]
+
+    uri = row["uri"]
+    contracts_finder_id = os.path.splitext(os.path.split(uri)[1])[0]
+    spend_contracts_finder_id = contracts_finder_id[:-4] + "1234"
+    row["uri"] = row["uri"].replace(contracts_finder_id, spend_contracts_finder_id)
 
     return row
 
@@ -343,7 +387,8 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                 rowdf = df_release_type.loc[[i]]
                 new_row_df = rowdf.apply(augment_award_row_with_spend, axis=1)
                 spend_df = spend_df.append(new_row_df)
-            df_release_type = spend_df
+
+            df_release_type = spend_df.loc[spend_df["publishedDate"] < str(datetime.now())]
         else:
             df_release_type = df[df['releases/0/tag'] == release_type]
 
@@ -420,43 +465,7 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                     logger.exception("Error loading data for %s in %s", name, parent_directory)
 
             if unflatten_contracts_finder_data:
-                # Turn the fixed CF CSV into releases package JSON
-                # Used in earlier work to test and debug the CF preprocessing pipeline, before the simple CSV conversion
-                # Left here for debugging purposes
-                schema = OCDS_RELEASE_SCHEMA
-                unflatten(output_dir, output_name=json_file_path, input_format="csv", root_id="ocid", root_is_list=True,
-                          schema=schema)
-
-                # Combine the packages from the file into one release package and
-                # write it back to the file
-                js = json.load(open(json_file_path))
-                publisher = js[0]["publisher"]
-                uri = js[0]["uri"]
-                release_package = combine_release_packages(
-                    js,
-                    uri=uri,
-                    publisher=publisher,
-                    published_date=last_published_date,
-                    version='1.1'
-                )
-                release_package = json.dumps(
-                    release_package,
-                    indent=2,
-                    sort_keys=True,
-                    cls=DjangoJSONEncoder
-                )
-                release_file = open(json_file_path, "w")
-                release_file.write(release_package)
-                release_file.close()
-
-                # Load the data from the file into the database
-                if load_data:
-                    logger.info("Loading data from %s", json_file_path)
-                    js = json.load(open(json_file_path))
-                    # Extract the Contracts Finder ID from the uri of the first
-                    # release to use as an ID
-                    contracts_finder_id = os.path.splitext(os.path.split(uri)[1])[0]
-                    create_package_from_json(contracts_finder_id, js)
+                unflatten_cf_data(json_file_path, last_published_date, load_data, output_dir)
 
 
 def remake_dir(directory):
