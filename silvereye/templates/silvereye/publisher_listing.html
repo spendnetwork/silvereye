@@ -15,67 +15,56 @@
         <h1 class="mt-4 mb-4">Publishers</h1>
         <div class="row">
             <div class="col-sm-12 col-md-3 pr-md-4">
-                <form>
+                <form method="get">
                     <h3 class="h6">Filter by</h3>
-                    <a href="#"><small>Clear all</small></a>
+                    <a href="{% url 'publisher-listing' %}"><small>Clear all</small></a>
                     <fieldset class="mt-4">
                         <legend class="h6">Authority type</legend>
+                        {% for type, checked in known_types %}
                         <div class="form-check mt-2">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck1">
-                            <label class="form-check-label" for="exampleCheck1">London boroughs</label>
+                            <input type="checkbox" class="form-check-input" name="authority_type" value="{{ type }}" id="{{ type|slugify }}" {% if checked %}checked{% endif %}>
+                            <label class="form-check-label" for="{{ type|slugify }}">{{ type }}</label>
                         </div>
-                        <div class="form-check mt-2">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck2">
-                            <label class="form-check-label" for="exampleCheck2">Metropolitan district</label>
-                        </div>
-                        <div class="form-check mt-2">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck3">
-                            <label class="form-check-label" for="exampleCheck3">Unitary</label>
-                        </div>
-                        <div class="form-check mt-2">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck4">
-                            <label class="form-check-label" for="exampleCheck4">County</label>
-                        </div>
-                        <div class="form-check mt-2">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck5">
-                            <label class="form-check-label" for="exampleCheck5">District or Borough</label>
-                        </div>
+                        {% endfor %}
                     </fieldset>
-                    <fieldset class="mt-4">
-                        <legend class="h6">Region</legend>
-                        <div class="form-check mt-2">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck6">
-                            <label class="form-check-label" for="exampleCheck6">Scotland</label>
-                        </div>
-                        <div class="form-check mt-2">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck7">
-                            <label class="form-check-label" for="exampleCheck7">Northern Ireland</label>
-                        </div>
-                        <div class="form-check mt-2">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck8">
-                            <label class="form-check-label" for="exampleCheck8">Wales</label>
-                        </div>
-                        <div class="form-check mt-2">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck9">
-                            <label class="form-check-label" for="exampleCheck9">North West</label>
-                        </div>
-                        <div class="form-check mt-2">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck01">
-                            <label class="form-check-label" for="exampleCheck10">East of England</label>
-                        </div>
-                        <div class="form-check mt-2">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck11">
-                            <label class="form-check-label" for="exampleCheck11">West Midlands</label>
-                        </div>
-                        <div class="form-check mt-2">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck12">
-                            <label class="form-check-label" for="exampleCheck12">South East</label>
-                        </div>
-                        <div class="form-check mt-2">
-                            <input type="checkbox" class="form-check-input" id="exampleCheck13">
-                            <label class="form-check-label" for="exampleCheck13">Greater London</label>
-                        </div>
-                    </fieldset>
+{#                    <fieldset class="mt-4">#}
+{#                        <legend class="h6">Region</legend>#}
+{#                        <div class="form-check mt-2">#}
+{#                            <input type="checkbox" class="form-check-input" id="exampleCheck6">#}
+{#                            <label class="form-check-label" for="exampleCheck6">Scotland</label>#}
+{#                        </div>#}
+{#                        <div class="form-check mt-2">#}
+{#                            <input type="checkbox" class="form-check-input" id="exampleCheck7">#}
+{#                            <label class="form-check-label" for="exampleCheck7">Northern Ireland</label>#}
+{#                        </div>#}
+{#                        <div class="form-check mt-2">#}
+{#                            <input type="checkbox" class="form-check-input" id="exampleCheck8">#}
+{#                            <label class="form-check-label" for="exampleCheck8">Wales</label>#}
+{#                        </div>#}
+{#                        <div class="form-check mt-2">#}
+{#                            <input type="checkbox" class="form-check-input" id="exampleCheck9">#}
+{#                            <label class="form-check-label" for="exampleCheck9">North West</label>#}
+{#                        </div>#}
+{#                        <div class="form-check mt-2">#}
+{#                            <input type="checkbox" class="form-check-input" id="exampleCheck01">#}
+{#                            <label class="form-check-label" for="exampleCheck10">East of England</label>#}
+{#                        </div>#}
+{#                        <div class="form-check mt-2">#}
+{#                            <input type="checkbox" class="form-check-input" id="exampleCheck11">#}
+{#                            <label class="form-check-label" for="exampleCheck11">West Midlands</label>#}
+{#                        </div>#}
+{#                        <div class="form-check mt-2">#}
+{#                            <input type="checkbox" class="form-check-input" id="exampleCheck12">#}
+{#                            <label class="form-check-label" for="exampleCheck12">South East</label>#}
+{#                        </div>#}
+{#                        <div class="form-check mt-2">#}
+{#                            <input type="checkbox" class="form-check-input" id="exampleCheck13">#}
+{#                            <label class="form-check-label" for="exampleCheck13">Greater London</label>#}
+{#                        </div>#}
+{#                    </fieldset>#}
+                    <div class="mt-3">
+                        <input type="submit" value="Filter" class="btn btn-primary">
+                    </div>
                 </form>
             </div>
             <div class="col-sm-12 col-md-9">
@@ -104,7 +93,10 @@
                         <tbody>
                         {% for publisher in publishers %}
                             <tr>
-                                <td><a href="{% url 'publisher' publisher.publisher_name %}">{{ publisher.publisher_name }}</a></td>
+                                <td>
+                                    <a href="{% url 'publisher' publisher.publisher_name %}">{{ publisher.publisher_name }}</a>
+                                    {% if publisher.type %}<small>{{publisher.type}}</small>{% endif %}
+                                </td>
                                 <td>{{ publisher.total }}</td>
                                 <td>
                                     {% if publisher.last_submission.date > submission_date_yellow.date %}
