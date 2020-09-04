@@ -1,2 +1,2 @@
-total expected fields,average field completion,minimum field completion,maximum field completion
-24,13.2,11,15
+total_expected_fields,average_field_completion,minimum_field_completion,maximum_field_completion
+24,"10.0","7","13"
