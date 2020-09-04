@@ -157,14 +157,11 @@ default_form_classes = {
 def data_input(request, *args, **kwargs):
     form_classes = default_form_classes
     text_file_name = 'test.json'
-    # Add something to request.POST so data_input doesn't ignore uploaded files.
-    request.POST = request.POST.copy()
-    request.POST["something"] = "Dummy POST content so the CSV gets processed when CSRF not present"
     forms = {form_name: form_class() for form_name, form_class in form_classes.items()}
     request_data = None
     if "source_url" in request.GET:
         request_data = request.GET
-    if request.POST:
+    if request.POST or request.FILES:
         request_data = request.POST
     if request_data:
         if 'source_url' in request_data:

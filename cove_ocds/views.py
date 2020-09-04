@@ -352,7 +352,7 @@ def explore_ocds(request, pk):
                 json_data, ocds_show_deref_schema
             )
     else:
-        template = "cove_ocds/explore_release.html"
+        template = "silvereye/explore_release.html"
         if hasattr(json_data, "get") and hasattr(json_data.get("releases"), "__iter__"):
             context["releases"] = json_data["releases"]
             if (
@@ -370,6 +370,14 @@ def explore_ocds(request, pk):
                         release["date"] = parser.parse(release["date"])
                     else:
                         release["date"] = None
+
+                try:
+                    trans_date = release["contracts"][0]["implementation"]["transactions"][0]["date"]
+                    parsed_trans_date = parser.parse(trans_date)
+                    release["contracts"][0]["implementation"]["transactions"][0]["date"] = parsed_trans_date
+                except KeyError:
+                    pass
+
             if context.get("releases_aggregates"):
                 date_fields = [
                     "max_award_date",

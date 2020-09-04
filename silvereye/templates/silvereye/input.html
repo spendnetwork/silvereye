@@ -1,124 +1,123 @@
-{% extends 'input.html' %}
-{% load bootstrap3 %}
+{% extends request.current_app_base_template %}
+{% load bootstrap4 %}
 {% load i18n %}
 
 {% block content %}
-  <div class="container-md">
 
     <nav aria-label="breadcrumb">
-      <ol class="breadcrumb my-4">
-        <li class="breadcrumb-item active" aria-current="page">Upload</li>
-      </ol>
+        <ol class="breadcrumb my-4">
+            <li class="breadcrumb-item"><a href="{% url 'publisher-hub' %}">Publisher Hub</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Upload data</li>
+        </ol>
     </nav>
 
-    <div id="loading" style="display: none"><h3> Loading: </h3> <img class="spinner"
-                                                                     src="//i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif"
-                                                                     alt="spinner" width="30" height="30"></div>
-    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+    <h1>Upload data</h1>
+    <p class="mb-5">Import data on tenders, awards, or spend, from a file on your computer or on the web.</p>
+
+    <div id="loading" style="display: none">
+        <h3>Loading:</h3>
+        <img class="spinner" src="//i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif" alt="spinner" width="30" height="30">
+    </div>
+
+    <div class="accordion" id="inputMethods">
+
       {% if 'upload' in input_methods %}
-        <div class="panel panel-default">
-          <div class="panel-heading" role="tab" id="headingTwo" data-toggle="collapse" data-parent="#accordion"
-               data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
-            <h4 class="panel-title">
-              <a class="accordion-toggle">
-                <span class="glyphicon glyphicon-upload" aria-hidden="true"></span>{% trans "Upload" %}
-              </a>
-            </h4>
-          </div>
-          <div>
-            <a href="{% url "download_template_csv" "tender" %}">Download Tender CSV Template</a>
-          </div>
-          <div>
-            <a href="{% url "download_template_csv" "award" %}">Download Award CSV Template</a>
-          </div>
-          <div>
-            <a href="{% url "download_template_csv" "spend" %}">Download Spend CSV Template</a>
-          </div>
-          <div id="collapseTwo" class="panel-collapse show-open-if-noscript" role="tabpanel"
-               aria-labelledby="headingTwo">
-            <div class="panel-body">
-              <form method="POST" action="." enctype="multipart/form-data">{% csrf_token %}
-                {% bootstrap_form forms.upload_form %}
-                {% buttons %}
-                  <button type="submit" class="btn btn-primary">
-                    {% trans 'Submit' %}
-                  </button>
-                {% endbuttons %}
-              </form>
+        <div class="card">
+            <div class="card-header" id="inputMethodUploadHeading">
+                <h3 class="mb-0">
+                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#inputMethodUpload" aria-expanded="true" aria-controls="inputMethodUpload">
+                        {% trans "Upload a file" %}
+                    </button>
+                </h3>
             </div>
-          </div>
+            <div id="inputMethodUpload" class="collapse show" aria-labelledby="inputMethodUploadHeading" data-parent="#inputMethods">
+                <div class="card-body">
+                    <p>Get perfect results first time – put your data into one of our CSV templates:</p>
+                    <ul>
+                        <li><a href="{% url "download_template_csv" "tender" %}">Tender CSV Template</a></li>
+                        <li><a href="{% url "download_template_csv" "award" %}">Award CSV Template</a></li>
+                        <li><a href="{% url "download_template_csv" "spend" %}">Spend CSV Template</a></li>
+                    </ul>
+                    <hr>
+                    <form method="POST" action="." enctype="multipart/form-data">{% csrf_token %}
+                        {% bootstrap_form forms.upload_form %}
+                      {% buttons %}
+                        <button type="submit" class="btn btn-primary">
+                          {% trans 'Submit' %}
+                        </button>
+                      {% endbuttons %}
+                    </form>
+                </div>
+            </div>
         </div>
       {% endif %}
+
       {% if 'url' in input_methods %}
-        <div class="panel panel-default">
-          <div class="panel-heading" role="tab" id="headingOne" data-toggle="collapse" data-parent="#accordion"
-               data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-            <h4 class="panel-title">
-              <a class="accordion-toggle">
-                <span class="glyphicon glyphicon-link" aria-hidden="true"></span>{% trans "Link" %}
-              </a>
-            </h4>
-          </div>
-          <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
-            <div class="panel-body">
-              <form method="POST" action="." id="fetchURL">{% csrf_token %}
-                {% bootstrap_form forms.url_form %}
-                {% buttons %}
-                  <button type="submit" class="btn btn-primary">
-                    {% trans 'Submit' %}
-                  </button>
-                {% endbuttons %}
-              </form>
+        <div class="card">
+            <div class="card-header" id="inputMethodURLHeading">
+                <h3 class="mb-0">
+                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#inputMethodURL" aria-expanded="true" aria-controls="inputMethodURL">
+                        {% trans "Import from a URL" %}
+                    </button>
+                </h3>
             </div>
-          </div>
+            <div id="inputMethodURL" class="collapse show" aria-labelledby="inputMethodURLHeading" data-parent="#inputMethods">
+                <div class="card-body">
+                    <form method="POST" action="." id="fetchURL">{% csrf_token %}
+                        {% bootstrap_form forms.url_form %}
+                      {% buttons %}
+                        <button type="submit" class="btn btn-primary">
+                          {% trans 'Submit' %}
+                        </button>
+                      {% endbuttons %}
+                    </form>
+                </div>
+            </div>
         </div>
       {% endif %}
 
       {% if 'text' in input_methods %}
-        <div class="panel panel-default">
-        <div class="panel-heading " role="tab" id="headingThree" data-toggle="collapse" data-parent="#accordion"
-             data-target="#collapseThree" aria-expanded="true" aria-controls="collapseThree">
-          <h4 class="panel-title">
-            <a class="accordion-toggle">
-              <span class="glyphicon glyphicon-paste" aria-hidden="true"></span>{% trans "Paste" %}
-            </a>
-          </h4>
-        </div>
-        <div id="collapseThree" class="panel-collapse show-open-if-noscript" role="tabpanel"
-             aria-labelledby="headingThree">
-          <div class="panel-body">
-            <form method="POST" action=".">{% csrf_token %}
-              {% bootstrap_form forms.text_form %}
-              {% buttons %}
-                <button type="submit" class="btn btn-primary">
-                  {% trans 'Submit' %}
-                </button>
-              {% endbuttons %}
-            </form>
-          </div>
+        <div class="card">
+            <div class="card-header" id="inputMethodTextHeading">
+                <h3 class="mb-0">
+                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#inputMethodText" aria-expanded="true" aria-controls="inputMethodText">
+                        {% trans "Paste" %}
+                    </button>
+                </h3>
+            </div>
+            <div id="inputMethodText" class="collapse show" aria-labelledby="inputMethodTextHeading" data-parent="#inputMethods">
+                <div class="card-body">
+                    <form method="POST" action=".">{% csrf_token %}
+                        {% bootstrap_form forms.text_form %}
+                      {% buttons %}
+                        <button type="submit" class="btn btn-primary">
+                          {% trans 'Submit' %}
+                        </button>
+                      {% endbuttons %}
+                    </form>
+                </div>
+            </div>
         </div>
       {% endif %}
-      </div>
+
     </div>
-  </div>
 
-  <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
-  {% bootstrap_javascript %}
+{% endblock %}
 
-  <script>
-      //If javascript is off all pannels show.
-      //We use this to collapse pannels 2 and 3 if javascript is on.
-      $("#collapseOne").attr('class', 'panel-collapse collapse');
-      $("#collapseThree").attr('class', 'panel-collapse collapse');
+{% block extrafooterscript %}
 
-      $('form').submit(function () {
-          $('#loading').css({"display": "block"});
-          $('#accordion').hide();
-      });
-      $(window).unload(function () {
-          $('#loading').css({"display": "none"});
-      })
+    <script>
+        // Hide all but the first collapsible panel.
+        $('.accordion .collapse').each(function(i){
+            if ( i > 0 ) {
+                $(this).removeClass('show').attr('aria-expanded', 'false');
+            }
+        });
 
-  </script>
+        $('form').submit(function () {
+            $('#loading').show();
+            $('#inputMethods').hide();
+        });
+    </script>
 
 {% endblock %}

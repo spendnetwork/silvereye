@@ -9,6 +9,7 @@
 alabaster==0.7.12         # via sphinx
 attrs==19.3.0             # via -r requirements.txt, hypothesis, jsonschema, pytest
 babel==2.8.0              # via sphinx
+beautifulsoup4==4.9.1     # via -r requirements.txt, django-bootstrap4
 bleach==3.1.5             # via -r requirements.txt, libcove, libcoveocds
 boto3==1.13.14            # via -r requirements.txt, smart-open
 boto==2.49.0              # via -r requirements.txt, smart-open
@@ -26,12 +27,13 @@ dealer==2.1.0             # via -r requirements.txt, libcoveweb
 defusedxml==0.6.0         # via -r requirements.txt, odfpy
 dj-database-url==0.5.0    # via -r requirements.txt
 django-bootstrap3==12.1.0  # via -r requirements.txt, libcoveweb
+django-bootstrap4==2.2.0  # via -r requirements.txt
 django-debug-toolbar==2.2  # via -r requirements.txt, libcoveweb
 django-environ==0.4.5     # via -r requirements.txt, libcoveweb
 django-pgviews-redux==0.6.1  # via -r requirements.txt
 django-pipeline==1.6.14   # via -r requirements.txt, django-pipeline-csscompressor
 django-storages==1.9.1    # via -r requirements.txt
-django==2.2.14            # via -r requirements.txt, django-debug-toolbar, django-storages, libcove, libcoveocds, libcoveweb
+django==2.2.14            # via -r requirements.txt, django-bootstrap4, django-debug-toolbar, django-storages, libcove, libcoveocds, libcoveweb
 docopt==0.6.2             # via coveralls
 docutils==0.15.2          # via -r requirements.txt, botocore, sphinx
 elasticsearch-dsl==7.2.1  # via -r requirements.txt
@@ -44,7 +46,7 @@ hypothesis==3.52.3        # via -r requirements_dev.in
 idna==2.9                 # via -r requirements.txt, requests
 ijson==3.1.1              # via -r requirements.txt, ocdskit
 imagesize==1.2.0          # via sphinx
-importlib-metadata==1.7.0  # via -r requirements.txt, flake8, jsonschema, pluggy, pytest
+importlib-metadata==1.7.0  # via -r requirements.txt, django-bootstrap4, flake8, jsonschema, pluggy, pytest
 jdcal==1.4.1              # via -r requirements.txt, openpyxl
 jinja2==2.11.2            # via sphinx
 jmespath==0.10.0          # via -r requirements.txt, boto3, botocore
@@ -68,7 +70,7 @@ odfpy==1.4.1              # via -r requirements.txt, flattentool
 openpyxl==2.6.4           # via -r requirements.txt, flattentool, libcoveweb
 packaging==20.4           # via -r requirements.txt, bleach, pytest, sphinx
 pandas==1.1.0             # via -r requirements.txt
-pip-tools==5.3.1          # via -r requirements_dev.in
+pip-tools==5.2.0          # via -r requirements_dev.in
 pluggy==0.13.1            # via pytest
 psycopg2-binary==2.8.5    # via -r requirements.txt
 py==1.8.1                 # via pytest
@@ -96,6 +98,7 @@ sentry-sdk==0.14.4        # via -r requirements.txt, libcoveweb
 six==1.15.0               # via -r requirements.txt, bleach, elasticsearch-dsl, jsonschema, libsass, packaging, pip-tools, pyrsistent, python-dateutil, transifex-client
 smart-open==2.1.0         # via -r requirements.txt
 snowballstemmer==2.0.0    # via sphinx
+soupsieve==2.0.1          # via -r requirements.txt, beautifulsoup4
 sphinx-rtd-theme==0.4.3   # via -r requirements_dev.in
 sphinx==3.0.4             # via -r requirements_dev.in, sphinx-rtd-theme
 sphinxcontrib-applehelp==1.0.2  # via sphinx
