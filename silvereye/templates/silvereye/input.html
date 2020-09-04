@@ -12,94 +12,135 @@
     </nav>
 
     <h1>Upload data</h1>
-    <p class="mb-5">Import data on tenders, awards, or spend, from a file on your computer or on the web.</p>
+    <p class="mb-5">Import data on tenders, awards, or spend.</p>
 
-    <div id="loading" style="display: none">
-        <h3>Loading:</h3>
-        <img class="spinner" src="//i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif" alt="spinner" width="30" height="30">
+    <div class="upload-steps">
+        <div class="row">
+            <div class="col-auto">
+                <span class="upload-steps__number">1</span>
+            </div>
+            <div class="col">
+                <h2 class="mb-3">Prepare your data</h2>
+                <p>The easiest way to prepare valid data is to download and fill in one of our template spreadsheets:</p>
+                <p class="d-sm-flex align-items-center">
+                    <a href="{% url "download_template_csv" "tender" %}" class="btn btn-outline-primary d-flex align-items-center mr-sm-3">
+                        {% include "silvereye/includes/file_earmark_arrow_down.svg" with extra_classes="mr-2" %}
+                        tenders.csv
+                    </a>
+                    <a href="{% url "download_template_csv" "award" %}" class="btn btn-outline-primary d-flex align-items-center mr-sm-3">
+                        {% include "silvereye/includes/file_earmark_arrow_down.svg" with extra_classes="mr-2" %}
+                        awards.csv
+                    </a>
+                    <a href="{% url "download_template_csv" "spend" %}" class="btn btn-outline-primary d-flex align-items-center">
+                        {% include "silvereye/includes/file_earmark_arrow_down.svg" with extra_classes="mr-2" %}
+                        spend.csv
+                    </a>
+                </p>
+                <p>Alternatively you can build your own file that matches <a href="#">this specification of fields we require</a>.</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-auto">
+                <span class="upload-steps__number">2</span>
+            </div>
+            <div class="col">
+                <h2 class="mb-3">
+                    <label for="js_publisher_select" class="mb-0">Select a publisher<label>
+                </h2>
+                <select class="form-control" id="js_publisher_select"></select>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-auto">
+                <span class="upload-steps__number">3</span>
+            </div>
+            <div class="col">
+                <h2 class="mb-3">Upload your data</h2>
+                <div class="accordion" id="inputMethods">
+
+                  {% if 'upload' in input_methods %}
+                    <div class="card">
+                        <div class="card-header" id="inputMethodUploadHeading">
+                            <h3 class="mb-0">
+                                <button class="btn btn-link btn-block d-flex align-items-center justify-content-start px-0" type="button" data-toggle="collapse" data-target="#inputMethodUpload" aria-expanded="true" aria-controls="inputMethodUpload">
+                                    {% include "silvereye/includes/file_earmark_arrow_up.svg" with extra_classes="mr-2" %}
+                                    {% trans "Upload a file from your computer" %}
+                                </button>
+                            </h3>
+                        </div>
+                        <div id="inputMethodUpload" class="collapse show" aria-labelledby="inputMethodUploadHeading" data-parent="#inputMethods">
+                            <form method="POST" action="." enctype="multipart/form-data" class="card-body">
+                                {% csrf_token %}
+                                {% bootstrap_form forms.upload_form %}
+                              {% buttons %}
+                                <button type="submit" class="btn btn-primary">
+                                {% trans 'Submit' %}
+                                </button>
+                              {% endbuttons %}
+                            </form>
+                        </div>
+                    </div>
+                  {% endif %}
+
+                  {% if 'url' in input_methods %}
+                    <div class="card">
+                        <div class="card-header" id="inputMethodURLHeading">
+                            <h3 class="mb-0">
+                                <button class="btn btn-link btn-block d-flex align-items-center justify-content-start px-0" type="button" data-toggle="collapse" data-target="#inputMethodURL" aria-expanded="true" aria-controls="inputMethodURL">
+                                    {% include "silvereye/includes/cloud.svg" with extra_classes="mr-2" %}
+                                    {% trans "Import a file from a URL" %}
+                                </button>
+                            </h3>
+                        </div>
+                        <div id="inputMethodURL" class="collapse show" aria-labelledby="inputMethodURLHeading" data-parent="#inputMethods">
+                            <form method="POST" action="." enctype="multipart/form-data" class="card-body">
+                                {% csrf_token %}
+                                {% bootstrap_form forms.url_form %}
+                              {% buttons %}
+                                <button type="submit" class="btn btn-primary">
+                                    {% trans 'Submit' %}
+                                </button>
+                              {% endbuttons %}
+                            </form>
+                        </div>
+                    </div>
+                  {% endif %}
+
+                  {% if 'text' in input_methods %}
+                    <div class="card">
+                        <div class="card-header" id="inputMethodTextHeading">
+                            <h3 class="mb-0">
+                                <button class="btn btn-link btn-block d-flex align-items-center justify-content-start px-0" type="button" data-toggle="collapse" data-target="#inputMethodText" aria-expanded="true" aria-controls="inputMethodText">
+                                    {% trans "Paste data from your clipboard" %}
+                                </button>
+                            </h3>
+                        </div>
+                        <div id="inputMethodText" class="collapse show" aria-labelledby="inputMethodTextHeading" data-parent="#inputMethods">
+                            <form method="POST" action="." enctype="multipart/form-data" class="card-body">
+                                {% csrf_token %}
+                                {% bootstrap_form forms.text_form %}
+                              {% buttons %}
+                                <button type="submit" class="btn btn-primary">
+                                    {% trans 'Submit' %}
+                                </button>
+                                {% endbuttons %}
+                            </form>
+                        </div>
+                    </div>
+                  {% endif %}
+
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div class="accordion" id="inputMethods">
-
-      {% if 'upload' in input_methods %}
-        <div class="card">
-            <div class="card-header" id="inputMethodUploadHeading">
-                <h3 class="mb-0">
-                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#inputMethodUpload" aria-expanded="true" aria-controls="inputMethodUpload">
-                        {% trans "Upload a file" %}
-                    </button>
-                </h3>
-            </div>
-            <div id="inputMethodUpload" class="collapse show" aria-labelledby="inputMethodUploadHeading" data-parent="#inputMethods">
-                <div class="card-body">
-                    <p>Get perfect results first time – put your data into one of our CSV templates:</p>
-                    <ul>
-                        <li><a href="{% url "download_template_csv" "tender" %}">Tender CSV Template</a></li>
-                        <li><a href="{% url "download_template_csv" "award" %}">Award CSV Template</a></li>
-                        <li><a href="{% url "download_template_csv" "spend" %}">Spend CSV Template</a></li>
-                    </ul>
-                    <hr>
-                    <form method="POST" action="." enctype="multipart/form-data">{% csrf_token %}
-                        {% bootstrap_form forms.upload_form %}
-                      {% buttons %}
-                        <button type="submit" class="btn btn-primary">
-                          {% trans 'Submit' %}
-                        </button>
-                      {% endbuttons %}
-                    </form>
-                </div>
-            </div>
-        </div>
-      {% endif %}
-
-      {% if 'url' in input_methods %}
-        <div class="card">
-            <div class="card-header" id="inputMethodURLHeading">
-                <h3 class="mb-0">
-                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#inputMethodURL" aria-expanded="true" aria-controls="inputMethodURL">
-                        {% trans "Import from a URL" %}
-                    </button>
-                </h3>
-            </div>
-            <div id="inputMethodURL" class="collapse show" aria-labelledby="inputMethodURLHeading" data-parent="#inputMethods">
-                <div class="card-body">
-                    <form method="POST" action="." id="fetchURL">{% csrf_token %}
-                        {% bootstrap_form forms.url_form %}
-                      {% buttons %}
-                        <button type="submit" class="btn btn-primary">
-                          {% trans 'Submit' %}
-                        </button>
-                      {% endbuttons %}
-                    </form>
-                </div>
-            </div>
-        </div>
-      {% endif %}
-
-      {% if 'text' in input_methods %}
-        <div class="card">
-            <div class="card-header" id="inputMethodTextHeading">
-                <h3 class="mb-0">
-                    <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" data-target="#inputMethodText" aria-expanded="true" aria-controls="inputMethodText">
-                        {% trans "Paste" %}
-                    </button>
-                </h3>
-            </div>
-            <div id="inputMethodText" class="collapse show" aria-labelledby="inputMethodTextHeading" data-parent="#inputMethods">
-                <div class="card-body">
-                    <form method="POST" action=".">{% csrf_token %}
-                        {% bootstrap_form forms.text_form %}
-                      {% buttons %}
-                        <button type="submit" class="btn btn-primary">
-                          {% trans 'Submit' %}
-                        </button>
-                      {% endbuttons %}
-                    </form>
-                </div>
-            </div>
-        </div>
-      {% endif %}
-
+    <div id="loading" class="mb-5 d-none">
+        <h3 class="d-flex align-items-center">
+            <img class="spinner mr-3" src="//i1.wp.com/cdnjs.cloudflare.com/ajax/libs/galleriffic/2.0.1/css/loader.gif" alt="" width="30" height="30">
+            Uploading data
+        <h3>
     </div>
 
 {% endblock %}
@@ -107,16 +148,25 @@
 {% block extrafooterscript %}
 
     <script>
-        // Hide all but the first collapsible panel.
-        $('.accordion .collapse').each(function(i){
-            if ( i > 0 ) {
-                $(this).removeClass('show').attr('aria-expanded', 'false');
-            }
+        $('.accordion .collapse').removeClass('show').attr('aria-expanded', 'false');
+
+        var $publisherSelect = $('#id_publisher_id').clone();
+        $publisherSelect.attr({
+            id: 'js_publisher_select',
+            name: ''
         });
+        $publisherSelect.on('change', function(){
+            var val = $(this).val();
+            $('select[name="publisher_id"]').each(function(){
+                $(this).val(val);
+            });
+        });
+        $('#js_publisher_select').replaceWith($publisherSelect);
+        $('select[name="publisher_id"]').parents('.form-group').addClass('d-none');
 
         $('form').submit(function () {
-            $('#loading').show();
-            $('#inputMethods').hide();
+            $('#loading').removeClass('d-none');
+            $('.upload-steps').addClass('d-none');
         });
     </script>
 
