@@ -12,8 +12,13 @@
       </ol>
     </nav>
 
-    <h1 class="mt-4">{{ publisher.publisher_name }}</h1>
+    <h1 class="mt-4 d-md-flex align-items-center justify-content-between">
+      <span class="d-block">{{ publisher.publisher_name }}</span>
+      <a href="{% url 'index' %}?publisher={{ publisher.publisher_name }}" class="btn btn-primary mt-3 mt-md-0 ml-md-3 flex-shrink-0">Upload data</a>
+    </h1>
+
     <hr class="mb-5"/>
+
     <div class="row">
       <div class="col-sm-12 col-md-8" role="main">
 
