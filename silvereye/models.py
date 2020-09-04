@@ -76,3 +76,11 @@ class FileSubmission(SuppliedData):
 
     def __str__(self):
         return f"{self.supplied_data.original_file}"
+
+
+class FieldCoverage(models.Model):
+    file_submission = models.OneToOneField(FileSubmission, on_delete=models.CASCADE, primary_key=True)
+    tenders_field_coverage = models.FloatField(null=True)
+    awards_field_coverage = models.FloatField(null=True)
+    spend_field_coverage = models.FloatField(null=True)
+

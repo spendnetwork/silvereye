@@ -4,17 +4,17 @@ import requests
 from django import forms
 from django.conf import settings
 from django.core.files.base import ContentFile
-from django.db.models import Count, Max, F, Sum
-from django.db.models.functions import ExtractMonth, ExtractDay, ExtractYear, Coalesce
+from django.db.models import Count, Max, F, IntegerField
+from django.db.models.functions import ExtractDay, Cast, TruncDate, Now
 from django.http import HttpResponse
 
-from cove.input.models import SuppliedData
 from django.shortcuts import render, redirect
 from django.utils.translation import ugettext_lazy as _
 
-from bluetail.models import OCDSPackageData, OCDSReleaseView
-from silvereye.helpers import get_published_release_metrics, MetricHelpers
-from silvereye.models import PublisherMetrics, Publisher, FileSubmission, PublisherMonthlyCounts
+from bluetail.models import OCDSPackageData
+from silvereye.helpers import get_publisher_metrics_context, \
+    get_coverage_metrics_context, get_metric_options
+from silvereye.models import Publisher, FileSubmission, PublisherMonthlyCounts, FieldCoverage
 from silvereye.ocds_csv_mapper import CSVMapper
 
 
@@ -56,61 +56,33 @@ def publisher_listing(request):
     }
     return render(request, "silvereye/publisher_listing.html", context)
 
-def get_metric_options(request):
-    period_option = request.GET.get('period', '1_month') or '1_month'
-    comparison_option = request.GET.get('comparison', 'preceding') or 'preceding'
-    return (period_option, comparison_option)
-
-def date_today():
-    return datetime.now().date()
-
-def get_publisher_metrics_context(queryset=None, period_option='1_month', comparison_option='preceding'):
-    if not queryset:
-        return {}
-
-    today = date_today()
-    metric_helpers = MetricHelpers()
-    context = metric_helpers.metric_data(queryset=queryset,
-                                              reference_date=today,
-                                              period_option=period_option,
-                                              comparison_option=comparison_option)
-    context["period_option"] = metric_helpers.period_descriptions()[period_option]
-    context["comparison_option"] = metric_helpers.comparison_descriptions()[comparison_option]
-    return context
-
 
 def publisher(request, publisher_name):
     valid_submissions = FileSubmission.objects.filter(ocdspackagedata__publisher_name__isnull=False).distinct()
     recent_submissions = valid_submissions.filter(ocdspackagedata__publisher_name=publisher_name).order_by("-created")[
                          :10]
-    publisher = {
-        "publisher_name": publisher_name
-    }
 
     packages = OCDSPackageData.objects.filter(publisher_name=publisher_name)
 
-    period_option, comparison_option = get_metric_options(request)
-    # metrics from cached model
-    publisher_metrics = PublisherMetrics.objects.filter(publisher_id=publisher_name).first()
+    publisher = Publisher.objects.get(publisher_name=publisher_name)
 
-    publisher_metadata = Publisher.objects.filter(publisher_name=publisher_name)
-    if publisher_metadata:
-        publisher_metadata = publisher_metadata[0]
+    # metrics from cached model
+    # publisher_metrics = PublisherMetrics.objects.filter(publisher_id=publisher_name).first()
 
     # metrics from helper
     publisher_metrics = PublisherMonthlyCounts.objects.filter(publisher__publisher_name=publisher_name)
+    period_option, comparison_option = get_metric_options(request)
     metrics = get_publisher_metrics_context(publisher_metrics, period_option=period_option, comparison_option=comparison_option)
 
-    poor_performers = None
+    coverage_metrics = FieldCoverage.objects.filter(file_submission__publisher__publisher_name=publisher_name)
+    coverage_metrics_context = get_coverage_metrics_context(coverage_metrics, period_option=period_option, comparison_option=comparison_option)
 
     context = {
         "recent_submissions": recent_submissions,
-        'publisher': publisher,
-
-        'publisher_metadata': publisher_metadata,
         'packages': packages,
-        # 'publisher_metrics': publisher_metrics,
+        'publisher': publisher,
         'publisher_metrics': metrics,
+        'coverage_metrics': coverage_metrics_context,
     }
     return render(request, "silvereye/publisher.html", context)
 
@@ -157,9 +129,6 @@ default_form_classes = {
 def data_input(request, *args, **kwargs):
     form_classes = default_form_classes
     text_file_name = 'test.json'
-    # Add something to request.POST so data_input doesn't ignore uploaded files.
-    request.POST = request.POST.copy()
-    request.POST["something"] = "Dummy POST content so the CSV gets processed when CSRF not present"
     forms = {form_name: form_class() for form_name, form_class in form_classes.items()}
     request_data = None
     if "source_url" in request.GET:

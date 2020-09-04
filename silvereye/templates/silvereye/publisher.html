@@ -1,4 +1,4 @@
-{% extends "bluetail_and_silvereye_shared/base.html" %}
+{% extends request.current_app_base_template %}
 
 {% block title %}{{ publisher.publisher_name }}{% endblock %}
 
@@ -17,44 +17,13 @@
     <hr class="mb-5"/>
     <div class="row">
       <div class="col-sm-12 col-md-8" role="main">
-        {% include "silvereye/includes/publisher_metrics_row.html" %}
-        <hr class="my-5"/>
-        <div class="row">
-          <div class="col">
-            <h3 class="h6">Completed fields</h3>
-          </div>
-          <div class="col">
-            <h3 class="h6">Tenders</h3>
-            <div class="figure-box media">
-              {% include "silvereye/includes/up_arrow.svg" %}
-              <div class="media-body">
-                <p class="figure-box__main-figure figure-box--up mb-0">14 avg</p>
-                <p class="figure-box__compare-figure">13 mean</p>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <h3 class="h6">Contract awards</h3>
-            <div class="figure-box media">
-              {% include "silvereye/includes/up_arrow.svg" %}
-              <div class="media-body">
-                <p class="figure-box__main-figure figure-box--up mb-0">8.9 avg</p>
-                <p class="figure-box__compare-figure">6.5 mean</p>
-              </div>
-            </div>
-          </div>
 
-          <div class="col">
-            <h3 class="h6">Spend files</h3>
-            <div class="figure-box media">
-              {% include "silvereye/includes/up_arrow.svg" %}
-              <div class="media-body">
-                <p class="figure-box__main-figure figure-box--down mb-0">6 avg</p>
-                <p class="figure-box__compare-figure">6.5 mean</p>
-              </div>
-            </div>
-          </div>
-        </div>
+        {% include "silvereye/includes/publisher_metrics_row.html" %}
+
+        <hr class="my-5"/>
+
+        {% include "silvereye/includes/completed_fields_row.html" %}
+
         <hr class="my-5"/>
 
         {% include "silvereye/includes/file_history.html" with recent_submissions=recent_submissions %}
@@ -71,14 +40,13 @@
         <div class="contact-details mb-5">
           <div class="row">
             <div class="col-8"><h2 class="h5">Contact details</h2></div>
-            <div class="col text-right"><a href="#">Edit</a></div>
           </div>
 
-          <p class="mb-1">{{ publisher_metadata.contact_name }}</p>
+          <p class="mb-1">{{ publisher.contact_name }}</p>
           <p class="mb-1"><a
-                  href="mailto:{{ publisher_metadata.contact_email }}">{{ publisher_metadata.contact_email }}</a></p>
+                  href="mailto:{{ publisher.contact_email }}">{{ publisher.contact_email }}</a></p>
           <p class="mb-0"><a
-                  href="tel:{{ publisher_metadata.contact_telephone }}">{{ publisher_metadata.contact_telephone }}</a>
+                  href="tel:{{ publisher.contact_telephone }}">{{ publisher.contact_telephone }}</a>
           </p>
         </div>
         <div>

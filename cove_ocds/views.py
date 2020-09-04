@@ -31,7 +31,8 @@ from bluetail.helpers import UpsertDataHelpers
 from cove_ocds.lib.views import group_validation_errors
 from silvereye.helpers import S3_helpers, sync_with_s3
 from silvereye.lib.converters import convert_csv
-from silvereye.models import FileSubmission
+from silvereye.models import FileSubmission, FieldCoverage
+from silvereye.ocds_csv_mapper import CSVMapper
 
 from .lib import exceptions
 from .lib.ocds_show_extra import add_extra_fields
@@ -392,6 +393,16 @@ def explore_ocds(request, pk):
         else:
             context["releases"] = []
 
+    # Include field coverage report
+    original_file_path = context["original_file"]["path"]
+    mapper = CSVMapper(csv_path=original_file_path)
+    db_data.notice_type = mapper.release_type
+    db_data.save()
+    coverage_context = mapper.get_coverage_context()
+    context.update({
+        "field_coverage": coverage_context,
+    })
+
     # Silvereye: Insert OCDS data
     releases = context.get("releases")
     if releases:
@@ -405,6 +416,16 @@ def explore_ocds(request, pk):
                 cls=DjangoJSONEncoder
             )
             UpsertDataHelpers().upsert_ocds_data(json_string, supplied_data=db_data)
+
+            average_field_completion = coverage_context.get("average_field_completion")
+            inst, created = FieldCoverage.objects.update_or_create(
+                file_submission=db_data,
+                defaults={
+                    "tenders_field_coverage": average_field_completion if mapper.release_type == "tender" else None,
+                    "awards_field_coverage": average_field_completion if mapper.release_type == "award" else None,
+                    "spend_field_coverage": average_field_completion if mapper.release_type == "spend" else None,
+                }
+            )
 
     return render(request, template, context)
 

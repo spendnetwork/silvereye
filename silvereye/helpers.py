@@ -11,12 +11,12 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import get_storage_class
 import requests
 from django.db import connections
-from django.db.models import Sum
+from django.db.models import Sum, Avg
 from django.db.models.functions import Coalesce
 
 import silvereye
 from bluetail.helpers import UpsertDataHelpers
-from silvereye.models import FileSubmission
+from silvereye.models import FileSubmission, FieldCoverage
 
 logger = logging.getLogger(__name__)
 
@@ -149,6 +149,8 @@ def update_publisher_monthly_counts():
 
 
 class MetricHelpers():
+    def __init__(self):
+        self.get_values_func = self.period_counts
 
     def period_descriptions(self):
         return  {
@@ -173,12 +175,31 @@ class MetricHelpers():
 
     def period_counts(self, queryset, period_start, period_end):
         if not (period_start is None and period_end is None):
-            queryset = queryset.filter(date__gte=period_start, date__lt=period_end)
-        return queryset\
-        .aggregate(tenders=Coalesce(Sum('count_tenders'), 0), awards=Coalesce(Sum('count_awards'), 0), spend=Coalesce(Sum('count_spend'), 0))
+            queryset = queryset.filter(
+                date__gte=period_start,
+                date__lt=period_end
+            )
+        return queryset.aggregate(
+            tenders=Coalesce(Sum('count_tenders'), 0),
+            awards=Coalesce(Sum('count_awards'), 0),
+            spend=Coalesce(Sum('count_spend'), 0)
+        )
+
+    def field_coverages(self, queryset, period_start, period_end):
+        if not (period_start is None and period_end is None):
+            queryset = queryset.filter(
+                file_submission__created__gte=period_start,
+                file_submission__created__lt=period_end
+            )
+        queryset = queryset.aggregate(
+            tenders=Coalesce(Avg('tenders_field_coverage'), 0),
+            awards=Coalesce(Avg('awards_field_coverage'), 0),
+            spend=Coalesce(Avg('spend_field_coverage'), 0),
+        )
+        return queryset
 
     def period_data(self, queryset, period_start, period_end):
-        period_counts = self.period_counts(queryset, period_start, period_end)
+        period_counts = self.get_values_func(queryset, period_start, period_end)
         return {
             "counts": {
                 "tenders": period_counts.get("tenders"),
@@ -188,12 +209,12 @@ class MetricHelpers():
         }
 
     def comparison_data(self, queryset, comparison_start, comparison_end, period_counts):
-        comparison_counts = self.period_counts(queryset, comparison_start, comparison_end)
+        comparison_counts = self.get_values_func(queryset, comparison_start, comparison_end)
 
         return { "change": {
-                    "tenders": period_counts.get("tenders") - comparison_counts.get("tenders"),
-                    "awards": period_counts.get("awards") - comparison_counts.get("awards"),
-                    "spend": period_counts.get("spend") - comparison_counts.get("spend")
+                    "tenders": round(period_counts.get("tenders") - comparison_counts.get("tenders"), 1),
+                    "awards": round(period_counts.get("awards") - comparison_counts.get("awards"), 1),
+                    "spend": round(period_counts.get("spend") - comparison_counts.get("spend"), 1),
                     },
                  "percentages": {
                     "tenders": self.percentage_change_value(period_counts.get("tenders"), comparison_counts.get("tenders")),
@@ -259,3 +280,48 @@ class MetricHelpers():
         # 6_month
         # 12_month
         return int(period_option.split('_')[0])
+
+
+def get_publisher_metrics_context(queryset=None, period_option='1_month', comparison_option='preceding'):
+    if not queryset:
+        return {}
+
+    today = date_today()
+    metric_helpers = MetricHelpers()
+    context = metric_helpers.metric_data(queryset=queryset,
+                                              reference_date=today,
+                                              period_option=period_option,
+                                              comparison_option=comparison_option)
+    context["period_option"] = metric_helpers.period_descriptions()[period_option]
+    context["comparison_option"] = metric_helpers.comparison_descriptions()[comparison_option]
+    return context
+
+
+def get_coverage_metrics_context(queryset=None, period_option='1_month', comparison_option='preceding'):
+
+    if not queryset:
+        return {}
+
+    today = date_today()
+    metric_helpers = MetricHelpers()
+    if queryset.model == FieldCoverage:
+        metric_helpers.get_values_func = metric_helpers.field_coverages
+    context = metric_helpers.metric_data(
+        queryset=queryset,
+        reference_date=today,
+        period_option=period_option,
+        comparison_option=comparison_option)
+    context["period_option"] = metric_helpers.period_descriptions()[period_option]
+    context["comparison_option"] = metric_helpers.comparison_descriptions()[comparison_option]
+
+    return context
+
+
+def get_metric_options(request):
+    period_option = request.GET.get('period', '1_month') or '1_month'
+    comparison_option = request.GET.get('comparison', 'preceding') or 'preceding'
+    return (period_option, comparison_option)
+
+
+def date_today():
+    return datetime.now().date()
