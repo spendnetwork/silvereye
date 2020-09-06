@@ -95,7 +95,9 @@ def fix_contracts_finder_flat_CSV(df):
 
     # Create example publisher attributes
     fixed_df['publisher/name'] = fixed_df['releases/0/buyer/name']
-    fixed_df['publisher/scheme'] = "Example Publisher Scheme"
+    # fixed_df['publisher/scheme'] = fixed_df['releases/0/buyer/identifier/scheme']
+    # fixed_df['publisher/uid'] = str(fixed_df['releases/0/buyer/identifier/id'])
+    fixed_df['publisher/scheme'] = "GB-OO"
     fixed_df['publisher/uid'] = fixed_df.apply(lambda row: create_uid(row), axis=1)
     fixed_df['publisher/uri'] = fixed_df.apply(lambda row: create_uri(row), axis=1)
     fixed_df['releases/0/ocid'] = fixed_df.apply(lambda row: new_ocid_prefix(row), axis=1)
@@ -208,8 +210,7 @@ def create_publisher_from_package_json(package):
     ocid_prefix = get_ocid_prefix(package["releases"][0]["ocid"])
     logger.info("Creating or updating Publisher %s (id %s)", publisher_name, publisher_id)
     publisher, created = Publisher.objects.update_or_create(
-        publisher_scheme=publisher_scheme,
-        publisher_id=publisher_id,
+        publisher_name=publisher_name,
         defaults={
             "publisher_name": publisher_name,
             "publisher_id": publisher_id,
@@ -430,8 +431,7 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                     contact_telephone = df_release_type.iloc[0]["releases/0/buyer/contactPoint/telephone"]
 
                     publisher, created = Publisher.objects.update_or_create(
-                        publisher_scheme=publisher_scheme,
-                        publisher_id=publisher_id,
+                        publisher_name=publisher_name,
                         defaults={
                             "publisher_name": publisher_name,
                             "publisher_id": publisher_id,

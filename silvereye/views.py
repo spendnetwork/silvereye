@@ -61,7 +61,7 @@ def publisher_listing(request):
 
     local_authority_name_to_type = {at.authority_name: at.authority_type for at in AuthorityType.objects.all()}
     for publisher in publishers:
-        publisher['type'] = local_authority_name_to_type.get(publisher['publisher_name'], "Unknown")
+        publisher['type'] = local_authority_name_to_type.get(publisher['publisher_name'], "Other")
 
     filter_authority_types = request.GET.getlist('authority_type')
     if filter_authority_types:
@@ -74,7 +74,7 @@ def publisher_listing(request):
         .values_list('authority_type', flat=True)
 
     known_types = [(kt, kt in filter_authority_types) for kt in unique_authority_types]
-    known_types.extend([("Unknown", "Unknown" in filter_authority_types)])
+    known_types.extend([("Other", "Other" in filter_authority_types)])
 
     context = {
         'publishers': publishers,
@@ -158,7 +158,11 @@ default_form_classes = {
 def data_input(request, *args, **kwargs):
     form_classes = default_form_classes
     text_file_name = 'test.json'
-    forms = {form_name: form_class() for form_name, form_class in form_classes.items()}
+    try:
+        publisher = Publisher.objects.get(publisher_name=request.GET.get("publisher"))
+    except Publisher.DoesNotExist:
+        publisher = None
+    forms = {form_name: form_class(initial={'publisher_id': publisher}) for form_name, form_class in form_classes.items()}
     request_data = None
     if "source_url" in request.GET:
         request_data = request.GET
