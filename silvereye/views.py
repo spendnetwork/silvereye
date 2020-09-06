@@ -128,12 +128,12 @@ class UploadForm(forms.ModelForm):
         model = FileSubmission
         fields = ["publisher_id", 'original_file']
         labels = {
-            'original_file': _('Upload a file (.json, .csv, .xlsx, .ods)')
+            'original_file': _('Upload a file (.json or .csv)')
         }
 
 
 class UrlForm(forms.ModelForm):
-    publisher_id = forms.ModelChoiceField(queryset=Publisher.objects.all())
+    publisher_id = forms.ModelChoiceField(label=_('Select a publisher'), queryset=Publisher.objects.all())
 
     class Meta:
         model = FileSubmission

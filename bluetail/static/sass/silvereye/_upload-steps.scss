@@ -1,0 +1,23 @@
+.upload-steps {
+    max-width: 36em;
+
+    .row {
+        margin-bottom: ( $spacer * 3 );
+    }
+
+    .form-group:last-child {
+        margin-bottom: 0;
+    }
+}
+
+.upload-steps__number {
+    display: block;
+    line-height: 2.5rem;
+    width: 2.5rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    text-align: center;
+    color: #fff;
+    background-color: #777;
+    border-radius: 100%;
+}
