@@ -7,7 +7,7 @@ import re
 from urllib.parse import urlparse, parse_qsl, urlencode
 
 from django.conf import settings
-from django.core.files.base import ContentFile
+from django.core.files.base import ContentFile, File
 from django.core.files.storage import get_storage_class
 import requests
 from django.db import connections
@@ -82,10 +82,10 @@ def sync_with_s3(supplied_data):
     if not os.path.exists(original_file_path):
         if s3_storage.exists(supplied_data.original_file.name):
             logger.info("Retrieving from S3: %s", supplied_data.original_file.name)
-            # Switch to S# storage and read file
+            # Switch to S3 storage and read file
             supplied_data.original_file.storage = s3_storage
             s3_file = supplied_data.original_file.read()
-
+            # Switch storage back and save file locally
             supplied_data.original_file.storage = get_storage_class(settings.DEFAULT_FILE_STORAGE)()
             supplied_data.original_file.save(original_filename, ContentFile(s3_file))
 
