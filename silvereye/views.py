@@ -32,7 +32,8 @@ def home(request):
     coverage_metrics = FieldCoverage.objects.all()
     coverage_metrics_context = get_coverage_metrics_context(coverage_metrics, period_option=period_option, comparison_option=comparison_option)
 
-    publishers = Publisher.objects.all() \
+    publishers = Publisher.objects.all()
+    late_publishers = publishers \
         .annotate(last_submission=Max("filesubmission__created")) \
         .annotate(age=Cast(ExtractDay(TruncDate(Now()) - TruncDate(F('last_submission'))), IntegerField())) \
         .order_by('-age') \
@@ -42,7 +43,8 @@ def home(request):
         "recent_submissions": recent_submissions,
         "publisher_metrics": metrics,
         'coverage_metrics': coverage_metrics_context,
-        "publishers": publishers[:5],
+        "publishers": publishers,
+        "late_publishers": late_publishers,
     }
     return render(request, "silvereye/publisher_hub_home.html", context)
 
