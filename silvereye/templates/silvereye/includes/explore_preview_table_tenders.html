@@ -12,10 +12,10 @@
     <tbody>
       {% for release in releases|slice:":10" %}
         <tr>
-            <td>{{ release.id }}</td>
-            <td>{{ release.date|date:"j M Y, H:i (e)" }}</td>
-            <td>{{ release.tender.title }}</td>
-            <td>{{ release.tender.description }}</td>
+            <td title="{{ release.id }}">{{ release.id }}</td>
+            <td title="{{ release.date|date:"j M Y, H:i (e)" }}">{{ release.date|date:"j M Y, H:i (e)" }}</td>
+            <td title="{{ release.tender.title }}">{{ release.tender.title }}</td>
+            <td title="{{ release.tender.description }}">{{ release.tender.description }}</td>
         </tr>
       {% endfor %}
     </tbody>

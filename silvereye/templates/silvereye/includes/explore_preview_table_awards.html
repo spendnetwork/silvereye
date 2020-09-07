@@ -13,11 +13,11 @@
   <tbody>
   {% for release in releases|slice:":10" %}
     <tr>
-      <td>{{ release.id }}</td>
-      <td>{{ release.date|date:"j M Y, H:i (e)" }}</td>
-      <td>{{ release.awards.0.suppliers.0.name }}</td>
-      <td>{{ release.awards.0.title }}</td>
-      <td>{{ release.awards.0.description }}</td>
+      <td title="{{ release.id }}">{{ release.id }}</td>
+      <td title="{{ release.date|date:"j M Y, H:i (e)" }}">{{ release.date|date:"j M Y, H:i (e)" }}</td>
+      <td title="{{ release.awards.0.suppliers.0.name }}">{{ release.awards.0.suppliers.0.name }}</td>
+      <td title="{{ release.awards.0.title }}">{{ release.awards.0.title }}</td>
+      <td title="{{ release.awards.0.description }}">{{ release.awards.0.description }}</td>
     </tr>
   {% endfor %}
   </tbody>
