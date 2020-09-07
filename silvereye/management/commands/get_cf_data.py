@@ -3,6 +3,7 @@ Command to create an generate publisher metrics
 """
 import argparse
 import sys
+import zipfile
 from datetime import datetime, timedelta
 import json
 import logging
@@ -569,7 +570,12 @@ class Command(BaseCommand):
         end_date = kwargs.get("end_date", datetime.today().strftime("%Y-%m-%d"))
         if file_path:
             logger.info("Copying data from %s", file_path)
-            shutil.copy(file_path, SOURCE_DIR)
+            if file_path.endswith(".zip"):
+                with zipfile.ZipFile(file_path, 'r') as zip_ref:
+                    zip_ref.extractall(SOURCE_DIR)
+                file_path = None
+            elif file_path.endswith(".csv"):
+                shutil.copy(file_path, SOURCE_DIR)
         elif start_date:
             daterange = pd.date_range(start_date, end_date)
             logger.info("Downloading Contracts Finder data from %s to %s", start_date, end_date)
