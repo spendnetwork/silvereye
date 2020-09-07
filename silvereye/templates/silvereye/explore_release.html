@@ -170,7 +170,7 @@
 
   {% if validation_errors %}
     <h2 class="d-flex align-items-center">
-      {% blocktrans count count=validation_errors|length %}
+      {% blocktrans count count=new_errors|length %}
         <span class="badge badge-pill badge-danger mr-3">{{ count }}</span> Error
       {% plural %}
         <span class="badge badge-pill badge-danger mr-3">{{ count }}</span> Errors
@@ -178,25 +178,26 @@
     </h2>
 
     <table class="table mt-3 mb-5">
-      {% for error_json, values in validation_errors %}
+      {% for error_json, values in new_errors %}
       {% with error=error_json|json_decode %}
         <tr>
-            <td>{{ error.message_safe|safe }}</td>
-            <td>
-              {% if values.0.sheet %}
-                Sheet <strong>{{ values.0.sheet }}</strong>
-              {% endif %}
-            </td>
+            <td>{{ values.0.header|safe }}</td>
+{#            <td>{{ error.message_safe|safe }}</td>#}
+{#            <td>#}
+{#              {% if values.0.sheet %}#}
+{#                Sheet <strong>{{ values.0.sheet }}</strong>#}
+{#              {% endif %}#}
+{#            </td>#}
             <td>
               {% if values.0.row_number %}
                 Row <strong>{{ values.0.row_number }}</strong>
               {% endif %}
             </td>
-            <td>
-              {% if values.0.path %}
-                <strong>{{ values.0.path }}</strong>
-              {% endif %}
-            </td>
+{#            <td>#}
+{#              {% if values.0.path %}#}
+{#                <strong>{{ values.0.path }}</strong>#}
+{#              {% endif %}#}
+{#            </td>#}
         </tr>
       {% endwith %}
       {% endfor %}

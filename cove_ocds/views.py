@@ -411,6 +411,21 @@ def explore_ocds(request, pk):
         "field_coverage": coverage_context,
     })
 
+    # fix
+
+    mapping_dict = {}
+    # rename simple CSV headers to OCDS uri headers
+    for i, row in mapper.mappings_df.iterrows():
+        if row["csv_header"]:
+            mapping_dict[row["uri"]] = row["csv_header"]
+
+    new_errors = []
+    for error_json, values in context.get("validation_errors"):
+        if values[0].get("header") in mapping_dict.keys():
+            values[0]["header"] = mapping_dict[values[0].get("header")]
+            new_errors.append([error_json, values])
+
+    context["new_errors"] = new_errors
     # Silvereye: Insert OCDS data
     releases = context.get("releases")
     if releases:
