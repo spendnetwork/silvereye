@@ -39,7 +39,7 @@ class HomeViewTest(TestCase):
                                         'counts': {'tenders': 10, 'awards': 23, 'spend': 0 },
                                         'change': {'tenders': 0, 'awards': 2, 'spend': 0 },
                                 },
-                             'period_option': 'Last month',
-                             'comparison_option': 'preceding'
+                             'period_option': 'last month',
+                             'comparison_option': 'preceding period'
                             }
         self.assertDictEqual(response.context['publisher_metrics'], expected_metrics)

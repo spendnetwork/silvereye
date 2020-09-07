@@ -1,36 +1,19 @@
-<h2 class="h6">Submitted Files</h2>
-<ol class="list-unstyled timeline">
+{% load i18n %}
 
+<table class="table">
   {% for supplieddata in recent_submissions %}
     {% with package_data=supplieddata.ocdspackagedata_set.all|first %}
-      <li>
-        <div class="timeline__entry">
-          {{ supplieddata.created }} Received a new <a href="{% url "explore" supplieddata.id %}">{{ supplieddata.notice_type }} submission </a> from
-          <a href="{% url "publisher" package_data.publisher_name %}"> {{ package_data.publisher_name }}</a>
-        </div>
-      </li>
+    <tr>
+        <th class="pl-0">
+            {{ supplieddata.created|date:"j M Y, H:i" }}
+        </th>
+        <td>
+            Received a new
+            <a href="{% url 'explore' supplieddata.id %}">{{ supplieddata.notice_type }} submission</a>
+            from
+            <a href="{% url 'publisher' package_data.publisher_name %}">{{ package_data.publisher_name }}</a>
+        </td>
+    </tr>
     {% endwith %}
   {% endfor %}
-
-</ol>
-
-{#<h2 class="h6">Yesterday</h2>#}
-{#<ol class="list-unstyled timeline">#}
-{#    <li>#}
-{#        <div class="timeline__entry">#}
-{#            Received a new <a href="#">spend file for April 2020</a>#}
-{#        </div>#}
-{#    <li>#}
-{#        <div class="timeline__entry">#}
-{#            Received a new <a href="#">spend file for April 2020</a>#}
-{#        </div>#}
-{#    </li>#}
-{#</ol>#}
-{#<h2 class="h6">Monday</h2>#}
-{#<ol class="list-unstyled timeline">#}
-{#    <li>#}
-{#        <div class="timeline__entry">#}
-{#            Received a new <a href="#">spend file for April 2020</a>#}
-{#        </div>#}
-{#    </li>#}
-{#</ol>#}
+</table>

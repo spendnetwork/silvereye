@@ -1,124 +1,87 @@
 {% load mathfilters %}
 
-<div class="row">
-  <div class="col">
-    <h3 class="h6 ">Key figures</h3>
-    <div class="dropdown figures-dropdown mb-2">
-      <a class="dropdown-toggle mb-2" href="" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-         aria-haspopup="true" aria-expanded="false">
-        {{ publisher_metrics.period_option }}</a>
-      <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-        <a class="dropdown-item" href="?period=current&comparison={{ request.GET.comparison }}">This month</a>
-        <a class="dropdown-item" href="?period=1_month&comparison={{ request.GET.comparison }}">Last month</a>
-        <a class="dropdown-item" href="?period=3_month&comparison={{ request.GET.comparison }}">Last 3 months</a>
-        <a class="dropdown-item" href="?period=6_month&comparison={{ request.GET.comparison }}">Last 6 months</a>
-        <a class="dropdown-item" href="?period=12_month&comparison={{ request.GET.comparison }}">Last 12 months</a>
-        <a class="dropdown-item" href="?period=all&comparison={{ request.GET.comparison }}">All time</a>
-      </div>
-    </div>
-
-    <div class="dropdown figures-dropdown mb-2">
-      Compare to <a class="dropdown-toggle" href="" role="button" id="dropdownMenuLink" data-toggle="dropdown"
-                    aria-haspopup="true" aria-expanded="false">
-      {{ publisher_metrics.comparison_option }}</a>
-      <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-        <a class="dropdown-item" href="?period={{ request.GET.period }}&comparison=preceding">preceding period</a>
-        <a class="dropdown-item" href="?period={{ request.GET.period }}&comparison=1_year">last year</a>
-        <a class="dropdown-item" href="?period={{ request.GET.period }}&comparison=2_year">two years ago</a>
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <h3 class="h6">Tenders</h3>
-    <div class="figure-box media">
-      {% if publisher_metrics.comparison %}
-        {% if publisher_metrics.comparison.change.tenders > 0 %}
-          {% include "silvereye/includes/up_arrow.svg" %}
-        {% elif publisher_metrics.comparison.change.tenders < 0 %}
-          {% include "silvereye/includes/down_arrow.svg" %}
-        {% else %}
-          {% include "silvereye/includes/up_arrow.svg" %}
-        {% endif %}
-      {% endif %}
-      <div class="media-body">
+<div class="row mb-5">
+  <div class="col-sm">
+    <div class="card">
+      <div class="card-body text-center">
+        Tenders
+        <strong class="d-block h3 my-1">{{ publisher_metrics.counts.tenders }}</strong>
         {% if publisher_metrics.comparison %}
-          <p class="figure-box__change figure-box--{% if publisher_metrics.comparison.change.tenders > 0 %}up{% elif publisher_metrics.comparison.change.tenders %}down{% else %}up{% endif %} mb-0">
-            {{ publisher_metrics.comparison.change.tenders }}
-            {% if publisher_metrics.comparison.change.tenders|abs > 0 %}
-              ({{ publisher_metrics.comparison.percentages.tenders }}%)
-            {% else %}
-              (-)
-            {% endif %}
-          </p>
-        {% endif %}
-        <p class="figure-box__main-figure figure-box--{% if publisher_metrics.comparison.change.tenders > 0 %}up{% elif publisher_metrics.comparison.change.tenders %}down{% else %}up{% endif %} mb-0">
-          {{ publisher_metrics.counts.tenders }}
-        </p>
-        {% if publisher_metrics.comparison %}
-          <p class="figure-box__compare-figure">{{ publisher_metrics.comparison.counts.tenders }}</p>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-  <div class="col">
-    <h3 class="h6">Contract awards</h3>
-    <div class="figure-box media">
-      {% if publisher_metrics.comparison %}
-        {% if publisher_metrics.comparison.change.awards > 0 %}
-          {% include "silvereye/includes/up_arrow.svg" %}
-        {% elif publisher_metrics.comparison.change.awards < 0 %}
-          {% include "silvereye/includes/down_arrow.svg" %}
-        {% else %}
-          {% include "silvereye/includes/up_arrow.svg" %}
-        {% endif %}
-      {% endif %}
-      <div class="media-body">
-        {% if publisher_metrics.comparison %}
-          <p class="figure-box__change figure-box--{% if publisher_metrics.comparison.change.awards > 0 %}up{% elif publisher_metrics.comparison.change.awards %}down{% else %}up{% endif %} mb-0">
-            {{ publisher_metrics.comparison.change.awards }}
-            {% if publisher_metrics.comparison.change.awards|abs > 0 %}(
-            {{ publisher_metrics.comparison.percentages.awards }}%)
+          {% if publisher_metrics.comparison.change.tenders == 0 %}
+            <span class="text-muted">
+              no change
+            </span>
           {% else %}
-            (-)
+            <span
+                    {% if publisher_metrics.comparison.change.tenders > 0 %}
+                      class="d-flex align-items-center justify-content-center text-success">
+                      {% include "silvereye/includes/caret_up_fill.svg" with extra_classes="mr-1" %}
+                    {% elif publisher_metrics.comparison.change.tenders < 0 %}
+                      class="d-flex align-items-center justify-content-center text-danger">
+                      {% include "silvereye/includes/caret_down_fill.svg" with extra_classes="mr-1" %}
+                    {% endif %}
+            {{ publisher_metrics.comparison.change.tenders }}
+            {% if publisher_metrics.comparison.percentages.tenders|abs > 0 %}
+              ({{ publisher_metrics.comparison.percentages.tenders }}%)
+            {% endif %}
+          </span>
           {% endif %}
-          </p>
-        {% endif %}
-        <p class="figure-box__main-figure figure-box--{% if publisher_metrics.comparison.change.awards > 0 %}up{% elif publisher_metrics.comparison.change.awards %}down{% else %}up{% endif %} mb-0">
-          {{ publisher_metrics.counts.awards }}
-        </p>
-        {% if publisher_metrics.comparison %}
-          <p class="figure-box__compare-figure">
-            {{ publisher_metrics.comparison.counts.awards }}
-          </p>
         {% endif %}
       </div>
     </div>
   </div>
-  <div class="col">
-    <h3 class="h6">Spend files</h3>
-    <div class="figure-box media">
-      {% if publisher_metrics.comparison %}
-        {% if publisher_metrics.comparison.change.spend > 0 %}
-          {% include "silvereye/includes/up_arrow.svg" %}
-        {% elif publisher_metrics.comparison.change.spend < 0 %}
-          {% include "silvereye/includes/down_arrow.svg" %}
-        {% else %}
-          {% include "silvereye/includes/up_arrow.svg" %}
-        {% endif %}
-      {% endif %}
-      <div class="media-body">
+  <div class="col-sm">
+    <div class="card">
+      <div class="card-body text-center">
+        Contract awards
+        <strong class="d-block h3 my-1">{{ publisher_metrics.counts.awards }}</strong>
         {% if publisher_metrics.comparison %}
-          <p class="figure-box__change figure-box--{% if publisher_metrics.comparison.change.spend > 0 %}up{% elif publisher_metrics.comparison.change.spend %}down{% else %}up{% endif %} mb-0">
-            {{ publisher_metrics.comparison.change.spend }}
-            {% if publisher_metrics.comparison.change.spend|abs > 0 %}
-              ({{ publisher_metrics.comparison.percentages.spend }}%)
-            {% else %}(-){% endif %}</p>
+          {% if publisher_metrics.comparison.change.awards == 0 %}
+            <span class="text-muted">
+              no change
+            </span>
+          {% else %}
+            {% if publisher_metrics.comparison.change.awards > 0 %}
+              <span class="d-flex align-items-center justify-content-center text-success">
+              {% include "silvereye/includes/caret_up_fill.svg" with extra_classes="mr-1" %}
+            {% elif publisher_metrics.comparison.change.awards < 0 %}
+              <span class="d-flex align-items-center justify-content-center text-danger">
+              {% include "silvereye/includes/caret_down_fill.svg" with extra_classes="mr-1" %}
+            {% endif %}
+          {{ publisher_metrics.comparison.change.awards }}
+          {% if publisher_metrics.comparison.counts.awards|abs > 0 %}
+            ({{ publisher_metrics.comparison.percentages.awards }}%)
+          {% endif %}
+          </span>
+          {% endif %}
         {% endif %}
-        <p class="figure-box__main-figure figure-box--{% if publisher_metrics.comparison.change.spend > 0 %}up{% elif publisher_metrics.comparison.change.spend %}down{% else %}up{% endif %} mb-0">
-          {{ publisher_metrics.counts.spend }}
-        </p>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm">
+    <div class="card">
+      <div class="card-body text-center">
+        Spend files
+        <strong class="d-block h3 my-1">{{ publisher_metrics.counts.spend }}</strong>
         {% if publisher_metrics.comparison %}
-          <p class="figure-box__compare-figure">{{ publisher_metrics.comparison.counts.spend }}</p>
+          {% if publisher_metrics.comparison.change.spend == 0 %}
+            <span class="text-muted">
+              no change
+            </span>
+          {% else %}
+            {% if publisher_metrics.comparison.change.spend > 0 %}
+              <span class="d-flex align-items-center justify-content-center text-success">
+              {% include "silvereye/includes/caret_up_fill.svg" with extra_classes="mr-1" %}
+            {% elif publisher_metrics.comparison.change.spend < 0 %}
+              <span class="d-flex align-items-center justify-content-center text-danger">
+              {% include "silvereye/includes/caret_down_fill.svg" with extra_classes="mr-1" %}
+            {% endif %}
+          {{ publisher_metrics.comparison.change.spend }}
+          {% if publisher_metrics.comparison.counts.spend|abs > 0 %}
+            ({{ publisher_metrics.comparison.percentages.spend }}%)
+          {% endif %}
+          </span>
+          {% endif %}
         {% endif %}
       </div>
     </div>

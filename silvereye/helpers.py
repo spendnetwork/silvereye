@@ -154,17 +154,17 @@ class MetricHelpers():
 
     def period_descriptions(self):
         return  {
-            'current': 'This month',
-            '1_month': 'Last month',
-            '3_month': 'Last 3 months',
-            '6_month': 'Last 6 months',
-            '12_month': 'Last 12 months',
-            'all': 'All time'
+            'current': 'this month',
+            '1_month': 'last month',
+            '3_month': 'last 3 months',
+            '6_month': 'last 6 months',
+            '12_month': 'last 12 months',
+            'all': 'all time'
         }
 
     def comparison_descriptions(self):
         return {
-            'preceding': 'preceding',
+            'preceding': 'preceding period',
             '1_year': 'last year',
             '2_year': 'two years ago'
         }
