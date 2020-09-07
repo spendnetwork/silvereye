@@ -6,3 +6,9 @@
     background-color: transparent;
   }
 }
+
+.contact-details {
+  a {
+    overflow-wrap: break-word; // force line wrap for long email addresses
+  }
+}
