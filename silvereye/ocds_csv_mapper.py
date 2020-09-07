@@ -5,6 +5,7 @@ from datetime import datetime
 
 import os
 
+import dateparser
 import numpy as np
 import pandas as pd
 from django.conf import settings
@@ -132,7 +133,7 @@ class CSVMapper:
                         lambda row: row[reference_header] if pd.notnull(row[reference_header]) else row[ocds_header],
                         axis=1)
 
-        df["ocid"] = self.ocid_prefix + str(df['id'])
+        df['ocid'] = df.apply(lambda row: f"{self.ocid_prefix}{str(row['id'])}", axis=1)
 
         if self.release_type == "spend":
             df["tag"] = "implementation"
@@ -156,11 +157,25 @@ class CSVMapper:
 
         return new_df
 
+    def parse_dates(self, df):
+        def get_datetime(datestring):
+            d = dateparser.parse(str(datestring), settings={"STRICT_PARSING": True})
+            if isinstance(d, datetime):
+                return d.strftime('%Y-%m-%dT%H:%M:%SZ')
+            else:
+                return datestring
+
+        for col in df.columns:
+            if "date" in col.lower():
+                df[col] = df.apply(lambda row: get_datetime(row[col]), axis=1)
+        return df
+
     def convert_simple_csv_to_ocds_csv(self, csv_path):
         df = pd.read_csv(csv_path)
         new_df = self.rename_friendly_cols_to_ocds_uri(df)
         if not self.release_type:
             self.detect_notice_type(new_df)
+        new_df = self.parse_dates(new_df)
         new_df = self.augment_cols(new_df)
         new_df.to_csv(open(csv_path, "w"), index=False, header=True)
         return new_df

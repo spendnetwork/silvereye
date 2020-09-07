@@ -1,7 +1,6 @@
 <div class="performance-chart mb-3">
   <h4>Total publishers</h4>
-  <!-- TODO: Display live number of publishers -->
-  <span class="d-block h2">999</span>
+  <span class="d-block h2">{{ publishers|length }}</span>
   <a href="{% url 'publisher-listing' %}">View all publishers</a>
 </div>
 
@@ -9,11 +8,14 @@
   <h4>Late publishers</h4>
   <h6>by days since last submission</h6>
   <div class="list-group list-group-flush text-align-left">
-    {% for publisher in publishers %}
-      <a href="{% url 'publisher' publisher.publisher_name %}" class="list-group-item d-flex justify-content-between align-items-center px-0">
-        <span class="flex-grow-1 text-left">{{ publisher.publisher_name }}</span>
-        <span class="badge badge-danger badge-pill align-self-right">{{ publisher.age }} day{{ publisher.age|pluralize }}</span>
-      </a>
+    {% for publisher in late_publishers %}
+      {% if publisher.age > 7 %}
+        <a href="{% url 'publisher' publisher.publisher_name %}"
+           class="list-group-item d-flex justify-content-between align-items-center px-0">
+          <span class="flex-grow-1 text-left">{{ publisher.publisher_name }}</span>
+          <span class="badge badge-danger badge-pill align-self-right">{{ publisher.age }} day{{ publisher.age|pluralize }}</span>
+        </a>
+      {% endif %}
     {% endfor %}
   </div>
 </div>

@@ -6,7 +6,7 @@
   <tr>
     <th>{% blocktrans %}Notice ID{% endblocktrans %}</th>
     <th>{% blocktrans %}Published Date{% endblocktrans %}</th>
-    <th>{% blocktrans %}Date{% endblocktrans %}</th>
+    <th>{% blocktrans %}Transaction Date{% endblocktrans %}</th>
     <th>{% blocktrans %}Buyer{% endblocktrans %}</th>
     <th>{% blocktrans %}Supplier{% endblocktrans %}</th>
     <th>{% blocktrans %}Amount{% endblocktrans %}</th>
@@ -15,12 +15,14 @@
   <tbody>
   {% for release in releases|slice:":10" %}
     <tr>
-      <td>{{ release.id }}</td>
-      <td>{{ release.date|date:"j M Y, H:i (e)" }}</td>
-      <td>{{ release.contracts.0.implementation.transactions.0.date|date:"j M Y" }}</td>
-      <td>{{ release.contracts.0.implementation.transactions.0.payer.name }}</td>
-      <td>{{ release.contracts.0.implementation.transactions.0.payee.name }}</td>
-      <td>{{ release.contracts.0.implementation.transactions.0.value.amount|intcomma }} {{ release.contracts.0.implementation.transactions.0.value.currency }}</td>
+      <td title="{{ release.id }}">{{ release.id }}</td>
+      <td title="{{ release.date|date:"j M Y, H:i (e)" }}">{{ release.date|date:"j M Y, H:i (e)" }}</td>
+      <td title="{{ release.contracts.0.implementation.transactions.0.date|date:"j M Y" }}">{{ release.contracts.0.implementation.transactions.0.date|date:"j M Y" }}</td>
+      <td title="{{ release.contracts.0.implementation.transactions.0.payer.name }}">{{ release.contracts.0.implementation.transactions.0.payer.name }}</td>
+      <td title="{{ release.contracts.0.implementation.transactions.0.payee.name }}">{{ release.contracts.0.implementation.transactions.0.payee.name }}</td>
+      <td title="{{ release.contracts.0.implementation.transactions.0.value.amount|intcomma }} {{ release.contracts.0.implementation.transactions.0.value.currency }}">
+        {{ release.contracts.0.implementation.transactions.0.value.amount|intcomma }} {{ release.contracts.0.implementation.transactions.0.value.currency }}
+      </td>
     </tr>
   {% endfor %}
   </tbody>

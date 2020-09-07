@@ -15,12 +15,13 @@ from random import random
 import pandas as pd
 import numpy as np
 from dateutil.relativedelta import relativedelta
-from django.core.files.base import ContentFile
+from django.core.files.base import ContentFile, File
 from django.core.management import BaseCommand
 from django.core.serializers.json import DjangoJSONEncoder
 from django.template.defaultfilters import slugify
 from ocdskit.combine import combine_release_packages
 from flattentool import unflatten
+from pandas.errors import EmptyDataError
 
 import silvereye
 from bluetail.helpers import UpsertDataHelpers
@@ -56,17 +57,39 @@ def get_publisher_names():
                   'Newcastle City Council',
                   'Nottingham City Council',
                   'North Tyneside Council',
-                  'Telford & Wrekin Council'
+                  'Telford & Wrekin Council',
+                  'London Borough of Hackney',
+                  'London Borough of Enfield',
                   ]
     return publishers
+
+
+def set_scheme(row):
+    buyer_scheme = row.get('releases/0/buyer/identifier/scheme')
+    if buyer_scheme and isinstance(buyer_scheme, str):
+        return buyer_scheme
+    else:
+        return "GB-OO"
 
 
 def create_uid(row):
     return slugify(row['publisher/name'])
 
 
-def create_uri(row):
-    return "http://www.example.com/" + row['publisher/uid']
+def set_uid(row):
+    buyer_id = row.get('releases/0/buyer/identifier/id')
+    if buyer_id and isinstance(buyer_id, str):
+        return buyer_id
+    else:
+        return slugify(row['publisher/name'])
+
+
+def set_uri(row):
+    buyer_uri = row.get('releases/0/buyer/identifier/uri')
+    if buyer_uri and isinstance(buyer_uri, str):
+        return buyer_uri
+    else:
+        return "http://www.example.com/" + row['publisher/uid']
 
 
 def new_ocid_prefix(row):
@@ -97,9 +120,10 @@ def fix_contracts_finder_flat_CSV(df):
     fixed_df['publisher/name'] = fixed_df['releases/0/buyer/name']
     # fixed_df['publisher/scheme'] = fixed_df['releases/0/buyer/identifier/scheme']
     # fixed_df['publisher/uid'] = str(fixed_df['releases/0/buyer/identifier/id'])
-    fixed_df['publisher/scheme'] = "GB-OO"
-    fixed_df['publisher/uid'] = fixed_df.apply(lambda row: create_uid(row), axis=1)
-    fixed_df['publisher/uri'] = fixed_df.apply(lambda row: create_uri(row), axis=1)
+    # fixed_df['publisher/scheme'] = "GB-OO"
+    fixed_df['publisher/scheme'] = fixed_df.apply(lambda row: set_scheme(row), axis=1)
+    fixed_df['publisher/uid'] = fixed_df.apply(lambda row: set_uid(row), axis=1)
+    fixed_df['publisher/uri'] = fixed_df.apply(lambda row: set_uri(row), axis=1)
     fixed_df['releases/0/ocid'] = fixed_df.apply(lambda row: new_ocid_prefix(row), axis=1)
     fixed_df['releases/0/id'] = fixed_df.apply(lambda row: row['releases/0/id'].replace('ocds-b5fd17-', ''), axis=1)
 
@@ -254,7 +278,7 @@ def get_date_boundaries(start_date, end_date, df, days=7, unflatten_cf_data=Fals
     return zip(starts, starts[1:])
 
 
-def process_contracts_finder_csv(publisher_names, start_date, end_date, options={}):
+def process_contracts_finder_csv(publisher_names, start_date, end_date, options={}, file_path=None):
     """
     Load Contracts Finder API flat CSV output from the source directory,
     pre-process it and turn it into JSON. Group the data into publisher
@@ -269,28 +293,40 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
     publisher_submissions = options['publisher_submissions']
     load_data = options['load_data']
     source_data = []
+    file_list = []
+
+    # Prepare list of CSVs to process
+    if file_path:
+        file_list = [file_path]
+    else:
+        for file_name in os.listdir(SOURCE_DIR):
+            if file_name.endswith(".csv"):
+                source_file_path = join(SOURCE_DIR, file_name)
+                if file_name < start_date.replace("-", "") or file_name > end_date.replace("-", ""):
+                    continue
+                else:
+                    file_list.append(source_file_path)
+                    file_list.sort()
 
     # Preprocess and merge all the CSV files into one dataframe
-    for file_name in os.listdir(SOURCE_DIR):
-        if file_name.endswith(".csv"):
-            try:
-                logger.info("Preprocessing %s", file_name)
-                df = pd.read_csv(join(SOURCE_DIR, file_name))
-                fixed_df = fix_contracts_finder_flat_CSV(df)
-                source_data.append(fixed_df)
-            except pd.errors.EmptyDataError:
-                pass
-            except:
-                logger.exception("error preprocessing %s", file_name)
+    for source_file_path in file_list:
+        try:
+            logger.info("Preprocessing %s", source_file_path)
+            df = pd.read_csv(source_file_path)
+            fixed_df = fix_contracts_finder_flat_CSV(df)
+            fixed_df = fixed_df.replace({np.nan: None})
+            fixed_df['publishedDate'] = pd.to_datetime(fixed_df['publishedDate'])
+            source_data.append(fixed_df)
+        except pd.errors.EmptyDataError:
+            pass
+        except:
+            logger.exception("error preprocessing %s", source_file_path)
 
     source_df = pd.concat(source_data, ignore_index=True)
-    source_df = source_df.replace({np.nan: None})
 
     # Used to create CF mappings
     # source_combined_path = os.path.join(WORKING_DIR, "combined.csv")
     # source_df.to_csv(source_combined_path, index=False)
-
-    source_df['publishedDate'] = pd.to_datetime(source_df['publishedDate'])
 
     # Filter for publisher names
     if publisher_names:
@@ -299,6 +335,7 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
         source_df = source_df[named_publishers]
 
     if not start_date:
+        file_name = os.path.basename(file_path)
         create_output_files(file_name, source_df, CLEAN_OUTPUT_DIR, load_data)
         return
 
@@ -346,7 +383,7 @@ def augment_award_row_with_spend(row):
     row["releases/0/contracts/0/implementation/transactions/0/value/amount"] = row["releases/0/awards/0/value/amount"]
     row["releases/0/contracts/0/implementation/transactions/0/value/currency"] = row["releases/0/awards/0/value/currency"]
     # Copy items to contract
-    for col, value in row.iteritems():
+    for col, value in row.items():
         if "tender/items" in col:
             row[col.replace("releases/0/tender/", "releases/0/contracts/0/")] = row[col]
 
@@ -460,7 +497,9 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                     )
                     supplied_data.publisher = publisher
                     supplied_data.created = published_date
-                    supplied_data.original_file.save(simple_csv_file_name, ContentFile(open(simple_csv_file_path).read()))
+                    if supplied_data.original_file and os.path.exists(supplied_data.original_file.path):
+                        os.remove(supplied_data.original_file.path)
+                    supplied_data.original_file.save(simple_csv_file_name, File(open(simple_csv_file_path)))
                     supplied_data.save()
 
                     # Store field coverage
@@ -548,7 +587,7 @@ class Command(BaseCommand):
             self.print_help('manage.py', '<your command name>')
             sys.exit()
 
-        process_contracts_finder_csv(publisher_names, start_date, end_date, options)
+        process_contracts_finder_csv(publisher_names, start_date, end_date, options, file_path)
 
         # Update publisher metrics
         update_publisher_monthly_counts()
