@@ -13,7 +13,8 @@
             <a class="dropdown-item" href="?period=all&comparison={{ request.GET.comparison }}">all time</a>
         </div>
     </div>
-    with difference to
+  {% if publisher_metrics.period_option != "all time" %}
+    compared to
     <div class="dropdown mx-2">
         <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="comparisonOptions" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             {{ publisher_metrics.comparison_option }}
@@ -24,4 +25,5 @@
             <a class="dropdown-item" href="?period={{ request.GET.period }}&comparison=2_year">two years ago</a>
         </div>
     </div>
+  {% endif %}
 </div>

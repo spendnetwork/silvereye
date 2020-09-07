@@ -16,9 +16,10 @@
       <a href="{% url 'index' %}" class="btn btn-primary mt-3 mt-md-0 ml-md-3 flex-shrink-0">Upload data</a>
     </h1>
 
-    <hr class="mb-5" >
+    <hr class="mb-5">
 
     <div class="row">
+
       <div class="col-sm-12 col-md-8 col-lg-7">
 
         {% include "silvereye/includes/publisher_hub_timescale_options.html" %}
@@ -26,7 +27,7 @@
         <h2 class="h3 mt-4 mb-3">Notices submitted</h2>
         {% include "silvereye/includes/publisher_metrics_row.html" %}
 
-        <h2 class="h3 mt-4 mb-3">Average completed rows</h2>
+        <h2 class="h3 mt-4 mb-3">Average field coverage</h2>
         {% include "silvereye/includes/completed_fields_row.html" %}
 
       </div>
@@ -40,7 +41,7 @@
     </div>
 
     <h2 class="h3 mt-4 mb-3">Recently submitted files</h2>
-    {% include "silvereye/includes/file_history.html" with recent_submissions=recent_submissions %}
+    {% include "silvereye/includes/file_history.html" %}
 
   </div>
 {% endblock %}
