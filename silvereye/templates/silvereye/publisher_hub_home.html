@@ -18,30 +18,41 @@
 
     <hr class="mb-5">
 
-    <div class="row">
+    {% if recent_submissions %}
 
-      <div class="col-sm-12 col-md-8 col-lg-7">
+      <div class="row">
 
-        {% include "silvereye/includes/publisher_hub_timescale_options.html" %}
+        <div class="col-sm-12 col-md-8 col-lg-7">
 
-        <h2 class="h3 mt-4 mb-3">Notices submitted</h2>
-        {% include "silvereye/includes/publisher_metrics_row.html" %}
+          {% include "silvereye/includes/publisher_hub_timescale_options.html" %}
 
-        <h2 class="h3 mt-4 mb-3">Average field coverage</h2>
-        {% include "silvereye/includes/completed_fields_row.html" %}
+          <h2 class="h3 mt-4 mb-3">Notices submitted</h2>
+          {% include "silvereye/includes/publisher_metrics_row.html" %}
+
+          <h2 class="h3 mt-4 mb-3">Average field coverage</h2>
+          {% include "silvereye/includes/completed_fields_row.html" %}
+
+        </div>
+
+        <div class="col-sm-12 col-md-4 offset-lg-1">
+
+          {% include "silvereye/includes/performance_chart.html" %}
+
+        </div>
 
       </div>
 
-      <div class="col-sm-12 col-md-4 offset-lg-1">
+      <h2 class="h3 mt-4 mb-3">Recently submitted files</h2>
+      {% include "silvereye/includes/file_history.html" %}
 
-        {% include "silvereye/includes/performance_chart.html" %}
 
+    {% else %}
+
+      <div class="col-sm-12 col-md-8" role="main">
+        <h3 class="h6 ">No Files submitted</h3>
       </div>
 
-    </div>
-
-    <h2 class="h3 mt-4 mb-3">Recently submitted files</h2>
-    {% include "silvereye/includes/file_history.html" %}
+    {% endif %}
 
   </div>
 {% endblock %}
