@@ -41,3 +41,4 @@ elasticsearch
 elasticsearch-dsl
 faker
 django-mathfilters
+dateparser
