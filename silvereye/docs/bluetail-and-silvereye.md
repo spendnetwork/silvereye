@@ -1,4 +1,6 @@
-## Steps taken when merging Bluetail/Silvereye into cove-ocds
+## Steps taken when merging Bluetail and Silvereye into cove-ocds
+
+This is here for reference of the changes made to the original fork to enable bluetail/silvereye to work.
 
 - copy bluetail/silvereye app directories
 - update INSTALLED_APPS:
