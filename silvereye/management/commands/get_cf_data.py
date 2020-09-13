@@ -279,7 +279,7 @@ def get_date_boundaries(start_date, end_date, df, days=7, unflatten_cf_data=Fals
     return zip(starts, starts[1:])
 
 
-def process_contracts_finder_csv(publisher_names, start_date, end_date, options={}, file_path=None):
+def process_contracts_finder_csv(publisher_names, start_date, end_date, options=None, file_path=None):
     """
     Load Contracts Finder API flat CSV output from the source directory,
     pre-process it and turn it into JSON. Group the data into publisher
@@ -291,6 +291,8 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
     :param end_date: last date on which data might appear
     :param options: Dictionary of options
     """
+    if options is None:
+        options = {}
     publisher_submissions = options['publisher_submissions']
     load_data = options['load_data']
     source_data = []
@@ -580,10 +582,11 @@ class Command(BaseCommand):
             daterange = pd.date_range(start_date, end_date)
             logger.info("Downloading Contracts Finder data from %s to %s", start_date, end_date)
             for date in daterange:
+                date_string = f"{date.year}/{date.month:02}/{date.day:02}"
+                save_path = join(SOURCE_DIR, slugify(date_string) + ".csv")
+                url = f"https://www.contractsfinder.service.gov.uk/Harvester/Notices/Data/CSV/{date_string}"
+
                 try:
-                    date_string = f"{date.year}/{date.month:02}/{date.day:02}"
-                    save_path = join(SOURCE_DIR, slugify(date_string) + ".csv")
-                    url = f"https://www.contractsfinder.service.gov.uk/Harvester/Notices/Data/CSV/{date_string}"
                     if not os.path.exists(save_path):
                         urllib.request.urlretrieve(url, save_path)
                     logger.info("Downloading URL: %s", url)
