@@ -41,7 +41,7 @@ def publisher():
 
 
 @pytest.mark.django_db
-def test_upload(publisher):
+def test_upload_flat_ocds(publisher):
     c = Client()
     path = os.path.join(TESTS_DIR, "fixtures/CSV_input/input.csv")
     with open(path) as fp:
@@ -54,7 +54,7 @@ def test_upload(publisher):
 
 
 @pytest.mark.django_db
-def test_upload(publisher, simple_csv_submission_path):
+def test_upload_simple_csv(publisher, simple_csv_submission_path):
     c = Client()
     with open(simple_csv_submission_path) as fp:
         resp = c.post(
