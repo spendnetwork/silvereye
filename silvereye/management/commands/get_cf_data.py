@@ -313,7 +313,7 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
     for source_file_path in file_list:
         try:
             logger.info("Preprocessing %s", source_file_path)
-            df = pd.read_csv(source_file_path)
+            df = pd.read_csv(source_file_path, escapechar='\\')
             fixed_df = fix_contracts_finder_flat_CSV(df)
             fixed_df = fixed_df.replace({np.nan: None})
             fixed_df['publishedDate'] = pd.to_datetime(fixed_df['publishedDate'])
