@@ -287,6 +287,7 @@ class CSVMapper:
         max_completion = max(completed_fields_counts)
 
         context = {
+            "required_fields_missing": coverage_results.get("required_fields_missing"),
             "total_expected_fields": expected_fields,
             "average_field_completion": av_completion,
             "minimum_field_completion": min_completion,

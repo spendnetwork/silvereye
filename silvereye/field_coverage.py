@@ -20,6 +20,7 @@ def check_coverage(input_df, mappings_df, notice_type="tender"):
     coverage_output = []
     required_missing = []
     completed_fields_counts = []
+    required_fields_missing = {}
     required_fields = mappings_df.loc[mappings_df['required'] == True, 'csv_header'].values.tolist()
     for i, row in input_df.iterrows():
         completed_fields_counts.append(row.count())
@@ -27,7 +28,9 @@ def check_coverage(input_df, mappings_df, notice_type="tender"):
         critical_nulls = row.isnull()[required_fields]
         required_missing = critical_nulls[critical_nulls].index.tolist()
         if required_missing:
-            coverage_output.append({'Notice ID': row['Notice ID'], 'Critical Missing Fields': required_missing})
+            coverage_output.append({'Notice ID': row['Notice ID'], 'Critical Missing Fields': required_missing, "row": i+1})
+            for header in required_missing:
+                required_fields_missing.setdefault(header, []).append(i+1)
 
     completion = input_df.count().div(len(input_df)).mul(100)
     missingcounts = input_df.isna().sum()
@@ -37,7 +40,7 @@ def check_coverage(input_df, mappings_df, notice_type="tender"):
     report = {
         "expected_fields": expected_fields,
         "required_fields": required_fields,
-        "required_fields_missing": required_missing,
+        "required_fields_missing": required_fields_missing,
         "field_completion_percentage": completion,
         "counts_missing_fields": missing_counts_nonzero,
         "critical_fields_missing_by_id": critical_report,

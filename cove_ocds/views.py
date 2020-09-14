@@ -29,7 +29,7 @@ from strict_rfc3339 import validate_rfc3339
 
 from bluetail.helpers import UpsertDataHelpers
 from cove_ocds.lib.views import group_validation_errors
-from silvereye.helpers import S3_helpers, sync_with_s3
+from silvereye.helpers import S3_helpers, sync_with_s3, prepare_simple_csv_validation_errors
 from silvereye.lib.converters import convert_csv
 from silvereye.models import FileSubmission, FieldCoverage
 from silvereye.ocds_csv_mapper import CSVMapper
@@ -411,21 +411,17 @@ def explore_ocds(request, pk):
         "field_coverage": coverage_context,
     })
 
-    # fix
+    ocds_validation_errors, simple_csv_errors = prepare_simple_csv_validation_errors(
+        context["validation_errors"],
+        mapper,
+        coverage_context["required_fields_missing"]
+    )
 
-    mapping_dict = {}
-    # rename simple CSV headers to OCDS uri headers
-    for i, row in mapper.mappings_df.iterrows():
-        if row["csv_header"]:
-            mapping_dict[row["uri"]] = row["csv_header"]
+    context.update({
+        "ocds_validation_errors": ocds_validation_errors,
+        "simple_csv_errors": simple_csv_errors
+    })
 
-    new_errors = []
-    for error_json, values in context.get("validation_errors"):
-        if values[0].get("header") in mapping_dict.keys():
-            values[0]["header"] = mapping_dict[values[0].get("header")]
-            new_errors.append([error_json, values])
-
-    context["new_errors"] = new_errors
     # Silvereye: Insert OCDS data
     releases = context.get("releases")
     if releases:

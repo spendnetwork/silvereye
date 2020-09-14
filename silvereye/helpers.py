@@ -13,6 +13,7 @@ import requests
 from django.db import connections
 from django.db.models import Sum, Avg
 from django.db.models.functions import Coalesce
+from django.utils.safestring import mark_safe
 
 import silvereye
 from bluetail.helpers import UpsertDataHelpers
@@ -325,3 +326,73 @@ def get_metric_options(request):
 
 def date_today():
     return datetime.now().date()
+
+
+def prepare_simple_csv_validation_errors(validation_errors, mapper, required_fields_missing=None):
+    """
+    Rename  OCDS uri headers to simple CSV headers in validation errors
+
+    :param validation_errors:
+    :param mapper:
+    :param required_fields_missing:
+    :return:
+    """
+
+    mapping_dict = {}
+    for i, row in mapper.mappings_df.iterrows():
+        if row["csv_header"]:
+            mapping_dict[row["uri"]] = row["csv_header"]
+
+    ocds_validation_errors = []
+    simple_csv_errors = []
+    for error_json, values in validation_errors:
+        error_json_dict = json.loads(error_json)
+        ocds_header = error_json_dict.get("header")
+        if ocds_header in mapping_dict.keys():
+            simple_csv_header = mapping_dict[ocds_header]
+            error_json_dict["header"] = simple_csv_header
+            error_json_dict["message"] = error_json_dict["message"].replace(f"'{ocds_header}'",
+                                                                            f"'{simple_csv_header}'")
+            error_json_dict["message_safe"] = error_json_dict["message_safe"].replace(f"<code>{ocds_header}</code>",
+                                                                                      f"<code>{simple_csv_header}</code>")
+            if error_json_dict["validator_value"] == "date-time":
+                error_json_dict["message_safe"] = mark_safe(
+                    'Incorrect date format. Use a standard date format such as ISO 8601: YYYY-MM-DDT00:00:00Z.')
+            for i, value in enumerate(values):
+                values[i]["header"] = simple_csv_header
+                values[i]["row_number"] -= 1
+            simple_csv_errors.append([error_json_dict, values])
+        elif error_json_dict["validator"] != "required":
+            ocds_validation_errors.append([error_json, values])
+        # else:
+        #     ocds_validation_errors.append([error_json, values])
+
+    # Append extra "required" files as specified in the mappings
+    for missing_csv_header, rows in required_fields_missing.items():
+        # Only add new headers
+        if missing_csv_header in [error[0].get("header") for error in simple_csv_errors]:
+            continue
+        else:
+            simple_csv_errors.append([
+                {
+                    'assumption': None,
+                    'error_id': None,
+                    'header': f'{missing_csv_header}',
+                    'header_extra': 'releases/[number]',
+                    'message': f"'{missing_csv_header}' is missing but required",
+                    'message_safe': f'<code>{missing_csv_header}</code> is missing but required',
+                    'message_type': 'required',
+                    'null_clause': '',
+                    'path_no_number': 'releases',
+                    'validator': 'required',
+                    'validator_value': None
+                },
+                [{
+                    'header': f'{missing_csv_header}',
+                    'path': f'releases/{row}',
+                    'row_number': row,
+                    'sheet': 'releases'
+                } for row in rows]
+            ])
+
+    return ocds_validation_errors, simple_csv_errors
