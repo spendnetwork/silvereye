@@ -23,7 +23,9 @@ def filter_conversion_warnings(conversion_warnings):
         if w.category is flattentool.exceptions.DataErrorWarning:
             out.append(str(w.message))
         else:
-            logger.warning(w)
+            # Hide noisy, harmless warnings
+            if not "because it has no properties" in w.message.args[0]:
+                logger.warning(w)
     return out
 
 
