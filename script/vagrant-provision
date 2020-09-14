@@ -5,11 +5,11 @@ sudo apt-get update
 #upgrade local python3 to python3.6
 cd /vagrant
 sudo apt-get install -y libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm
-sudo apt-get install -y libncurses5-dev  libncursesw5-dev xz-utils tk-dev libssl-dev
+sudo apt-get install -y libncurses5-dev  libncursesw5-dev xz-utils tk-dev libssl-dev liblzma-dev
 
-sudo wget https://www.python.org/ftp/python/3.6.6/Python-3.6.6.tgz
-sudo tar xvf Python-3.6.6.tgz
-cd Python-3.6.6
+sudo wget https://www.python.org/ftp/python/3.6.12/Python-3.6.12.tgz
+sudo tar xvf Python-3.6.12.tgz
+cd Python-3.6.12
 sudo ./configure --enable-optimizations --with-ssl=openssl
 sudo make -j8
 sudo make altinstall
