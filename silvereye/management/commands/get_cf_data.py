@@ -16,6 +16,7 @@ from random import random
 import pandas as pd
 import numpy as np
 from dateutil.relativedelta import relativedelta
+from django.conf import settings
 from django.core.files.base import ContentFile, File
 from django.core.management import BaseCommand
 from django.core.serializers.json import DjangoJSONEncoder
@@ -28,7 +29,7 @@ import silvereye
 from bluetail.helpers import UpsertDataHelpers
 from cove_ocds.views import convert_simple_csv_submission
 from libcoveocds.config import LibCoveOCDSConfig
-from silvereye.helpers import update_publisher_monthly_counts
+from silvereye.helpers import update_publisher_monthly_counts, sync_with_s3
 from silvereye.ocds_csv_mapper import CSVMapper
 from silvereye.models import Publisher, FileSubmission, FieldCoverage
 
@@ -504,6 +505,9 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                         os.remove(supplied_data.original_file.path)
                     supplied_data.original_file.save(simple_csv_file_name, File(open(simple_csv_file_path)))
                     supplied_data.save()
+
+                    if settings.STORE_OCDS_IN_S3:
+                        sync_with_s3(supplied_data)
 
                     # Store field coverage
                     mapper = CSVMapper(csv_path=simple_csv_file_path)
