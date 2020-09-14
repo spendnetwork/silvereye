@@ -29,7 +29,7 @@ from strict_rfc3339 import validate_rfc3339
 
 from bluetail.helpers import UpsertDataHelpers
 from cove_ocds.lib.views import group_validation_errors
-from silvereye.helpers import S3_helpers, sync_with_s3
+from silvereye.helpers import S3_helpers, sync_with_s3, prepare_simple_csv_validation_errors
 from silvereye.lib.converters import convert_csv
 from silvereye.models import FileSubmission, FieldCoverage
 from silvereye.ocds_csv_mapper import CSVMapper
@@ -409,6 +409,17 @@ def explore_ocds(request, pk):
     coverage_context = mapper.get_coverage_context()
     context.update({
         "field_coverage": coverage_context,
+    })
+
+    ocds_validation_errors, simple_csv_errors = prepare_simple_csv_validation_errors(
+        context["validation_errors"],
+        mapper,
+        coverage_context["required_fields_missing"]
+    )
+
+    context.update({
+        "ocds_validation_errors": ocds_validation_errors,
+        "simple_csv_errors": simple_csv_errors
     })
 
     # Silvereye: Insert OCDS data
