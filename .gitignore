@@ -1,9 +1,9 @@
 /*.sqlite3
 /.ve
 .coverage
+coverage_html/
 *.pyc
 *.mo
-.coverage
 __pycache__
 /media
 docs/_build

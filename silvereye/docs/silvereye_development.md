@@ -32,6 +32,13 @@ Run pytest
 
     pytest silvereye
     
+#### Coverage
+
+Run pytest with coverage
+
+    pytest silvereye --cov=. -v --cov-report html:coverage_html
+    open coverage_html/index.html
+    
 
 ## Merging silvereye/bluetail to cove-ocds
 
