@@ -1,3 +1,4 @@
+-- Upsert publisher metric counts to silvereye_publishermonthlycounts
 WITH daily_sum as (
     select pub.id,
 --     pub.publisher_name,

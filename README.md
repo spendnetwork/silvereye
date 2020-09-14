@@ -2,8 +2,8 @@
 
 - [Silvereye](#silvereye)
   * [Installation](#installation)
-    + [Running locally (with Vagrant)](#running-locally-with-vagrant)
-    + [Running locally (without Vagrant)](#running-locally-without-vagrant)
+    + [Running locally (with Vagrant)](#running-locally--with-vagrant-)
+    + [Running locally (without Vagrant)](#running-locally--without-vagrant-)
     + [Deployment to Heroku](#deployment-to-heroku)
       - [Enable S3 storage on Heroku](#enable-s3-storage-on-heroku)
   * [Data loading](#data-loading)
@@ -13,6 +13,7 @@
   * [Using Silvereye](#using-silvereye)
     + [Publishers](#publishers)
       - [Django Admin](#django-admin)
+  * [Development documentation](#development-documentation)
 
 
 # Silvereye
@@ -26,7 +27,7 @@ Cove-ocds is a web application that allows you to review Open Contracting data, 
 Contracting Data Standard, and review it for errors or places for improvement. You can also use it to covert data 
 between JSON and Excel spreadsheet formats.
 
-The original tool runs at https://standard.open-contracting.org/review/
+The original OCDS review tool runs at https://standard.open-contracting.org/review/
 
 Documentation for the original tool is at https://ocds-data-review-tool.readthedocs.io/en/latest/
 
@@ -36,9 +37,6 @@ with beneficial ownership (BODS) data. More info can be found at https://github.
 An example deployment of Silvereye runs at https://ocds-silvereye.herokuapp.com
 
 Documentation for Silvereye is in this README.md https://github.com/spendnetwork/cove-ocds/.
-
-Further technical documentation about Silvereye can be found in the `docs` directory. [technical_docs.md](silvereye/docs/silvereye_development.md)
-
 
 ## Installation
 
@@ -251,3 +249,8 @@ Default login credentials are
 
 - Username: admin
 - Password: admin
+
+## Development documentation
+
+Further technical documentation about development with Silvereye can be found in the `docs` directory. [technical_docs.md](silvereye/docs/silvereye_development.md)
+

@@ -107,9 +107,7 @@ TEMPLATES[0]["OPTIONS"]["context_processors"].append(
 
 WSGI_APPLICATION = "cove_project.wsgi.application"
 
-# We can't take DATABASES from cove settings,
-# ... otherwise the files appear under the BASE_DIR that is the Cove library install.
-# That could get messy. We want them to appear in our directory.
+# Configure database from DATABASE_URL
 DATABASES = {
     'default': env.db()
 }
