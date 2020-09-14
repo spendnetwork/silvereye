@@ -14,11 +14,11 @@ psql -d $DATABASE_URL -c "CREATE SCHEMA public"
 # Set up database.
 script/migrate
 
-# Insert example data.
-# python manage.py get_cf_data --file_path silvereye/data/cf_daily_csv/export-2020-08-05.csv
+# Insert sample Contracts Finder data.
+script/insert_cf_data
 
 # Import authority types
-python manage.py import_authority_types
+script/manage import_authority_types
 
 # Create superuser.
 script/manage shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'admin')"

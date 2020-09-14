@@ -1,6 +1,0 @@
-Notice ID,Published Date,Buyer Name,Buyer ID-scheme,Buyer ID,Buyer Locality,Supplier Name,Supplier ID-scheme,Supplier ID,Supplier Address - locality,Supplier Address - postcode,Supplier Address - country,Supplier Address - street address,Classification Scheme,Classification Code,Classification Description,Transaction ID,Transaction Date,Transaction Amount,Transaction Currency
-59e2601f-613a-4829-86dd-0191f4dd4d1f-376315-bip516875502_trans1,2020-09-18T15:30:02Z,Telford & Wrekin Council,,,Telford,DEF Software Limited,,,,,,"Washington Business Centre
-        Turbine Way
-        Sunderland
-        Tyne & Wear
-        SR5 3NZ",CPV,48983000,Development software package,,2020-08-31T00:00:00Z,180000.0,GBP
