@@ -10,7 +10,7 @@ from six import StringIO
 
 import silvereye
 from silvereye.ocds_csv_mapper import CSVMapper
-from silvereye.management.commands.get_cf_data import fix_contracts_finder_flat_CSV
+from silvereye.management.commands.get_cf_data import fix_contracts_finder_flat_csv
 
 SILVEREYE_DIR = silvereye.__path__[0]
 TESTS_DIR = os.path.dirname(os.path.realpath(__file__))
@@ -25,7 +25,7 @@ def test_unflatten_cf_daily_csv_to_jsonlist_of_release_packages(contracts_finder
     clean_output_dir = join(CF_DIR, "working_files", "cleaned")
     clean_output_file = join(clean_output_dir, "cleaned.csv")
 
-    fixed_df = fix_contracts_finder_flat_CSV(contracts_finder_daily_csv_df)
+    fixed_df = fix_contracts_finder_flat_csv(contracts_finder_daily_csv_df)
     shutil.rmtree(clean_output_dir, ignore_errors=True)
     os.makedirs(clean_output_dir)
     fixed_df.to_csv(open(clean_output_file, "w"), index=False, header=True)
@@ -38,7 +38,7 @@ def test_unflatten_cf_daily_csv_to_jsonlist_of_release_packages(contracts_finder
 
 
 def test_fix_contracts_finder_flat_CSV(contracts_finder_daily_csv_df):
-    fixed_df = fix_contracts_finder_flat_CSV(contracts_finder_daily_csv_df)
+    fixed_df = fix_contracts_finder_flat_csv(contracts_finder_daily_csv_df)
     assert any(fixed_df["releases/0/awards/0/items/0/id"])
 
 
@@ -55,7 +55,7 @@ def test_unflatten_cf_daily_csv_using_base_json():
     df = pd.read_csv(csv_path_or_url)
 
     cf_mapper = CSVMapper(mappings_file=CF_MAPPINGS_FILE)
-    fixed_df = fix_contracts_finder_flat_CSV(df)
+    fixed_df = fix_contracts_finder_flat_csv(df)
     fixed_df = cf_mapper.convert_cf_to_1_1(fixed_df)
 
     fixed_df.to_csv(open(clean_output_file, "w"), index=False, header=True)

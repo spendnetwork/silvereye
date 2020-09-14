@@ -129,11 +129,11 @@ def new_ocid_prefix(row):
     ocid_prefix = get_ocid_prefix(ocid)
     uid = create_uid(row)
     new_ocid = [ord(char) - 96 for char in uid.replace('-', '')]
-    new_ocid_prefix = 'ocds-' + ''.join(map(str, new_ocid))[0:6]
-    return ocid.replace(ocid_prefix, new_ocid_prefix, 1)
+    updated_ocid_prefix = 'ocds-' + ''.join(map(str, new_ocid))[0:6]
+    return ocid.replace(ocid_prefix, updated_ocid_prefix, 1)
 
 
-def fix_contracts_finder_flat_CSV(df):
+def fix_contracts_finder_flat_csv(df):
     """
     Process raw CF CSV:
         - Filter columns using headers in CF mappings file
@@ -171,7 +171,7 @@ def fix_contracts_finder_flat_CSV(df):
         if "tender/items" in col:
             fixed_df.loc[
                 fixed_df['releases/0/tag'] == 'award', col.replace("releases/0/tender/", "releases/0/awards/0/")] = \
-            fixed_df[col]
+                fixed_df[col]
 
     return fixed_df
 
@@ -293,7 +293,7 @@ def create_publisher_from_package_json(package):
     return publisher
 
 
-def get_date_boundaries(start_date, end_date, df, days=7, unflatten_cf_data=False):
+def get_date_boundaries(start_date, end_date, df, days=7):
     """
     Return an iterator of tuples of the start and end dates for a set of weekly
     periods that will include the period defined by the start and end date
@@ -302,6 +302,7 @@ def get_date_boundaries(start_date, end_date, df, days=7, unflatten_cf_data=Fals
 
     :param start_date: first date to be included in the weekly periods
     :param end_date: last date to be included in the weekly periods
+    :param days: number of days to include in each sample submission
     :param df: the data frame
     """
     if start_date is None:
@@ -335,6 +336,7 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
     :param start_date: first date on which data might appear
     :param end_date: last date on which data might appear
     :param options: Dictionary of options
+    :param file_path: path to file to insert
     """
     if options is None:
         options = {}
@@ -361,13 +363,13 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
         try:
             logger.info("Preprocessing %s", source_file_path)
             df = pd.read_csv(source_file_path, escapechar='\\')
-            fixed_df = fix_contracts_finder_flat_CSV(df)
+            fixed_df = fix_contracts_finder_flat_csv(df)
             fixed_df = fixed_df.replace({np.nan: None})
             fixed_df['publishedDate'] = pd.to_datetime(fixed_df['publishedDate'])
             source_data.append(fixed_df)
         except pd.errors.EmptyDataError:
             pass
-        except:
+        except ValueError:
             logger.exception("error preprocessing %s", source_file_path)
 
     source_df = pd.concat(source_data, ignore_index=True)
@@ -418,8 +420,8 @@ def augment_award_row_with_spend(row):
     """
     row["releases/0/tag"] = "implementation"
     # Change IDs
-    row["releases/0/ocid"] = row["releases/0/ocid"] + "_trans1"
-    row["releases/0/id"] = row["releases/0/id"] + "_trans1"
+    row["releases/0/ocid"] += "_trans1"
+    row["releases/0/id"] += "_trans1"
     # Set published date some time later than award
     days_between_publishing_award_and_spend = int(random() * 10) + 10
     award_pub_datetime = datetime.strptime(row["releases/0/date"], '%Y-%m-%dT%H:%M:%SZ')
@@ -459,6 +461,7 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
     :param df: DataFrame containing the data
     :param parent_directory: Path to the parent directory to create the files
     :param load_data: Boolean indicating that the data should be loaded
+    :param unflatten_contracts_finder_data: Run legacy unflattening of raw CF data (used for dev/debugging)
     """
     release_types = ['tender',
                      'award',
@@ -563,7 +566,7 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                     mapper = CSVMapper(csv_path=simple_csv_file_path)
                     coverage_context = mapper.get_coverage_context()
                     average_field_completion = coverage_context.get("average_field_completion")
-                    inst, created = FieldCoverage.objects.update_or_create(
+                    FieldCoverage.objects.update_or_create(
                         file_submission=supplied_data,
                         defaults={
                             "tenders_field_coverage": average_field_completion if mapper.release_type == "tender" else None,
@@ -581,7 +584,7 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                     )
                     converted_path = conversion_context.get("converted_path")
                     UpsertDataHelpers().upsert_ocds_data(converted_path, supplied_data)
-                except:
+                except FileNotFoundError:
                     logger.exception("Error loading data for %s in %s", name, parent_directory)
 
             if unflatten_contracts_finder_data:
@@ -599,9 +602,13 @@ def remake_dir(directory):
 
 
 class Command(BaseCommand):
+    """Django Command get_cf_data.py"""
+
     help = "Inserts Contracts Finder data using Flat CSV OCDS from the CF API.\nhttps://www.contractsfinder.service.gov.uk/apidocumentation/Notices/1/GET-Harvester-Notices-Data-CSV"
 
     def add_arguments(self, parser):
+        """Args for get_cf_data"""
+
         parser.add_argument("--start_date", default=argparse.SUPPRESS, help="Import from date. YYYY-MM-DD")
         parser.add_argument("--end_date", default=argparse.SUPPRESS, help="Import to date. YYYY-MM-DD")
         parser.add_argument("--file_path", type=str, help="File path to CSV data to insert.")
@@ -610,6 +617,7 @@ class Command(BaseCommand):
         parser.add_argument("--load_data", action='store_true', help="Load data into database")
 
     def handle(self, *args, **kwargs):
+        """handle get_cf_data"""
 
         publisher_names = get_publisher_names()
         remake_dir(SOURCE_DIR)
