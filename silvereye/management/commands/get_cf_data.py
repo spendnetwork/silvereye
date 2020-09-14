@@ -67,6 +67,12 @@ def get_publisher_names():
 
 
 def set_scheme(row):
+    """
+    Get buyer scheme or use default 'GB-OO' for publisher scheme.
+
+    :param row: Row of CF dataframe
+    :return: str
+    """
     buyer_scheme = row.get('releases/0/buyer/identifier/scheme')
     if buyer_scheme and isinstance(buyer_scheme, str):
         return buyer_scheme
@@ -75,10 +81,22 @@ def set_scheme(row):
 
 
 def create_uid(row):
+    """
+    Slugify publisher name to create publisher uid
+
+    :param row: Row of CF dataframe
+    :return: str
+    """
     return slugify(row['publisher/name'])
 
 
 def set_uid(row):
+    """
+    Get buyer id or slugified publisher name for publisher/uid
+
+    :param row: Row of CF dataframe
+    :return: str
+    """
     buyer_id = row.get('releases/0/buyer/identifier/id')
     if buyer_id and isinstance(buyer_id, str):
         return buyer_id
@@ -87,6 +105,12 @@ def set_uid(row):
 
 
 def set_uri(row):
+    """
+    Get buyer uri or create example from uid for publisher/uid
+
+    :param row: Row of CF dataframe
+    :return: buyer uri
+    """
     buyer_uri = row.get('releases/0/buyer/identifier/uri')
     if buyer_uri and isinstance(buyer_uri, str):
         return buyer_uri
@@ -95,6 +119,12 @@ def set_uri(row):
 
 
 def new_ocid_prefix(row):
+    """
+    Replace OCID with fake OCID prefix using publisher name
+
+    :param row: Row of CF dataframe
+    :return: OCID with new prefix
+    """
     ocid = row['releases/0/ocid']
     ocid_prefix = get_ocid_prefix(ocid)
     uid = create_uid(row)
@@ -147,9 +177,17 @@ def fix_contracts_finder_flat_CSV(df):
 
 
 def unflatten_cf_data(json_file_path, last_published_date, load_data, output_dir):
-    # Turn the fixed CF CSV into releases package JSON
-    # Used in earlier work to test and debug the CF preprocessing pipeline, before the simple CSV conversion
-    # Left here for debugging purposes
+    """
+    Turn the fixed CF CSV into releases package JSON
+    Used in earlier work to test and debug the CF preprocessing pipeline, before the simple CSV conversion
+    Left here for debugging purposes
+
+    :param json_file_path:
+    :param last_published_date:
+    :param load_data:
+    :param output_dir:
+    :return:
+    """
     schema = OCDS_RELEASE_SCHEMA
     unflatten(output_dir, output_name=json_file_path, input_format="csv", root_id="ocid", root_is_list=True,
               schema=schema)
@@ -228,6 +266,12 @@ def create_package_from_json(contracts_finder_id, package):
 
 
 def create_publisher_from_package_json(package):
+    """
+    Update or create a Publisher model object using publisher info in the OCDS JSON package metadata
+
+    :param package: OCDS JSON package
+    :return: created or updated publisher object
+    """
     publisher = package["publisher"]
     publisher_name = publisher.get("name")
     publisher_id = publisher.get("uid")
@@ -366,6 +410,12 @@ def process_contracts_finder_csv(publisher_names, start_date, end_date, options=
 
 # Augment award with transaction
 def augment_award_row_with_spend(row):
+    """
+    Take a row of CF dataframe and append columns with fake spend data generated from the award fields
+
+    :param row: Row of CF dataframe
+    :return: Row of CF dataframe with new columns for transactions
+    """
     row["releases/0/tag"] = "implementation"
     # Change IDs
     row["releases/0/ocid"] = row["releases/0/ocid"] + "_trans1"
