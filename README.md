@@ -1,13 +1,16 @@
-![test.yml](https://github.com/spendnetwork/cove-ocds/workflows/Test%20suite/badge.svg)
+[![test](https://github.com/spendnetwork/cove-ocds/workflows/Test%20suite/badge.svg)](https://github.com/spendnetwork/silvereye/actions?query=branch%3Amaster)
 
 - [Silvereye](#silvereye)
+  * [Overview](#overview)
+    + [Live demo](#live-demo)
+    + [Background](#background)
   * [Installation](#installation)
-    + [Running locally (with Vagrant)](#running-locally-with-vagrant)
-    + [Running locally (without Vagrant)](#running-locally-without-vagrant)
+    + [Running locally (with Vagrant)](#running-locally--with-vagrant-)
+    + [Running locally (without Vagrant)](#running-locally--without-vagrant-)
     + [Deployment to Heroku](#deployment-to-heroku)
       - [Enable S3 storage on Heroku](#enable-s3-storage-on-heroku)
   * [Data loading](#data-loading)
-  * [Loading data from Contracts Finder](#loading-data-from-contracts-finder)
+    + [Loading specific data from Contracts Finder](#loading-specific-data-from-contracts-finder)
     + [Updating Publisher metadata](#updating-publisher-metadata)
     + [Preparing Publisher metrics](#preparing-publisher-metrics)
   * [Using Silvereye](#using-silvereye)
@@ -17,9 +20,25 @@
 
 # Silvereye
 
+## Overview
+
 Silvereye is a web-based tool to help create and store procurement notices in the Open Contracting Data Standard (OCDS).
 
-The code is based on a modified fork of the Open Contracting GitHub repository `cove-ocds` (OCDS Data Review Tool) 
+Documentation for Silvereye is in this README.md, and viewable on Github at https://github.com/spendnetwork/cove-ocds/.
+
+Further technical documentation about Silvereye can be found in the `docs` directory. [technical_docs.md](silvereye/docs/silvereye_development.md)
+
+### Live demo
+
+A live demo of the tool is available to view at
+
+https://ocds-silvereye.herokuapp.com
+
+This deployment is reset every day at midnight so feel free to experiment with it.
+
+### Background
+
+The Silvereye codebase is based on a modified fork of the Open Contracting GitHub repository `cove-ocds` (OCDS Data Review Tool) 
 available here: https://github.com/open-contracting/cove-ocds
 
 Cove-ocds is a web application that allows you to review Open Contracting data, validate it against the Open 
@@ -30,14 +49,8 @@ The original tool runs at https://standard.open-contracting.org/review/
 
 Documentation for the original tool is at https://ocds-data-review-tool.readthedocs.io/en/latest/
 
-Silvereye also makes use of code from an OCDS Django alpha project, `bluetail`, that prototypes linking of OCDS data 
-with beneficial ownership (BODS) data. More info can be found at https://github.com/mysociety/bluetail
-
-An example deployment of Silvereye runs at https://ocds-silvereye.herokuapp.com
-
-Documentation for Silvereye is in this README.md https://github.com/spendnetwork/cove-ocds/.
-
-Further technical documentation about Silvereye can be found in the `docs` directory. [technical_docs.md](silvereye/docs/silvereye_development.md)
+Silvereye also makes use of code from another open source prototype project, `bluetail`, that demonstrates linking of
+ OCDS data with beneficial ownership (BODS) data. More info can be found at https://github.com/mysociety/bluetail
 
 
 ## Installation
@@ -95,16 +108,25 @@ pip3 install --requirement requirements_dev.txt
 Copy the `.env.template` file to `.env` and set the variable `SECRET_KEY` to a unique string. 
 https://docs.djangoproject.com/en/2.2/ref/settings/#secret-key
 
-With the virtual environment still activated, run the Django migrations, to set up the database:
-
-```
-script/migrate
-```
-
-If you want to setup (or reset) the database and load the example data, run:
+The following commands are inspired by GitHub's
+ [Scripts to Rule Them All](https://github.com/github/scripts-to-rule-them-all) script patterns.
+ 
+With the virtual environment still activated, run the initial setup script. 
+(Note this can also be used to reset the installation at any time and will delete all database data in the process)
+ 
+- Initialise the database by running Django migrations
+- Set up a default Django admin user (admin:admin)
+- Insert sample procurement data from UK Contracts Finder
+- Insert the provided sample UK Authority register for publisher filtering 
+[silvereye/data/uk_local_authorities.csv](silvereye/data/uk_local_authorities.csv)
 
 ```
 script/setup
+```
+
+To set up the database without any sample data, or to update the database after changes to the code:
+```
+script/update
 ```
 
 To run the server
@@ -179,11 +201,11 @@ See [docs/s3-storage.md](silvereye/docs/s3-storage.md) for more details
 
 ## Data loading
  
-To insert the sample data from Contracts Finder run 
+To insert the default sample data from Contracts Finder run 
  
     script/insert_cf_data
  
-## Loading data from Contracts Finder
+### Loading specific data from Contracts Finder
  
 There is a management command to insert data from the UK Contracts Finder API. 
 https://www.contractsfinder.service.gov.uk/apidocumentation/Notices/1/GET-Harvester-Notices-Data-CSV
@@ -215,13 +237,13 @@ Download Contracts Finder releases in a date range from their API and insert as 
 
 ### Updating Publisher metadata
 
-This command updates the contact details from the latest submitted file for each publisher
+This command updates the contact details from the latest submitted file for each publisher (if needed)
 
     python manage.py update_publisher_data
 
 ### Preparing Publisher metrics
 
-This management command will update the metric data for the Silvereye Publisher pages
+This management command will update the metric data for the Silvereye Publisher pages. 
 
     python manage.py update_publisher_metrics
           
