@@ -1,3 +1,35 @@
+# Usage of bluetail in Silvereye
+
+The bluetail project is a prototype Django app that links OCDS and BODS data to help highlight suspicious 
+behaviour in government procurement.
+
+More documentation is here https://github.com/mysociety/bluetail
+
+Silvere includes the bluetail app to make use of Django models for storing and viewing OCDS data in Postgres.
+
+In particular it uses these objects:
+
+- `bluetail/migrations`
+    - bluetail migrations are needed to generate the OCDS tables 
+
+- `bluetail/helpers.py:UpsertDataHelpers.upsert_ocds_data()`
+    - method used to insert OCDS JSON data into the database
+
+- `bluetail.models.ocds_models.py`
+    - OCDSPackageData model used in Silvereye views 
+    - OCDSReleaseView model used in Silvereye views
+
+- `bluetail/templates/bluetail_and_silvereye_shared/base.html`
+   - used for silvereye templates in place of the cove-ocds base by updating the setting in `cove_project/settings.py`
+            
+            COVE_CONFIG = {
+                "app_name": "silvereye",
+                # "app_base_template": "cove_ocds/base.html",
+                "app_base_template": "bluetail_and_silvereye_shared/base.html",   
+
+The rest of bluetail is superfluous to Silvereye and can be remove if desired.
+
+
 ## Steps taken when merging Bluetail and Silvereye into cove-ocds
 
 This is here for reference of the changes made to the original fork to enable bluetail/silvereye to work.
