@@ -43,3 +43,7 @@ class HomeViewTest(TestCase):
                              'comparison_option': 'preceding period'
                             }
         self.assertDictEqual(response.context['publisher_metrics'], expected_metrics)
+
+
+class PublisherListingView():
+    pass

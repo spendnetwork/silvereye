@@ -4,8 +4,9 @@ import pytest
 from django.test import Client
 from django.urls import reverse
 
-from silvereye.helpers import GoogleSheetHelpers
+from silvereye.helpers import GoogleSheetHelpers, prepare_simple_csv_validation_errors
 from silvereye.models import Publisher, FileSubmission
+from silvereye.ocds_csv_mapper import CSVMapper
 
 TESTS_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -100,3 +101,25 @@ def test_upload_xlsx(publisher):
         )
     h = resp.content.decode()
     assert resp.status_code == 302
+
+
+def test_validation_errors():
+    # TODO Improve test
+    mapper = CSVMapper()
+    js = [[
+        '{"assumption": null, "error_id": null, "header": "date", "header_extra": "releases/[number]", "message": "\'date\' is missing but required", "message_safe": "<code>date</code> is missing but required", "message_type": "required", "null_clause": "", "path_no_number": "releases", "validator": "required", "validator_value": null}',
+        [{'header': 'date', 'path': 'releases/1', 'row_number': 3, 'sheet': 'releases'}]], [
+        '{"assumption": null, "error_id": null, "header": "id", "header_extra": "releases/[number]", "message": "\'id\' is missing but required", "message_safe": "<code>id</code> is missing but required", "message_type": "required", "null_clause": "", "path_no_number": "releases", "validator": "required", "validator_value": null}',
+        [{'header': 'id', 'path': 'releases/1', 'row_number': 3, 'sheet': 'releases'}]], [
+        '{"assumption": null, "error_id": null, "header": "tender/id", "header_extra": "tender/id", "message": "\'tender/id\' is missing but required within \'tender\'", "message_safe": "<code>tender/id</code> is missing but required within <code>tender</code>", "message_type": "required", "null_clause": "", "path_no_number": "releases/tender", "validator": "required", "validator_value": null}',
+        [{'header': 'tender/id', 'path': 'releases/1/tender', 'row_number': 3, 'sheet': 'releases'}]
+    ]]
+    fixed_js = prepare_simple_csv_validation_errors(js, mapper)
+    expected = [[
+        '{"assumption": null, "error_id": null, "header": "date", "header_extra": "releases/[number]", "message": "\'date\' is missing but required", "message_safe": "<code>date</code> is missing but required", "message_type": "required", "null_clause": "", "path_no_number": "releases", "validator": "required", "validator_value": null}',
+        [{'header': 'Published Date', 'path': 'releases/1', 'row_number': 3, 'sheet': 'releases'}]], [
+        '{"assumption": null, "error_id": null, "header": "id", "header_extra": "releases/[number]", "message": "\'id\' is missing but required", "message_safe": "<code>id</code> is missing but required", "message_type": "required", "null_clause": "", "path_no_number": "releases", "validator": "required", "validator_value": null}',
+        [{'header': 'Notice ID', 'path': 'releases/1', 'row_number': 3, 'sheet': 'releases'}]
+    ]]
+
+    assert fixed_js == expected
