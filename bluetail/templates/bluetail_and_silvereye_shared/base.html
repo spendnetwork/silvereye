@@ -30,7 +30,15 @@
         {% block content %}{% endblock %}
     </div>
 
-    <div class="site-footer"></div>
+    <div class="site-footer">
+      <footer class="page-footer font-small blue">
+           <div class="footer-copyright text-center py-3">
+             This is a demo for the open source project <a href="https://github.com/spendnetwork/silvereye/">Silvereye</a>.
+             We welcome bug reports <a href="https://github.com/spendnetwork/silvereye/issues">here.</a>.
+            </div>
+      </footer>
+    </div>
+
     <script src="{% static 'jquery/jquery.min.js' %}"></script>
     <script src="{% static 'bootstrap/bootstrap.bundle.min.js' %}"></script>
         {% block extrafooterscript %}{% endblock %}
