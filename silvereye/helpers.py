@@ -7,7 +7,7 @@ import re
 from urllib.parse import urlparse, parse_qsl, urlencode
 
 from django.conf import settings
-from django.core.files.base import ContentFile, File
+from django.core.files.base import ContentFile
 from django.core.files.storage import get_storage_class
 import requests
 from django.db import connections
@@ -16,7 +16,7 @@ from django.db.models.functions import Coalesce
 from django.utils.safestring import mark_safe
 
 import silvereye
-from bluetail.helpers import UpsertDataHelpers
+from silvereye.lib.converters import convert_csv
 from silvereye.models import FileSubmission, FieldCoverage
 
 logger = logging.getLogger(__name__)
@@ -396,3 +396,42 @@ def prepare_simple_csv_validation_errors(validation_errors, mapper, required_fie
             ])
 
     return ocds_validation_errors, simple_csv_errors
+
+
+def convert_simple_csv_submission(db_data, lib_cove_ocds_config, schema_url, file_type="csv", replace=True):
+    # Silvereye CSV unflatten
+    # Prepare base_json
+    upload_dir = db_data.upload_dir()
+    upload_url = db_data.upload_url()
+    file_name = db_data.original_file.file.name
+
+    base_json_path = os.path.join(upload_dir, "base.json")
+    prepare_simple_csv_submission_base_json(base_json_path, db_data.publisher)
+    conversion_context = convert_csv(
+        upload_dir,
+        upload_url,
+        file_name,
+        file_type,
+        lib_cove_ocds_config,
+        schema_url=schema_url,
+        replace=replace,
+        base_json_path=base_json_path
+    )
+    return conversion_context
+
+
+def prepare_simple_csv_submission_base_json(base_json_path, publisher):
+    base_json = {
+        "version": "1.1",
+        "publisher": {
+            "name": publisher.publisher_name,
+            "scheme": publisher.publisher_scheme,
+            "uid": publisher.publisher_id,
+        },
+        "publishedDate": datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'),
+        # "license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/2/",
+        # "publicationPolicy": "https://www.gov.uk/government/publications/open-contracting",
+        "uri": "https://ocds-silvereye.herokuapp.com/"
+    }
+    with open(base_json_path, "w") as writer:
+        json.dump(base_json, writer, indent=2)

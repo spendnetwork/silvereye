@@ -27,9 +27,8 @@ from pandas.errors import EmptyDataError
 
 import silvereye
 from bluetail.helpers import UpsertDataHelpers
-from cove_ocds.views import convert_simple_csv_submission
 from libcoveocds.config import LibCoveOCDSConfig
-from silvereye.helpers import update_publisher_monthly_counts, sync_with_s3
+from silvereye.helpers import update_publisher_monthly_counts, sync_with_s3, convert_simple_csv_submission
 from silvereye.ocds_csv_mapper import CSVMapper
 from silvereye.models import Publisher, FileSubmission, FieldCoverage
 

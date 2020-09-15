@@ -1,4 +1,8 @@
+"""
+This file is copied from `cove_ocds/views.py` and modified for Silvereye
+"""
 import copy
+
 import functools
 import json
 import logging
@@ -8,9 +12,9 @@ import warnings
 from collections import OrderedDict
 from decimal import Decimal
 
-from cove.views import explore_data_context
 from dateutil import parser
 from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import render
 from django.utils import translation
 from django.utils.html import format_html
@@ -23,10 +27,22 @@ from libcoveocds.config import LibCoveOCDSConfig
 from libcoveocds.schema import SchemaOCDS
 from strict_rfc3339 import validate_rfc3339
 
+from bluetail.helpers import UpsertDataHelpers
 from cove_ocds.lib.views import group_validation_errors
+from silvereye.helpers import S3_helpers, sync_with_s3, prepare_simple_csv_validation_errors, \
+    update_publisher_monthly_counts, convert_simple_csv_submission
+from silvereye.models import FileSubmission, FieldCoverage
+from silvereye.ocds_csv_mapper import CSVMapper
 
-from .lib import exceptions
-from .lib.ocds_show_extra import add_extra_fields
+from cove_ocds.lib import exceptions
+from cove_ocds.lib.ocds_show_extra import add_extra_fields
+
+# Don't need to import this as we use our own modified function below
+# from cove.views import explore_data_context
+
+# But we do need some dependencies
+from django.core.exceptions import ValidationError
+from libcove.lib.tools import get_file_type as _get_file_type
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +56,76 @@ def cove_web_input_error(func):
             return render(request, "error.html", context=err.context)
 
     return wrapper
+
+
+# From libcoveweb
+def get_file_name(file_name):
+    if file_name is not None and '/' in file_name:
+        file_name = file_name.split('/')[-1]
+    return file_name
+
+
+# From libcoveweb
+# Updated to store/sync with S3 bucket
+def explore_data_context(request, pk, get_file_type=None):
+    if get_file_type is None:
+        get_file_type = _get_file_type
+
+    try:
+        data = FileSubmission.objects.get(pk=pk)
+        # Updated code to sync local storage to/from S3 storage
+        if settings.STORE_OCDS_IN_S3:
+            sync_with_s3(data)
+    except (FileSubmission.DoesNotExist, ValidationError):  # Catches primary key does not exist and badly formed UUID
+        try:
+            if settings.STORE_OCDS_IN_S3:
+                S3_helpers().retrieve_data_from_S3(pk)
+                data = FileSubmission.objects.get(pk=pk)
+        except (FileSubmission.DoesNotExist, ValidationError):  # Catches primary key does not exist and badly formed UUID
+            logger.exception("Couldn't get data from S3: %s", pk)
+            return {}, None, render(request, 'error.html', {
+                'sub_title': _('Sorry, the page you are looking for is not available'),
+                'link': 'index',
+                'link_text': _('Go to Home page'),
+                'msg': _("We don't seem to be able to find the data you requested.")
+            }, status=404)
+
+
+    file_type = get_file_type(data.original_file)
+    original_file_path = data.original_file.path
+
+    try:
+        file_name = data.original_file.file.name
+        if file_name.endswith('validation_errors-3.json'):
+            raise PermissionError('You are not allowed to upload a file with this name.')
+    except FileNotFoundError:
+        return {}, None, render(request, 'error.html', {
+            'sub_title': _('Sorry, the page you are looking for is not available'),
+            'link': 'index',
+            'link_text': _('Go to Home page'),
+            'msg': _('The data you were hoping to explore no longer exists.\n\nThis is because all '
+                     'data supplied to this website is automatically deleted after 7 days, and therefore '
+                     'the analysis of that data is no longer available.')
+        }, status=404)
+
+    context = {
+        'original_file': {
+            'url': data.original_file.url,
+            'size': data.original_file.size,
+            'path': original_file_path,
+        },
+        'file_type': file_type,
+        'file_name': get_file_name(file_name),
+        'data_uuid': pk,
+        'current_url': request.build_absolute_uri(),
+        'source_url': data.source_url,
+        'form_name': data.form_name,
+        'created_datetime': data.created.strftime('%A, %d %B %Y %I:%M%p %Z'),
+        'created_date': data.created.strftime('%A, %d %B %Y'),
+        'created_time': data.created.strftime('%I:%M%p %Z'),
+    }
+
+    return (context, data, None)
 
 
 @cove_web_input_error
@@ -62,7 +148,7 @@ def explore_ocds(request, pk):
     file_name = db_data.original_file.file.name
     file_type = context["file_type"]
 
-    post_version_choice = request.POST.get("version")
+    post_version_choice = request.POST.get("version", lib_cove_ocds_config.config["schema_version"])
     replace = False
     validation_errors_path = os.path.join(upload_dir, "validation_errors-3.json")
 
@@ -133,7 +219,7 @@ def explore_ocds(request, pk):
                 replace = True
             if schema_ocds.extensions:
                 schema_ocds.create_extended_release_schema_file(upload_dir, upload_url)
-            url = schema_ocds.extended_schema_file or schema_ocds.release_schema_url
+            schema_url = schema_ocds.extended_schema_file or schema_ocds.release_schema_url
 
             if "records" in json_data:
                 context["conversion"] = None
@@ -150,7 +236,7 @@ def explore_ocds(request, pk):
                         upload_url,
                         file_name,
                         lib_cove_ocds_config,
-                        schema_url=url,
+                        schema_url=schema_url,
                         replace=replace_converted,
                         request=request,
                         flatten=request.POST.get("flatten"),
@@ -195,21 +281,32 @@ def explore_ocds(request, pk):
 
         if schema_ocds.extensions:
             schema_ocds.create_extended_release_schema_file(upload_dir, upload_url)
-        url = schema_ocds.extended_schema_file or schema_ocds.release_schema_url
+        schema_url = schema_ocds.extended_schema_file or schema_ocds.release_schema_url
         pkg_url = schema_ocds.release_pkg_schema_url
 
-        context.update(
-            convert_spreadsheet(
-                upload_dir,
-                upload_url,
-                file_name,
-                file_type,
+        if file_type != "csv":
+            # ORIGINAL UNFLATTEN
+            conversion_context = convert_spreadsheet(
+                    upload_dir,
+                    upload_url,
+                    file_name,
+                    file_type,
+                    lib_cove_ocds_config,
+                    schema_url=schema_url,
+                    pkg_schema_url=pkg_url,
+                    replace=replace,
+            )
+        else:
+            # Convert Simple CSV to flat OCDS and return context
+
+            conversion_context = convert_simple_csv_submission(
+                db_data,
                 lib_cove_ocds_config,
-                schema_url=url,
-                pkg_schema_url=pkg_url,
+                schema_url,
                 replace=replace,
             )
-        )
+
+        context.update(conversion_context)
 
         with open(context["converted_path"], encoding="utf-8") as fp:
             json_data = json.load(
@@ -220,20 +317,10 @@ def explore_ocds(request, pk):
         if os.path.exists(validation_errors_path):
             os.remove(validation_errors_path)
 
-    context = common_checks_ocds(context, upload_dir, json_data, schema_ocds)
+    context = common_checks_ocds(context, upload_dir, json_data, schema_ocds, cache=settings.CACHE_VALIDATION_ERRORS)
 
     if schema_ocds.json_deref_error:
         exceptions.raise_json_deref_error(schema_ocds.json_deref_error)
-
-    context.update(
-        {
-            "data_schema_version": db_data.data_schema_version,
-            "first_render": not db_data.rendered,
-            "validation_errors_grouped": group_validation_errors(
-                context["validation_errors"]
-            ),
-        }
-    )
 
     schema_version = getattr(schema_ocds, "version", None)
     if schema_version:
@@ -242,6 +329,16 @@ def explore_ocds(request, pk):
         db_data.rendered = True
 
     db_data.save()
+
+    context.update(
+        {
+            "data_schema_version": db_data.schema_version,
+            "first_render": not db_data.rendered,
+            "validation_errors_grouped": group_validation_errors(
+                context["validation_errors"]
+            ),
+        }
+    )
 
     ocds_show_schema = SchemaOCDS()
     ocds_show_deref_schema = ocds_show_schema.get_release_schema_obj(deref=True)
@@ -257,7 +354,7 @@ def explore_ocds(request, pk):
                 json_data, ocds_show_deref_schema
             )
     else:
-        template = "cove_ocds/explore_release.html"
+        template = "silvereye/explore_release.html"
         if hasattr(json_data, "get") and hasattr(json_data.get("releases"), "__iter__"):
             context["releases"] = json_data["releases"]
             if (
@@ -275,6 +372,14 @@ def explore_ocds(request, pk):
                         release["date"] = parser.parse(release["date"])
                     else:
                         release["date"] = None
+
+                try:
+                    trans_date = release["contracts"][0]["implementation"]["transactions"][0]["date"]
+                    parsed_trans_date = parser.parse(trans_date)
+                    release["contracts"][0]["implementation"]["transactions"][0]["date"] = parsed_trans_date
+                except KeyError:
+                    pass
+
             if context.get("releases_aggregates"):
                 date_fields = [
                     "max_award_date",
@@ -296,6 +401,52 @@ def explore_ocds(request, pk):
                             context["releases_aggregates"][field] = None
         else:
             context["releases"] = []
+
+    # Include field coverage report
+    original_file_path = context["original_file"]["path"]
+    mapper = CSVMapper(csv_path=original_file_path)
+    db_data.notice_type = mapper.release_type
+    db_data.save()
+    coverage_context = mapper.get_coverage_context()
+    context.update({
+        "field_coverage": coverage_context,
+    })
+
+    ocds_validation_errors, simple_csv_errors = prepare_simple_csv_validation_errors(
+        context["validation_errors"],
+        mapper,
+        coverage_context["required_fields_missing"]
+    )
+
+    context.update({
+        "ocds_validation_errors": ocds_validation_errors,
+        "simple_csv_errors": simple_csv_errors
+    })
+
+    # Silvereye: Insert OCDS data
+    releases = context.get("releases")
+    if releases:
+        # If we don't have validation errors
+        validation_errors_grouped = context["validation_errors_grouped"]
+        if not validation_errors_grouped:
+            json_string = json.dumps(
+                json_data,
+                indent=2,
+                sort_keys=True,
+                cls=DjangoJSONEncoder
+            )
+            UpsertDataHelpers().upsert_ocds_data(json_string, supplied_data=db_data)
+
+            average_field_completion = coverage_context.get("average_field_completion")
+            inst, created = FieldCoverage.objects.update_or_create(
+                file_submission=db_data,
+                defaults={
+                    "tenders_field_coverage": average_field_completion if mapper.release_type == "tender" else None,
+                    "awards_field_coverage": average_field_completion if mapper.release_type == "award" else None,
+                    "spend_field_coverage": average_field_completion if mapper.release_type == "spend" else None,
+                }
+            )
+            update_publisher_monthly_counts()
 
     return render(request, template, context)
 
