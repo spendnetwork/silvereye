@@ -420,7 +420,8 @@ def explore_ocds(request, pk):
 
     context.update({
         "ocds_validation_errors": ocds_validation_errors,
-        "simple_csv_errors": simple_csv_errors
+        "simple_csv_errors": simple_csv_errors,
+        "csv_mapper": mapper,
     })
 
     # Silvereye: Insert OCDS data

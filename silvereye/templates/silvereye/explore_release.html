@@ -173,13 +173,14 @@
       <p class="text-muted mt-2 mb-0">(Showing first 10 releases only)</p>
     {% endif %}
 
-    {# TODO: We should find a nicer way to detect what type of data we're dealing with. #}
-    {% if releases.0.tender.title %}
+    {% if csv_mapper.release_type == "tender" %}
       {% include "silvereye/includes/explore_preview_table_tenders.html" %}
-    {% elif releases.0.awards.0.title %}
+    {% elif csv_mapper.release_type == "award" %}
       {% include "silvereye/includes/explore_preview_table_awards.html" %}
-    {% elif releases.0.contracts.0.implementation %}
+    {% elif csv_mapper.release_type == "spend" %}
       {% include "silvereye/includes/explore_preview_table_transactions.html" %}
+    {% else %}
+       {% include "silvereye/includes/explore_preview_table_tenders.html" %}
     {% endif %}
 
     {% if simple_csv_errors %}
