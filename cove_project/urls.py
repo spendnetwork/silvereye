@@ -3,15 +3,14 @@ from datetime import datetime
 from cove.urls import handler500  # noqa: F401
 from cove.urls import urlpatterns as urlpatterns_core
 from django.conf import settings
-from django.conf.urls import include, url
+from django.conf.urls import url
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from django.urls import include, path
 
-import cove_ocds.views
-
-# Serve the OCDS validator at /validator/
+from silvereye import views_cove_ocds
 from silvereye.views import data_input
+
 
 urlpatterns = [
     url(r"^$", RedirectView.as_view(url="review/", permanent=False)),
@@ -22,7 +21,7 @@ urlpatterns = [
         },
         name='index'),
     url(r"^review/", include(urlpatterns_core)),
-    url(r"^data/(.+)$", cove_ocds.views.explore_ocds, name="explore"),
+    url(r"^data/(.+)$", views_cove_ocds.explore_ocds, name="explore"),
     path(r'', include('bluetail.urls')),
     path('publisher-hub/', include('silvereye.urls')),
 ]
