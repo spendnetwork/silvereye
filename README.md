@@ -1,13 +1,16 @@
-![test.yml](https://github.com/spendnetwork/cove-ocds/workflows/Test%20suite/badge.svg)
+[![test](https://github.com/spendnetwork/cove-ocds/workflows/Test%20suite/badge.svg)](https://github.com/spendnetwork/silvereye/actions?query=branch%3Amaster)
 
 - [Silvereye](#silvereye)
+  * [Overview](#overview)
+    + [Live demo](#live-demo)
+    + [Background](#background)
   * [Installation](#installation)
-    + [Running locally (with Vagrant)](#running-locally-with-vagrant)
-    + [Running locally (without Vagrant)](#running-locally-without-vagrant)
+    + [Running locally (with Vagrant)](#running-locally--with-vagrant-)
+    + [Running locally (without Vagrant)](#running-locally--without-vagrant-)
     + [Deployment to Heroku](#deployment-to-heroku)
       - [Enable S3 storage on Heroku](#enable-s3-storage-on-heroku)
   * [Data loading](#data-loading)
-  * [Loading data from Contracts Finder](#loading-data-from-contracts-finder)
+    + [Loading specific data from Contracts Finder](#loading-specific-data-from-contracts-finder)
     + [Updating Publisher metadata](#updating-publisher-metadata)
     + [Preparing Publisher metrics](#preparing-publisher-metrics)
   * [Using Silvereye](#using-silvereye)
@@ -17,9 +20,25 @@
 
 # Silvereye
 
+## Overview
+
 Silvereye is a web-based tool to help create and store procurement notices in the Open Contracting Data Standard (OCDS).
 
-The code is based on a modified fork of the Open Contracting GitHub repository `cove-ocds` (OCDS Data Review Tool) 
+Documentation for Silvereye is in this README.md, and viewable on Github at https://github.com/spendnetwork/cove-ocds/.
+
+Further technical documentation about Silvereye can be found in the `docs` directory. [technical_docs.md](silvereye/docs/silvereye_development.md)
+
+### Live demo
+
+A live demo of the tool is available to view at
+
+https://ocds-silvereye.herokuapp.com
+
+This deployment is reset every day at midnight so feel free to experiment with it.
+
+### Background
+
+The Silvereye codebase is based on a modified fork of the Open Contracting GitHub repository `cove-ocds` (OCDS Data Review Tool) 
 available here: https://github.com/open-contracting/cove-ocds
 
 Cove-ocds is a web application that allows you to review Open Contracting data, validate it against the Open 
@@ -30,14 +49,8 @@ The original tool runs at https://standard.open-contracting.org/review/
 
 Documentation for the original tool is at https://ocds-data-review-tool.readthedocs.io/en/latest/
 
-Silvereye also makes use of code from an OCDS Django alpha project, `bluetail`, that prototypes linking of OCDS data 
-with beneficial ownership (BODS) data. More info can be found at https://github.com/mysociety/bluetail
-
-An example deployment of Silvereye runs at https://ocds-silvereye.herokuapp.com
-
-Documentation for Silvereye is in this README.md https://github.com/spendnetwork/cove-ocds/.
-
-Further technical documentation about Silvereye can be found in the `docs` directory. [technical_docs.md](silvereye/docs/silvereye_development.md)
+Silvereye also makes use of code from another open source prototype project, `bluetail`, that demonstrates linking of
+ OCDS data with beneficial ownership (BODS) data. More info can be found at https://github.com/mysociety/bluetail
 
 
 ## Installation
@@ -188,11 +201,11 @@ See [docs/s3-storage.md](silvereye/docs/s3-storage.md) for more details
 
 ## Data loading
  
-To insert the sample data from Contracts Finder run 
+To insert the default sample data from Contracts Finder run 
  
     script/insert_cf_data
  
-## Loading data from Contracts Finder
+### Loading specific data from Contracts Finder
  
 There is a management command to insert data from the UK Contracts Finder API. 
 https://www.contractsfinder.service.gov.uk/apidocumentation/Notices/1/GET-Harvester-Notices-Data-CSV
@@ -224,13 +237,13 @@ Download Contracts Finder releases in a date range from their API and insert as 
 
 ### Updating Publisher metadata
 
-This command updates the contact details from the latest submitted file for each publisher
+This command updates the contact details from the latest submitted file for each publisher (if needed)
 
     python manage.py update_publisher_data
 
 ### Preparing Publisher metrics
 
-This management command will update the metric data for the Silvereye Publisher pages
+This management command will update the metric data for the Silvereye Publisher pages. 
 
     python manage.py update_publisher_metrics
           
