@@ -95,16 +95,25 @@ pip3 install --requirement requirements_dev.txt
 Copy the `.env.template` file to `.env` and set the variable `SECRET_KEY` to a unique string. 
 https://docs.djangoproject.com/en/2.2/ref/settings/#secret-key
 
-With the virtual environment still activated, run the Django migrations, to set up the database:
-
-```
-script/migrate
-```
-
-If you want to setup (or reset) the database and load the example data, run:
+The following commands are inspired by GitHub's
+ [Scripts to Rule Them All](https://github.com/github/scripts-to-rule-them-all) script patterns.
+ 
+With the virtual environment still activated, run the initial setup script. 
+(Note this can also be used to reset the installation at any time and will delete all database data in the process)
+ 
+- Initialise the database by running Django migrations
+- Set up a default Django admin user (admin:admin)
+- Insert sample procurement data from UK Contracts Finder
+- Insert the provided sample UK Authority register for publisher filtering 
+[silvereye/data/uk_local_authorities.csv](silvereye/data/uk_local_authorities.csv)
 
 ```
 script/setup
+```
+
+To set up the database without any sample data, or to update the database after changes to the code:
+```
+script/update
 ```
 
 To run the server

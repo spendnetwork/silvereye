@@ -12,13 +12,13 @@ psql -d $DATABASE_URL -c "DROP SCHEMA IF EXISTS public CASCADE"
 psql -d $DATABASE_URL -c "CREATE SCHEMA public"
 
 # Set up database.
-script/migrate
+"$(dirname "$0")/update"
 
 # Insert sample Contracts Finder data.
-script/insert_cf_data
+"$(dirname "$0")/insert_cf_data"
 
 # Import authority types
-script/manage import_authority_types
+"$(dirname "$0")/manage" import_authority_types
 
-# Create superuser.
-script/manage shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'admin')"
+# Create default superuser.
+"$(dirname "$0")/manage" shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'admin')"
