@@ -118,11 +118,6 @@ def publisher(request, publisher_name):
     return render(request, "silvereye/publisher.html", context)
 
 
-# TODO: Remove this once we've moved the styles over to cove-ocds's main upload form.
-def upload_results(request):
-    return render(request, "silvereye/upload_results.html")
-
-
 class UploadForm(forms.ModelForm):
     publisher_id = forms.ModelChoiceField(label=_('Select a publisher'), queryset=Publisher.objects.all())
 
