@@ -29,7 +29,8 @@ from strict_rfc3339 import validate_rfc3339
 
 from bluetail.helpers import UpsertDataHelpers
 from cove_ocds.lib.views import group_validation_errors
-from silvereye.helpers import S3_helpers, sync_with_s3, prepare_simple_csv_validation_errors
+from silvereye.helpers import S3_helpers, sync_with_s3, prepare_simple_csv_validation_errors, \
+    update_publisher_monthly_counts
 from silvereye.lib.converters import convert_csv
 from silvereye.models import FileSubmission, FieldCoverage
 from silvereye.ocds_csv_mapper import CSVMapper
@@ -445,6 +446,7 @@ def explore_ocds(request, pk):
                     "spend_field_coverage": average_field_completion if mapper.release_type == "spend" else None,
                 }
             )
+            update_publisher_monthly_counts()
 
     return render(request, template, context)
 
