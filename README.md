@@ -28,6 +28,10 @@ Documentation for Silvereye is in this README.md, and viewable on Github at http
 
 Further technical documentation about Silvereye can be found in the `docs` directory. [technical_docs.md](silvereye/docs/silvereye_development.md)
 
+### Credits
+
+Silvereye has been built as part of the [Global Digital Marketplace Programme](https://gds.blog.gov.uk/category/global-digital-marketplace/), run by the the UK [Government Digital Service (GDS)](https://www.gov.uk/government/organisations/government-digital-service), funded by the [Foreign, Commonwealth & Development Office (FCDO)](https://www.gov.uk/government/organisations/foreign-commonwealth-development-office)[Global Anti-Corruption Programme](https://www.gov.uk/government/publications/global-anti-corruption-programme).
+
 ### Live demo
 
 A live demo of the tool is available to view at
