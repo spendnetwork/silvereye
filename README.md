@@ -30,7 +30,7 @@ Further technical documentation about Silvereye can be found in the `docs` direc
 
 ### Credits
 
-Silvereye has been built as part of the [Global Digital Marketplace Programme](https://gds.blog.gov.uk/category/global-digital-marketplace/), run by the the UK [Government Digital Service (GDS)](https://www.gov.uk/government/organisations/government-digital-service), funded by the [Foreign, Commonwealth & Development Office (FCDO)](https://www.gov.uk/government/organisations/foreign-commonwealth-development-office)[Global Anti-Corruption Programme](https://www.gov.uk/government/publications/global-anti-corruption-programme).
+Silvereye has been built as part of the [Global Digital Marketplace Programme](https://gds.blog.gov.uk/category/global-digital-marketplace/), run by the the UK [Government Digital Service (GDS)](https://www.gov.uk/government/organisations/government-digital-service), funded by the [Foreign, Commonwealth & Development Office (FCDO)](https://www.gov.uk/government/organisations/foreign-commonwealth-development-office) as part of the [Global Anti-Corruption Programme](https://www.gov.uk/government/publications/global-anti-corruption-programme).
 
 ### Live demo
 
