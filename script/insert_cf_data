@@ -1,5 +1,5 @@
 #!/bin/sh
 
-script/manage get_cf_data --file_path silvereye/data/cf_daily_csv/cf_files_2019-06-01_to_2020-09-06.zip --start_date 2019-06-01 --end_date 2020-09-06 --load_data --publisher_submissions
-script/manage import_authority_types
+"$(dirname "$0")/manage" get_cf_data --file_path silvereye/data/cf_daily_csv/cf_files_2019-06-01_to_2020-09-06.zip --days 400 --load_data --publisher_submissions
+"$(dirname "$0")/manage" import_authority_types
 

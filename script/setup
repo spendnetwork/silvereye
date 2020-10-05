@@ -14,11 +14,8 @@ psql -d $DATABASE_URL -c "CREATE SCHEMA public"
 # Set up database.
 "$(dirname "$0")/update"
 
-# Insert sample Contracts Finder data.
-"$(dirname "$0")/insert_cf_data"
-
-# Import authority types
-"$(dirname "$0")/manage" import_authority_types
-
 # Create default superuser.
 "$(dirname "$0")/manage" shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); User.objects.create_superuser('admin', 'admin@example.com', 'admin')"
+
+# Insert sample Contracts Finder data. (Remove this for empty deployment)
+"$(dirname "$0")/insert_cf_data"
