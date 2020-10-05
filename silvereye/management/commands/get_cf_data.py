@@ -610,7 +610,7 @@ class Command(BaseCommand):
 
         parser.add_argument("--start_date", default=argparse.SUPPRESS, help="Import from date. YYYY-MM-DD")
         parser.add_argument("--end_date", default=argparse.SUPPRESS, help="Import to date. YYYY-MM-DD")
-        parser.add_argument("--days", help="Number of days before enddate to import. eg. 7")
+        parser.add_argument("--days", type=int, help="Number of days before enddate to import. eg. 7")
         parser.add_argument("--file_path", type=str, help="File path to CSV data to insert.")
         parser.add_argument("--publisher_submissions", action='store_true',
                             help="Group data into publisher submissions")
@@ -634,7 +634,7 @@ class Command(BaseCommand):
         end_date = kwargs.get("end_date", datetime.today().strftime("%Y-%m-%d"))
         days = kwargs.get("days")
         if end_date and days and not start_date:
-            start_date = end_date - relativedelta(days=days)
+            start_date = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(days=days)).strftime("%Y-%m-%d")
 
         if file_path:
             logger.info("Copying data from %s", file_path)
@@ -644,9 +644,9 @@ class Command(BaseCommand):
                 file_path = None
             elif file_path.endswith(".csv"):
                 shutil.copy(file_path, SOURCE_DIR)
-        elif start_date:
+        if start_date:
             daterange = pd.date_range(start_date, end_date)
-            logger.info("Downloading Contracts Finder data from %s to %s", start_date, end_date)
+            logger.info("Downloading needed Contracts Finder data from %s to %s", start_date, end_date)
             for date in daterange:
                 date_string = f"{date.year}/{date.month:02}/{date.day:02}"
                 save_path = join(SOURCE_DIR, slugify(date_string) + ".csv")
@@ -655,7 +655,7 @@ class Command(BaseCommand):
                 try:
                     if not os.path.exists(save_path):
                         urllib.request.urlretrieve(url, save_path)
-                    logger.info("Downloading URL: %s", url)
+                        logger.info("Downloading URL: %s", url)
                 except TypeError:
                     logger.exception("Error with URL: %s", url)
         else:
