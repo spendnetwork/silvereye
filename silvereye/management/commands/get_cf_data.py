@@ -44,6 +44,11 @@ SAMPLE_SUBMISSIONS_DIR = join(WORKING_DIR, "submissions")
 CF_MAPPINGS_FILE = os.path.join(SILVEREYE_DIR, "data", "csv_mappings", "contracts_finder_mappings.csv")
 OCDS_RELEASE_SCHEMA = join(SILVEREYE_DIR, "data", "OCDS", "1.1.4-release-schema.json")
 
+cf_mapper = CSVMapper(mappings_file=CF_MAPPINGS_FILE)
+tender_mapper = CSVMapper(release_type="tender")
+award_mapper = CSVMapper(release_type="award")
+spend_mapper = CSVMapper(release_type="spend")
+
 
 def get_publisher_names():
     """
@@ -501,10 +506,15 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
             period_dir_name = os.path.basename(parent_directory)
             simple_csv_file_name = f"{release_name}_{period_dir_name}.csv"
             simple_csv_file_path = join(SAMPLE_SUBMISSIONS_DIR, simple_csv_file_name)
-            cf_mapper = CSVMapper(mappings_file=CF_MAPPINGS_FILE)
             ocds_1_1_release_df = cf_mapper.convert_cf_to_1_1(df_release_type)
-            mapper = CSVMapper(release_type=release_type)
-            simple_csv_df = mapper.output_simple_csv(ocds_1_1_release_df)
+            if release_type == "tender":
+                ocds_mapper = tender_mapper
+            elif release_type == "award":
+                ocds_mapper = award_mapper
+            elif release_type == "spend":
+                ocds_mapper = spend_mapper
+            # ocds_mapper = CSVMapper(release_type=release_type)
+            simple_csv_df = ocds_mapper.output_simple_csv(ocds_1_1_release_df)
             simple_csv_df.to_csv(open(simple_csv_file_path, "w"), index=False, header=True)
 
             # Upload simple CSV to DB
@@ -548,7 +558,7 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                         id=contracts_finder_id,
                         defaults={
                             "current_app": "silvereye",
-                            "notice_type": mapper.release_type,
+                            "notice_type": ocds_mapper.release_type,
                         }
                     )
                     supplied_data.publisher = publisher
@@ -562,15 +572,15 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                         sync_with_s3(supplied_data)
 
                     # Store field coverage
-                    mapper = CSVMapper(csv_path=simple_csv_file_path)
-                    coverage_context = mapper.get_coverage_context()
+                    simple_csv_mapper = CSVMapper(csv_path=simple_csv_file_path)
+                    coverage_context = simple_csv_mapper.get_coverage_context()
                     average_field_completion = coverage_context.get("average_field_completion")
                     FieldCoverage.objects.update_or_create(
                         file_submission=supplied_data,
                         defaults={
-                            "tenders_field_coverage": average_field_completion if mapper.release_type == "tender" else None,
-                            "awards_field_coverage": average_field_completion if mapper.release_type == "award" else None,
-                            "spend_field_coverage": average_field_completion if mapper.release_type == "spend" else None,
+                            "tenders_field_coverage": average_field_completion if simple_csv_mapper.release_type == "tender" else None,
+                            "awards_field_coverage": average_field_completion if simple_csv_mapper.release_type == "award" else None,
+                            "spend_field_coverage": average_field_completion if simple_csv_mapper.release_type == "spend" else None,
                         }
                     )
 
