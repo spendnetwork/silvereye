@@ -610,6 +610,7 @@ class Command(BaseCommand):
 
         parser.add_argument("--start_date", default=argparse.SUPPRESS, help="Import from date. YYYY-MM-DD")
         parser.add_argument("--end_date", default=argparse.SUPPRESS, help="Import to date. YYYY-MM-DD")
+        parser.add_argument("--days", help="Number of days before enddate to import. eg. 7")
         parser.add_argument("--file_path", type=str, help="File path to CSV data to insert.")
         parser.add_argument("--publisher_submissions", action='store_true',
                             help="Group data into publisher submissions")
@@ -631,6 +632,10 @@ class Command(BaseCommand):
 
         start_date = kwargs.get("start_date")
         end_date = kwargs.get("end_date", datetime.today().strftime("%Y-%m-%d"))
+        days = kwargs.get("days")
+        if end_date and days and not start_date:
+            start_date = end_date - relativedelta(days=days)
+
         if file_path:
             logger.info("Copying data from %s", file_path)
             if file_path.endswith(".zip"):
