@@ -472,7 +472,7 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                      'spend'
                      ]
     for release_type in release_types:
-        logger.info("Creating output files for %s %s", name, release_type)
+        logger.debug("Creating output files for %s %s", name, release_type)
 
         release_name = name + "-" + release_type
         output_dir = join(parent_directory, release_name)
@@ -528,7 +528,7 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
 
                     # helpers.SimpleSubmissionHelpers().load_simple_csv_into_database(simple_csv_df, publisher)
                     # Load data from Simple CSV
-                    logger.info("Creating or updating Publisher %s (id %s)", publisher_name, publisher_id)
+                    logger.debug("Creating or updating Publisher %s (id %s)", publisher_name, publisher_id)
                     contact_name = df_release_type.iloc[0]["releases/0/buyer/contactPoint/name"]
                     contact_email = df_release_type.iloc[0]["releases/0/buyer/contactPoint/email"]
                     contact_telephone = df_release_type.iloc[0]["releases/0/buyer/contactPoint/telephone"]
