@@ -44,6 +44,11 @@ SAMPLE_SUBMISSIONS_DIR = join(WORKING_DIR, "submissions")
 CF_MAPPINGS_FILE = os.path.join(SILVEREYE_DIR, "data", "csv_mappings", "contracts_finder_mappings.csv")
 OCDS_RELEASE_SCHEMA = join(SILVEREYE_DIR, "data", "OCDS", "1.1.4-release-schema.json")
 
+cf_mapper = CSVMapper(mappings_file=CF_MAPPINGS_FILE)
+tender_mapper = CSVMapper(release_type="tender")
+award_mapper = CSVMapper(release_type="award")
+spend_mapper = CSVMapper(release_type="spend")
+
 
 def get_publisher_names():
     """
@@ -467,7 +472,7 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                      'spend'
                      ]
     for release_type in release_types:
-        logger.info("Creating output files for %s %s", name, release_type)
+        logger.debug("Creating output files for %s %s", name, release_type)
 
         release_name = name + "-" + release_type
         output_dir = join(parent_directory, release_name)
@@ -501,10 +506,15 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
             period_dir_name = os.path.basename(parent_directory)
             simple_csv_file_name = f"{release_name}_{period_dir_name}.csv"
             simple_csv_file_path = join(SAMPLE_SUBMISSIONS_DIR, simple_csv_file_name)
-            cf_mapper = CSVMapper(mappings_file=CF_MAPPINGS_FILE)
             ocds_1_1_release_df = cf_mapper.convert_cf_to_1_1(df_release_type)
-            mapper = CSVMapper(release_type=release_type)
-            simple_csv_df = mapper.output_simple_csv(ocds_1_1_release_df)
+            if release_type == "tender":
+                ocds_mapper = tender_mapper
+            elif release_type == "award":
+                ocds_mapper = award_mapper
+            elif release_type == "spend":
+                ocds_mapper = spend_mapper
+            # ocds_mapper = CSVMapper(release_type=release_type)
+            simple_csv_df = ocds_mapper.output_simple_csv(ocds_1_1_release_df)
             simple_csv_df.to_csv(open(simple_csv_file_path, "w"), index=False, header=True)
 
             # Upload simple CSV to DB
@@ -518,7 +528,7 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
 
                     # helpers.SimpleSubmissionHelpers().load_simple_csv_into_database(simple_csv_df, publisher)
                     # Load data from Simple CSV
-                    logger.info("Creating or updating Publisher %s (id %s)", publisher_name, publisher_id)
+                    logger.debug("Creating or updating Publisher %s (id %s)", publisher_name, publisher_id)
                     contact_name = df_release_type.iloc[0]["releases/0/buyer/contactPoint/name"]
                     contact_email = df_release_type.iloc[0]["releases/0/buyer/contactPoint/email"]
                     contact_telephone = df_release_type.iloc[0]["releases/0/buyer/contactPoint/telephone"]
@@ -548,7 +558,7 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                         id=contracts_finder_id,
                         defaults={
                             "current_app": "silvereye",
-                            "notice_type": mapper.release_type,
+                            "notice_type": ocds_mapper.release_type,
                         }
                     )
                     supplied_data.publisher = publisher
@@ -562,15 +572,15 @@ def create_output_files(name, df, parent_directory, load_data, unflatten_contrac
                         sync_with_s3(supplied_data)
 
                     # Store field coverage
-                    mapper = CSVMapper(csv_path=simple_csv_file_path)
-                    coverage_context = mapper.get_coverage_context()
+                    simple_csv_mapper = CSVMapper(csv_path=simple_csv_file_path)
+                    coverage_context = simple_csv_mapper.get_coverage_context()
                     average_field_completion = coverage_context.get("average_field_completion")
                     FieldCoverage.objects.update_or_create(
                         file_submission=supplied_data,
                         defaults={
-                            "tenders_field_coverage": average_field_completion if mapper.release_type == "tender" else None,
-                            "awards_field_coverage": average_field_completion if mapper.release_type == "award" else None,
-                            "spend_field_coverage": average_field_completion if mapper.release_type == "spend" else None,
+                            "tenders_field_coverage": average_field_completion if simple_csv_mapper.release_type == "tender" else None,
+                            "awards_field_coverage": average_field_completion if simple_csv_mapper.release_type == "award" else None,
+                            "spend_field_coverage": average_field_completion if simple_csv_mapper.release_type == "spend" else None,
                         }
                     )
 
@@ -610,6 +620,7 @@ class Command(BaseCommand):
 
         parser.add_argument("--start_date", default=argparse.SUPPRESS, help="Import from date. YYYY-MM-DD")
         parser.add_argument("--end_date", default=argparse.SUPPRESS, help="Import to date. YYYY-MM-DD")
+        parser.add_argument("--days", type=int, help="Number of days before enddate to import. eg. 7")
         parser.add_argument("--file_path", type=str, help="File path to CSV data to insert.")
         parser.add_argument("--publisher_submissions", action='store_true',
                             help="Group data into publisher submissions")
@@ -631,6 +642,10 @@ class Command(BaseCommand):
 
         start_date = kwargs.get("start_date")
         end_date = kwargs.get("end_date", datetime.today().strftime("%Y-%m-%d"))
+        days = kwargs.get("days")
+        if end_date and days and not start_date:
+            start_date = (datetime.strptime(end_date, "%Y-%m-%d") - relativedelta(days=days)).strftime("%Y-%m-%d")
+
         if file_path:
             logger.info("Copying data from %s", file_path)
             if file_path.endswith(".zip"):
@@ -639,9 +654,9 @@ class Command(BaseCommand):
                 file_path = None
             elif file_path.endswith(".csv"):
                 shutil.copy(file_path, SOURCE_DIR)
-        elif start_date:
+        if start_date:
             daterange = pd.date_range(start_date, end_date)
-            logger.info("Downloading Contracts Finder data from %s to %s", start_date, end_date)
+            logger.info("Downloading needed Contracts Finder data from %s to %s", start_date, end_date)
             for date in daterange:
                 date_string = f"{date.year}/{date.month:02}/{date.day:02}"
                 save_path = join(SOURCE_DIR, slugify(date_string) + ".csv")
@@ -650,7 +665,7 @@ class Command(BaseCommand):
                 try:
                     if not os.path.exists(save_path):
                         urllib.request.urlretrieve(url, save_path)
-                    logger.info("Downloading URL: %s", url)
+                        logger.info("Downloading URL: %s", url)
                 except TypeError:
                     logger.exception("Error with URL: %s", url)
         else:
