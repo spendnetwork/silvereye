@@ -7,48 +7,51 @@
 -e git+https://github.com/mysociety/django-pipeline-csscompressor@6a88fde5045d68746f1c7ee816deda86615c5581#egg=django_pipeline_csscompressor-master  # via -r requirements.txt
 -e git+https://github.com/OpenDataServices/lib-cove-web.git@v0.14.0#egg=libcoveweb  # via -r requirements.txt
 alabaster==0.7.12         # via sphinx
-attrs==19.3.0             # via -r requirements.txt, hypothesis, jsonschema, pytest
+attrs==20.2.0             # via -r requirements.txt, hypothesis, jsonschema, pytest
 babel==2.8.0              # via sphinx
 beautifulsoup4==4.9.1     # via -r requirements.txt, django-bootstrap4
-bleach==3.1.5             # via -r requirements.txt, libcove, libcoveocds
+bleach==3.2.1             # via -r requirements.txt, libcove, libcoveocds
 boto3==1.13.14            # via -r requirements.txt, smart-open
 boto==2.49.0              # via -r requirements.txt, smart-open
 botocore==1.16.26         # via -r requirements.txt, boto3, s3transfer
-cached-property==1.5.1    # via -r requirements.txt, libcove, libcoveocds, libcoveweb
-certifi==2020.4.5.1       # via -r requirements.txt, elasticsearch, requests, sentry-sdk
+cached-property==1.5.2    # via -r requirements.txt, libcove, libcoveocds, libcoveweb
+certifi==2020.20          # via -r requirements.txt, elasticsearch, requests, sentry-sdk
 chardet==3.0.4            # via -r requirements.txt, requests
 click==7.1.2              # via pip-tools
 commonmark==0.9.1         # via -r requirements.txt, libcove, libcoveocds
 contextlib2==0.6.0.post1  # via -r requirements.txt, schema
 coverage==4.5.4           # via -r requirements_dev.in, coveralls, hypothesis, pytest-cov
-coveralls==2.0.0          # via -r requirements_dev.in
+coveralls==2.1.2          # via -r requirements_dev.in
 csscompressor==0.9.5      # via -r requirements.txt, django-pipeline-csscompressor
 dateparser==0.7.6         # via -r requirements.txt
 dealer==2.1.0             # via -r requirements.txt, libcoveweb
 defusedxml==0.6.0         # via -r requirements.txt, odfpy
 dj-database-url==0.5.0    # via -r requirements.txt
-django-bootstrap3==12.1.0  # via -r requirements.txt, libcoveweb
+django-bootstrap3==14.2.0  # via -r requirements.txt, libcoveweb
 django-bootstrap4==2.2.0  # via -r requirements.txt
-django-debug-toolbar==2.2  # via -r requirements.txt, libcoveweb
+django-debug-toolbar==3.1.1  # via -r requirements.txt, libcoveweb
 django-environ==0.4.5     # via -r requirements.txt, libcoveweb
 django-mathfilters==1.0.0  # via -r requirements.txt
 django-pgviews-redux==0.6.1  # via -r requirements.txt
 django-pipeline==1.6.14   # via -r requirements.txt, django-pipeline-csscompressor
 django-storages==1.9.1    # via -r requirements.txt
-django==2.2.14            # via -r requirements.txt, django-bootstrap4, django-debug-toolbar, django-storages, libcove, libcoveocds, libcoveweb
+django==2.2.17            # via -r requirements.txt, django-bootstrap4, django-debug-toolbar, django-storages, libcove, libcoveocds, libcoveweb
 docopt==0.6.2             # via coveralls
-docutils==0.15.2          # via -r requirements.txt, botocore, sphinx
+docutils==0.16          # via -r requirements.txt, botocore, sphinx
 elasticsearch-dsl==7.2.1  # via -r requirements.txt
 elasticsearch==7.8.1      # via -r requirements.txt, elasticsearch-dsl
 et-xmlfile==1.0.1         # via -r requirements.txt, openpyxl
 faker==4.1.2              # via -r requirements.txt
-flake8==3.8.2             # via -r requirements_dev.in
-flattentool==0.11.0       # via -r requirements.txt, libcove, libcoveocds
+flake8==3.8.4             # via -r requirements_dev.in
+flattentool==0.15.2       # via -r requirements.txt, libcove, libcoveocds
+gitdb==4.0.5              # via gitpython
+gitpython==3.1.11		  # via transifex-client
 hypothesis==3.52.3        # via -r requirements_dev.in
-idna==2.9                 # via -r requirements.txt, requests
+idna==2.10                # via -r requirements.txt, requests
 ijson==3.1.1              # via -r requirements.txt, ocdskit
 imagesize==1.2.0          # via sphinx
 importlib-metadata==1.7.0  # via -r requirements.txt, django-bootstrap4, flake8, jsonschema, pluggy, pytest
+iniconfig==1.1.1          # via pytest
 jdcal==1.4.1              # via -r requirements.txt, openpyxl
 jinja2==2.11.2            # via sphinx
 jmespath==0.10.0          # via -r requirements.txt, boto3, botocore
@@ -57,10 +60,10 @@ jsonpointer==2.0          # via -r requirements.txt, ocdskit
 jsonref==0.2              # via -r requirements.txt, flattentool, libcove, libcoveocds, libcoveweb, ocdsextensionregistry, ocdskit, ocdsmerge
 jsonschema==3.2.0         # via -r requirements.txt, libcove, libcoveocds, libcoveweb, ocdskit
 lepl==5.1.3               # via -r requirements.txt, rfc6266
-libcove==0.17.0           # via -r requirements.txt, libcoveocds, libcoveweb
-libcoveocds==0.7.4        # via -r requirements.txt
-libsass==0.12.3           # via -r requirements.txt, -r requirements_dev.in
-lxml==4.5.1               # via -r requirements.txt, flattentool
+libcove==0.20.0           # via -r requirements.txt, libcoveocds, libcoveweb
+libcoveocds==0.9.1        # via -r requirements.txt
+libsass==0.20.1           # via -r requirements.txt, -r requirements_dev.in
+lxml==4.6.2               # via -r requirements.txt, flattentool
 markupsafe==1.1.1         # via jinja2
 mccabe==0.6.1             # via flake8
 more-itertools==8.3.0     # via pytest
@@ -72,38 +75,39 @@ odfpy==1.4.1              # via -r requirements.txt, flattentool
 openpyxl==2.6.4           # via -r requirements.txt, flattentool, libcoveweb
 packaging==20.4           # via -r requirements.txt, bleach, pytest, sphinx
 pandas==1.1.0             # via -r requirements.txt
-pip-tools==5.3.1          # via -r requirements_dev.in
+pip-tools==5.5.0          # via -r requirements_dev.in
 pluggy==0.13.1            # via pytest
 psycopg2-binary==2.8.5    # via -r requirements.txt
-py==1.8.1                 # via pytest
+py==1.9.0                 # via pytest
 pycodestyle==2.6.0        # via flake8
 pyflakes==2.2.0           # via flake8
-pygments==2.6.1           # via sphinx
+pygments==2.7.2           # via sphinx
 pyparsing==2.4.7          # via -r requirements.txt, packaging
-pyrsistent==0.16.0        # via -r requirements.txt, jsonschema
-pytest-cov==2.9.0         # via -r requirements_dev.in
-pytest-django==3.9.0      # via -r requirements_dev.in
+pyrsistent==0.17.3        # via -r requirements.txt, jsonschema
+pytest-cov==2.10.1         # via -r requirements_dev.in
+pytest-django==4.1.0      # via -r requirements_dev.in
 pytest-localserver==0.5.0  # via -r requirements_dev.in
-pytest==5.4.2             # via -r requirements_dev.in, pytest-cov, pytest-django
+pytest==6.1.2             # via -r requirements_dev.in, pytest-cov, pytest-django
 python-dateutil==2.8.1    # via -r requirements.txt, botocore, dateparser, elasticsearch-dsl, faker, libcoveweb, pandas
-python-slugify==1.2.6     # via transifex-client
-pytz==2020.1              # via -r requirements.txt, babel, dateparser, django, flattentool, pandas, tzlocal
+python-slugify==4.0.1     # via transifex-client
+pytz==2020.4              # via -r requirements.txt, babel, dateparser, django, flattentool, pandas, tzlocal
 rangedict==0.1.6          # via -r requirements.txt
 regex==2020.7.14          # via -r requirements.txt, dateparser
 requests-cache==0.5.2     # via -r requirements.txt, ocdsextensionregistry
-requests==2.23.0          # via -r requirements.txt, coveralls, libcove, libcoveocds, libcoveweb, ocdsextensionregistry, ocdskit, ocdsmerge, requests-cache, smart-open, sphinx, transifex-client
+requests==2.24.0          # via -r requirements.txt, coveralls, libcove, libcoveocds, libcoveweb, ocdsextensionregistry, ocdskit, ocdsmerge, requests-cache, smart-open, sphinx, transifex-client
 rfc3987==1.3.8            # via -r requirements.txt, libcove, libcoveweb, ocdskit
 rfc6266==0.0.4            # via -r requirements.txt, libcoveweb
 s3transfer==0.3.3         # via -r requirements.txt, boto3
 schema==0.7.2             # via -r requirements.txt, flattentool
 selenium==3.141.0         # via -r requirements_dev.in
-sentry-sdk==0.14.4        # via -r requirements.txt, libcoveweb
+sentry-sdk==0.19.2        # via -r requirements.txt, libcoveweb
 six==1.15.0               # via -r requirements.txt, bleach, elasticsearch-dsl, jsonschema, libsass, packaging, pip-tools, pyrsistent, python-dateutil, transifex-client
 smart-open==2.1.0         # via -r requirements.txt
+smmap==3.0.4              # via gitdb
 snowballstemmer==2.0.0    # via sphinx
 soupsieve==2.0.1          # via -r requirements.txt, beautifulsoup4
-sphinx-rtd-theme==0.4.3   # via -r requirements_dev.in
-sphinx==3.0.4             # via -r requirements_dev.in, sphinx-rtd-theme
+sphinx-rtd-theme==0.5.0   # via -r requirements_dev.in
+sphinx==3.3.0             # via -r requirements_dev.in, sphinx-rtd-theme
 sphinxcontrib-applehelp==1.0.2  # via sphinx
 sphinxcontrib-devhelp==1.0.2  # via sphinx
 sphinxcontrib-htmlhelp==1.0.3  # via sphinx
@@ -111,13 +115,14 @@ sphinxcontrib-jsmath==1.0.1  # via sphinx
 sphinxcontrib-qthelp==1.0.3  # via sphinx
 sphinxcontrib-serializinghtml==1.1.4  # via sphinx
 sqlalchemy==1.3.18        # via -r requirements.txt, ocdskit
-sqlparse==0.3.1           # via -r requirements.txt, django, django-debug-toolbar
+sqlparse==0.4.1           # via -r requirements.txt, django, django-debug-toolbar
 strict-rfc3339==0.7       # via -r requirements.txt, libcove, libcoveweb, ocdskit
 text-unidecode==1.3       # via -r requirements.txt, faker
-transifex-client==0.13.9  # via -r requirements_dev.in
+toml==0.10.2              # via pytest
+transifex-client==0.14.1  # via -r requirements_dev.in
 tzlocal==2.1              # via -r requirements.txt, dateparser
 unidecode==1.1.1          # via python-slugify
-urllib3==1.25.9           # via -r requirements.txt, botocore, elasticsearch, requests, selenium, sentry-sdk, transifex-client
+urllib3==1.25.11          # via -r requirements.txt, botocore, elasticsearch, requests, selenium, sentry-sdk, transifex-client
 waitress==1.4.3           # via -r requirements.txt
 wcwidth==0.1.9            # via pytest
 webencodings==0.5.1       # via -r requirements.txt, bleach
