@@ -67,14 +67,14 @@ lxml==4.6.2               # via -r requirements.txt, flattentool
 markupsafe==1.1.1         # via jinja2
 mccabe==0.6.1             # via flake8
 more-itertools==8.3.0     # via pytest
-numpy==1.19.5             # via -r requirements.txt, pandas
+numpy                     # via -r requirements.txt, pandas
 ocdsextensionregistry==0.0.22  # via -r requirements.txt, ocdskit
 ocdskit==0.2.11           # via -r requirements.txt
 ocdsmerge==0.6.4          # via -r requirements.txt, ocdskit
 odfpy==1.4.1              # via -r requirements.txt, flattentool
 openpyxl==2.6.4           # via -r requirements.txt, flattentool, libcoveweb
 packaging==20.4           # via -r requirements.txt, bleach, pytest, sphinx
-pandas==1.2.1             # via -r requirements.txt
+pandas                    # via -r requirements.txt
 pip-tools==5.5.0          # via -r requirements_dev.in
 pluggy==0.13.1            # via pytest
 psycopg2-binary==2.8.5    # via -r requirements.txt
