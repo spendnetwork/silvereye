@@ -4,8 +4,8 @@
 #
 #    pip-compile requirements_dev.in
 #
--e git+https://github.com/mysociety/django-pipeline-csscompressor@6a88fde5045d68746f1c7ee816deda86615c5581#egg=django_pipeline_csscompressor-master  # via -r requirements.txt
--e git+https://github.com/OpenDataServices/lib-cove-web.git@v0.14.0#egg=libcoveweb  # via -r requirements.txt
+-e git+https://github.com/mysociety/django-pipeline-csscompressor@6a88fde5045d68746f1c7ee816deda86615c5581#egg=django_pipeline_csscompressor  # via -r requirements.txt
+-e git+https://github.com/OpenDataServices/lib-cove-web.git@v0.18.4#egg=libcoveweb  # via -r requirements.txt
 alabaster==0.7.12         # via sphinx
 attrs==20.2.0             # via -r requirements.txt, hypothesis, jsonschema, pytest
 babel==2.8.0              # via sphinx
