@@ -15,7 +15,7 @@ boto3==1.13.14            # via -r requirements.txt, smart-open
 boto==2.49.0              # via -r requirements.txt, smart-open
 botocore==1.16.26         # via -r requirements.txt, boto3, s3transfer
 cached-property==1.5.2    # via -r requirements.txt, libcove, libcoveocds, libcoveweb
-certifi==2020.20          # via -r requirements.txt, elasticsearch, requests, sentry-sdk
+certifi==2020.12.5          # via -r requirements.txt, elasticsearch, requests, sentry-sdk
 chardet==3.0.4            # via -r requirements.txt, requests
 click==7.1.2              # via pip-tools
 commonmark==0.9.1         # via -r requirements.txt, libcove, libcoveocds
