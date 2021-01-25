@@ -5,9 +5,9 @@
     + [Live demo](#live-demo)
     + [Background](#background)
   * [Installation](#installation)
-    + [Running locally (with Vagrant)](#running-locally--with-vagrant-)
-    + [Running locally (without Vagrant)](#running-locally--without-vagrant-)
-	+ [Deployment to GCP(Google Cloud Platform) Using Deployment Manager](##deployment-to-gcpgoogle-cloud-platform-using-deployment-manager)
+    + [Running locally (with Vagrant)](#running-locally-with-vagrant)
+    + [Running locally (without Vagrant)](#running-locally-without-vagrant)
+	+ [Deployment to GCP(Google Cloud Platform) Using Deployment Manager](#deployment-to-gcpgoogle-cloud-platform-using-deployment-manager)
     + [Deployment to Heroku](#deployment-to-heroku)
       - [Enable S3 storage on Heroku](#enable-s3-storage-on-heroku)
   * [Data loading](#data-loading)
@@ -164,7 +164,7 @@ To use the google cloud SDK you need to install it on your computer. https://clo
 			
 		gcloud config set project {project_name}
 	
-	2.2 deploy the yaml file using deployment manager
+	2.2 deploy the [silvereye_GCP.yml]
 	
 		gcloud deployment-manager deployments create silvereye  --config=silvereye_GCP.yml --description="silvereye Deployment"
 
