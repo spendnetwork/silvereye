@@ -142,6 +142,38 @@ To run the server
 script/server
 ```
 
+### Deployment to GCP(Google Cloud Platform) Using Deployment Manager
+
+GCP has good documentation for deploying using deployment manager. https://cloud.google.com/deployment-manager/docs/quickstart
+
+These environment variables must be set on the Ubuntu machine. It is included in the .yaml setup script.
+
+    DATABASE_URL="postgres://..."
+    SECRET_KEY= " "				-- Should be a password you will remember, if you leave it blank it will generate a random string.
+
+To use the google cloud SDK you need to install it on your computer. https://cloud.google.com/sdk/docs/quickstart
+
+1. Open a CLI and run the  Google Cloud SDK that you installed in the previous step
+
+2. Run the the following command to obtain access credentials for your user account:
+	
+			gcloud auth login
+	
+	2.2 Set the project that you want the script to run on
+			
+			gcloud config set project {project_name}
+	
+	2.2 deploy the yaml file using deployment manager
+	
+			gcloud deployment-manager deployments create silvereye  --config=silvereye_GCP.yml --description="silvereye Deployment"
+
+3. Start the server after installation completed.
+	
+	3.1. SSH into your VM instance and run the follwing:
+			
+			script/server
+
+
 ### Deployment to Heroku
 
 Heroku has good documentation for deploying using git. https://devcenter.heroku.com/articles/git

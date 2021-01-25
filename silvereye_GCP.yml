@@ -1,0 +1,61 @@
+resources:
+- name: silverye-test
+  type: compute.v1.instance
+  properties:
+    zone: europe-west3-c
+    machineType: https://www.googleapis.com/compute/v1/projects/{projects}/zones/europe-west3-c/machineTypes/g1-small
+    disks:
+    - deviceName: boot
+      type: PERSISTENT
+      boot: true
+      autoDelete: true
+      mode: READ_WRITE
+      initializeParams:
+        sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1804-bionic-v20210119a
+        diskType: https://www.googleapis.com/compute/v1/projects/{projects}/zones/europe-west3-c/diskTypes/pd-standard
+        diskSizeGb: 40
+    networkInterfaces:
+    - network: https://www.googleapis.com/compute/v1/projects/{projects}/global/networks/default
+      accessConfigs:
+      - name: External NAT
+        type: ONE_TO_ONE_NAT
+    tags:
+        items: ["http-server", "https-server", "silvereye-test"]
+    metadata:
+      items:
+      - key: startup-script
+        value: |
+          #!/bin/bash 
+          sudo bash -c 'cat <<EOF > /etc/environment
+          {
+          export SECRET_KEY=" "
+          export DATABASE_URL="postgresql://silvereye:silvereye@localhost:5432/silvereye"
+          }
+          EOF'
+          sudo apt-get update 
+          sudo apt-get install git 
+          sudo apt install -y python3.6 
+          sudo apt install  -y python3-venv 
+          sudo apt install -y python3-pip 
+          python3 -m pip install --upgrade pip 
+          python3 -m pip install wheel 
+          sudo apt remove -y postgresql 
+          sudo apt install -y postgresql 
+          sudo -u postgres psql 
+          sudo -u postgres psql -c "CREATE USER silvereye SUPERUSER CREATEDB PASSWORD 'silvereye'"
+          sudo -u postgres psql -c "CREATE DATABASE silvereye"
+          \q 
+          git clone https://github.com/jkroman2/silvereye.git /opt/silvereye
+          cd /opt/silvereye
+          pip3 install --requirement requirements_dev.txt
+          sudo chmod 755 script/setup
+          sudo script/setup
+- type: compute.v1.firewall
+  name: silvereye
+  properties:
+    network: https://www.googleapis.com/compute/v1/projects/{projects}/global/networks/default
+    sourceRanges: ["0.0.0.0/0"]
+    targetTags: [silvereye, "silvereye-test"]
+    allowed:
+      - IPProtocol: TCP
+        ports: ["8000"]
