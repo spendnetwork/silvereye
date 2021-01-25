@@ -13,7 +13,7 @@
   * [Data loading](#data-loading)
     + [Loading specific data from Contracts Finder](#loading-specific-data-from-contracts-finder)
     + [Updating Publisher metadata](#updating-publisher-metadata)
-    + [Preparing Publisher metrics](deployment-to-gcpgoogle-cloud-platform-using-deployment-manager)
+    + [Preparing Publisher metrics](#preparing-publisher-metrics)
   * [Using Silvereye](#using-silvereye)
     + [Publishers](#publishers)
       - [Django Admin](#django-admin)
