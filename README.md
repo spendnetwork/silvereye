@@ -7,7 +7,7 @@
   * [Installation](#installation)
     + [Running locally (with Vagrant)](#running-locally--with-vagrant-)
     + [Running locally (without Vagrant)](#running-locally--without-vagrant-)
-	+ [Deployment to Google Cloud Platform](#deployment-to-heroku)
+	+ [Deployment to Google Cloud Platform](##deployment-to-gcpgoogle-cloud-platform-using-deployment-manager)
     + [Deployment to Heroku](#deployment-to-heroku)
       - [Enable S3 storage on Heroku](#enable-s3-storage-on-heroku)
   * [Data loading](#data-loading)
@@ -158,21 +158,21 @@ To use the google cloud SDK you need to install it on your computer. https://clo
 
 2. Run the the following command to obtain access credentials for your user account:
 	
-			gcloud auth login
+		gcloud auth login
 	
 	2.2 Set the project that you want the script to run on
 			
-			gcloud config set project {project_name}
+		gcloud config set project {project_name}
 	
 	2.2 deploy the yaml file using deployment manager
 	
-			gcloud deployment-manager deployments create silvereye  --config=silvereye_GCP.yml --description="silvereye Deployment"
+		gcloud deployment-manager deployments create silvereye  --config=silvereye_GCP.yml --description="silvereye Deployment"
 
 3. Start the server after installation completed.
 	
 	3.1. SSH into your VM instance and run the follwing:
 			
-			script/server
+		script/server
 
 
 ### Deployment to Heroku
