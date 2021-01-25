@@ -7,7 +7,7 @@
   * [Installation](#installation)
     + [Running locally (with Vagrant)](#running-locally--with-vagrant-)
     + [Running locally (without Vagrant)](#running-locally--without-vagrant-)
-	+ [Deployment to Google Cloud Platform](##deployment-to-gcpgoogle-cloud-platform-using-deployment-manager)
+	+ [Deployment to GCP(Google Cloud Platform) Using Deployment Manager](##deployment-to-gcpgoogle-cloud-platform-using-deployment-manager)
     + [Deployment to Heroku](#deployment-to-heroku)
       - [Enable S3 storage on Heroku](#enable-s3-storage-on-heroku)
   * [Data loading](#data-loading)
