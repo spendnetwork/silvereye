@@ -108,7 +108,7 @@ Create a Python virtual environment at a location of your choosing, activate it,
 ```
 python3 -m venv ./venv
 . ./venv/bin/activate
-pip3 install wheels
+pip3 install wheel
 pip3 install --requirement requirements_dev.txt
 ```
 
