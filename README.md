@@ -164,7 +164,7 @@ To use the google cloud SDK you need to install it on your computer. https://clo
 			
 		gcloud config set project {project_name}
 	
-	2.2 deploy the ![silvereye_GCP.yml](silvereye_GCP.yml) file
+	2.2 deploy the [silvereye_GCP.yml](silvereye_GCP.yml) file
 	
 		gcloud deployment-manager deployments create silvereye  --config=silvereye_GCP.yml --description="silvereye Deployment"
 
