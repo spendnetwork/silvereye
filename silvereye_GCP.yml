@@ -1,9 +1,9 @@
 resources:
-- name: silverye-test
+- name: silvereye
   type: compute.v1.instance
   properties:
     zone: europe-west3-c
-    machineType: https://www.googleapis.com/compute/v1/projects/{projects}/zones/europe-west3-c/machineTypes/g1-small
+    machineType: https://www.googleapis.com/compute/v1/projects/bcx_insights/zones/europe-west3-c/machineTypes/g1-small
     disks:
     - deviceName: boot
       type: PERSISTENT
@@ -12,15 +12,15 @@ resources:
       mode: READ_WRITE
       initializeParams:
         sourceImage: https://www.googleapis.com/compute/v1/projects/ubuntu-os-cloud/global/images/ubuntu-1804-bionic-v20210119a
-        diskType: https://www.googleapis.com/compute/v1/projects/{projects}/zones/europe-west3-c/diskTypes/pd-standard
+        diskType: https://www.googleapis.com/compute/v1/projects/bcx_insights/zones/europe-west3-c/diskTypes/pd-standard
         diskSizeGb: 40
     networkInterfaces:
-    - network: https://www.googleapis.com/compute/v1/projects/{projects}/global/networks/default
+    - network: https://www.googleapis.com/compute/v1/projects/bcx_insights/global/networks/default
       accessConfigs:
       - name: External NAT
         type: ONE_TO_ONE_NAT
     tags:
-        items: ["http-server", "https-server", "silvereye-test"]
+        items: ["http-server", "https-server", "silvereye"]
     metadata:
       items:
       - key: startup-script
@@ -47,13 +47,13 @@ resources:
           \q 
           git clone https://github.com/jkroman2/silvereye.git /opt/silvereye
           cd /opt/silvereye
-          pip3 install --requirement requirements_dev.txt
-          sudo chmod 755 script/setup
-          sudo script/setup
+          # pip3 install --requirement requirements_dev.txt
+          # sudo chmod 755 script/setup
+          # sudo script/setup
 - type: compute.v1.firewall
   name: silvereye
   properties:
-    network: https://www.googleapis.com/compute/v1/projects/{projects}/global/networks/default
+    network: https://www.googleapis.com/compute/v1/projects/bcx_insights/global/networks/default
     sourceRanges: ["0.0.0.0/0"]
     targetTags: [silvereye, "silvereye-test"]
     allowed:
