@@ -2,7 +2,7 @@ resources:
 - name: silvereye
   type: compute.v1.instance
   properties:
-    zone: europe-west3-c
+    zone: {zone}
     machineType: https://www.googleapis.com/compute/v1/projects/{projects}/zones/europe-west3-c/machineTypes/g1-small
     disks:
     - deviceName: boot
@@ -55,7 +55,7 @@ resources:
   properties:
     network: https://www.googleapis.com/compute/v1/projects/{projects}/global/networks/default
     sourceRanges: ["0.0.0.0/0"]
-    targetTags: [silvereye, "silvereye-test"]
+    targetTags: ["silvereye"]
     allowed:
       - IPProtocol: TCP
         ports: ["8000"]

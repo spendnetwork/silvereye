@@ -145,14 +145,15 @@ script/server
 
 ### Deployment to GCP(Google Cloud Platform) Using Deployment Manager
 
-GCP has good documentation for deploying using deployment manager. https://cloud.google.com/deployment-manager/docs/quickstart
+GCP has good documentation for deploying using [deployment manager](https://cloud.google.com/deployment-manager/docs/quickstart).
 
 These environment variables must be set on the Ubuntu machine. It is included in the .yaml setup script.
+- The SECRET_KEY variable should be a password you will remember, if you leave it blank it will generate a random string.
 
-    DATABASE_URL="postgres://..."
-    SECRET_KEY= " "				-- Should be a password you will remember, if you leave it blank it will generate a random string.
+        DATABASE_URL="postgres://..."
+        SECRET_KEY= " "				
 
-To use the google cloud SDK you need to install it on your computer. https://cloud.google.com/sdk/docs/quickstart
+To use the [Google Cloud SDK](https://cloud.google.com/sdk/docs/quickstart) you need to install it on your computer.
 
 1. Open a CLI and run the  Google Cloud SDK that you installed in the previous step
 
@@ -160,17 +161,18 @@ To use the google cloud SDK you need to install it on your computer. https://clo
 	
 		gcloud auth login
 	
-	2.2 Set the project that you want the script to run on
+	2.1 Set the project that you want the script to run on
 			
 		gcloud config set project {project_name}
 	
-	2.2 deploy the [silvereye_GCP.yml](silvereye_GCP.yml) file
-	
-		gcloud deployment-manager deployments create silvereye  --config=silvereye_GCP.yml --description="silvereye Deployment"
+	2.2 Deploy the [Silvereye_GCP yml](silvereye_GCP.yml) file
+    
+        gcloud deployment-manager deployments create silvereye  --config=silvereye_GCP.yml --description="silvereye        Deployment"
+    * 2.2.1. In the silvereye_GCP.yml file, if you open it you will notice in some url's ***{project}***, this needs to be changed to your project name. You would probably want to change the ***zone, machineType, sourceImage, diskType, & diskSizeGb***, to fit your specific needs and to minimize disruption.
 
 3. Start the server after installation completed.
 	
-	3.1. SSH into your VM instance and run the follwing:
+	3.1. SSH into your VM instance and run the following:
 			
 		script/server
 
