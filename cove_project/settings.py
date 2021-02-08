@@ -67,7 +67,7 @@ INSTALLED_APPS = [
     "cove",
     "cove.input",
     "cove_ocds",
-
+    
     'storages',
 
     'bluetail',
@@ -76,6 +76,7 @@ INSTALLED_APPS = [
     'pipeline',
     'debug_toolbar',
     'mathfilters',
+    'magiclink',
 ]
 
 
@@ -94,6 +95,37 @@ MIDDLEWARE = (
     "cove.middleware.CoveConfigCurrentApp",
 )
 
+AUTHENTICATION_BACKENDS = (
+    'magiclink.backends.MagicLinkBackend',
+    'django.contrib.auth.backends.ModelBackend',
+    
+)
+
+# Set Djangos login URL to the magiclink login page
+LOGIN_URL = 'magiclink:login'
+
+MAGICLINK_LOGIN_TEMPLATE_NAME = 'magiclink/login.html'
+MAGICLINK_LOGIN_SENT_TEMPLATE_NAME = 'magiclink/login_sent.html'
+MAGICLINK_LOGIN_FAILED_TEMPLATE_NAME = 'magiclink/login_failed.html'
+
+# Optional:
+# If this setting is set to False a user account will be created the first
+# time a user requests a login link.
+MAGICLINK_REQUIRE_SIGNUP = True
+MAGICLINK_SIGNUP_TEMPLATE_NAME = 'magiclink/signup.html'
+
+
+# EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = '465'
+EMAIL_HOST_USER = 'telkomlms@gmail.com'
+EMAIL_HOST_PASSWORD =  'T3lk0mlms'
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
+
+LOGIN_REDIRECT_URL = '/review'
 
 ROOT_URLCONF = "cove_project.urls"
 

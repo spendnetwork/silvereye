@@ -172,9 +172,15 @@ To use the [Google Cloud SDK](https://cloud.google.com/sdk/docs/quickstart) you 
 
 3. Start the server after installation completed.
 	
-	3.1. SSH into your VM instance and run the following:
+	3.1. If you are running your machine on a local machine, run the following from the silvereye directory:
 			
 		script/server
+		
+	3.2. If you are running on a remote machine, SSH into your machine and run the followingfrom the silvereye directory:
+        
+        sudo ALLOWED_HOSTS='*' python3 ./manage.py runserver 0.0.0.0:8000
+
+    * Where '*' would allow all hosts, only to be used on development host, or you can change it to your machine IP address
 
 
 ### Deployment to Heroku

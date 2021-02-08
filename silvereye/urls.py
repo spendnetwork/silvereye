@@ -9,5 +9,5 @@ urlpatterns = [
     path('publishers/all/', views.publisher_listing, name='publisher-listing'),
     path('publisher/<path:publisher_name>', views.publisher, name='publisher'),
     path('download_template/<path:notice_type>', views.download_csv_template, name='download_template_csv'),
-
+    path('auth/', include('magiclink.urls', namespace='magiclink')),
 ]
