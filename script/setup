@@ -8,8 +8,8 @@ cd `dirname $0`/..
 find . -name '*.pyc' -delete
 
 # Recreate database contents.
-PGPASSWORD=silvereye psql -U silvereye -d $DATABASE_URL -c "DROP SCHEMA IF EXISTS public CASCADE"
-PGPASSWORD=silvereye psql -U silvereye -d $DATABASE_URL -c "CREATE SCHEMA public"
+psql -d $DATABASE_URL -c "DROP SCHEMA IF EXISTS public CASCADE"
+psql -d $DATABASE_URL -c "CREATE SCHEMA public"
 
 # Set up database.
 "$(dirname "$0")/update"
