@@ -157,7 +157,7 @@ libcoveweb==0.22.0
     # via -r requirements.in
 libsass==0.12.3
     # via -r requirements.in
-lxml==4.6.2
+lxml==4.6.3
     # via flattentool
 numpy==1.19.5
     # via

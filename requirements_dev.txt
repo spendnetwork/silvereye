@@ -229,7 +229,7 @@ libsass==0.12.3
     # via
     #   -r requirements.txt
     #   -r requirements_dev.in
-lxml==4.6.2
+lxml==4.6.3
     # via
     #   -r requirements.txt
     #   flattentool
