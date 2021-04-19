@@ -8,7 +8,7 @@ attrs==20.2.0
     # via jsonschema
 beautifulsoup4==4.9.1
     # via django-bootstrap4
-bleach==3.2.1
+bleach==3.3.0
     # via
     #   -r requirements.in
     #   libcove

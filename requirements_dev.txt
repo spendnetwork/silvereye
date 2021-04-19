@@ -18,7 +18,7 @@ beautifulsoup4==4.9.1
     # via
     #   -r requirements.txt
     #   django-bootstrap4
-bleach==3.2.1
+bleach==3.3.0
     # via
     #   -r requirements.txt
     #   libcove
