@@ -4,25 +4,25 @@
 #
 #    pip-compile
 #
-attrs==20.2.0
+attrs==20.3.0
     # via jsonschema
-beautifulsoup4==4.9.1
+backports-datetime-fromisoformat==1.0.0
+    # via flattentool
+beautifulsoup4==4.9.3
     # via django-bootstrap4
-bleach==3.2.1
+bleach==3.3.0
     # via
     #   -r requirements.in
     #   libcove
     #   libcoveocds
-boto3==1.16.58
-    # via
-    #   -r requirements.in
-    #   smart-open
-boto==2.49.0
-    # via smart-open
-botocore==1.19.58
+boto3==1.17.54
+    # via -r requirements.in
+botocore==1.20.54
     # via
     #   boto3
     #   s3transfer
+btrees==4.8.0
+    # via zodb
 cached-property==1.5.2
     # via
     #   -r requirements.in
@@ -34,7 +34,9 @@ certifi==2020.12.5
     #   elasticsearch
     #   requests
     #   sentry-sdk
-chardet==3.0.4
+cffi==1.14.5
+    # via persistent
+chardet==4.0.0
     # via requests
 commonmark==0.9.1
     # via
@@ -45,21 +47,21 @@ contextlib2==0.6.0.post1
     # via schema
 csscompressor==0.9.5
     # via django-pipeline-csscompressor
-dateparser==0.7.6
+dateparser==1.0.0
     # via -r requirements.in
 dealer==2.1.0
     # via
     #   -r requirements.in
     #   libcoveweb
-defusedxml==0.6.0
+defusedxml==0.7.1
     # via odfpy
 dj-database-url==0.5.0
     # via -r requirements.in
-django-bootstrap3==14.2.0
+django-bootstrap3==15.0.0
     # via libcoveweb
-django-bootstrap4==2.3.1
+django-bootstrap4==3.0.0
     # via -r requirements.in
-django-debug-toolbar==3.1.1
+django-debug-toolbar==3.2.1
     # via
     #   -r requirements.in
     #   libcoveweb
@@ -69,7 +71,7 @@ django-environ==0.4.5
     #   libcoveweb
 django-mathfilters==1.0.0
     # via -r requirements.in
-django-pgviews-redux==0.6.1
+django-pgviews-redux==0.7.1
     # via -r requirements.in
 django-pipeline-csscompressor==0.1
     # via -r requirements.in
@@ -77,9 +79,9 @@ django-pipeline==1.6.14
     # via
     #   -r requirements.in
     #   django-pipeline-csscompressor
-django-storages==1.9.1
+django-storages==1.11.1
     # via -r requirements.in
-django==2.2.17
+django==2.2.20
     # via
     #   -r requirements.in
     #   django-bootstrap3
@@ -89,30 +91,37 @@ django==2.2.17
     #   libcove
     #   libcoveocds
     #   libcoveweb
-elasticsearch-dsl==7.2.1
+elasticsearch-dsl==7.3.0
     # via -r requirements.in
-elasticsearch==7.8.1
+elasticsearch==7.12.0
     # via
     #   -r requirements.in
     #   elasticsearch-dsl
 et-xmlfile==1.0.1
     # via openpyxl
-faker==4.1.2
+faker==8.1.0
     # via -r requirements.in
-flattentool==0.15.2
+flattentool==0.16.0
     # via
     #   -r requirements.in
     #   libcove
     #   libcoveocds
+greenlet==1.0.0
+    # via sqlalchemy
 idna==2.10
     # via requests
-ijson==3.1.1
-    # via ocdskit
-importlib-metadata==1.7.0
+ijson==3.1.4
+    # via
+    #   flattentool
+    #   ocdskit
+importlib-metadata==2.1.1
     # via
     #   django-bootstrap3
     #   django-bootstrap4
     #   jsonschema
+    #   sqlalchemy
+itsdangerous==1.1.0
+    # via requests-cache
 jdcal==1.4.1
     # via openpyxl
 jmespath==0.10.0
@@ -126,7 +135,7 @@ json-merge-patch==0.2
     #   libcoveocds
     #   libcoveweb
     #   ocdsextensionregistry
-jsonpointer==2.0
+jsonpointer==2.1
     # via ocdskit
 jsonref==0.2
     # via
@@ -157,17 +166,17 @@ libcoveweb==0.22.0
     # via -r requirements.in
 libsass==0.12.3
     # via -r requirements.in
-lxml==4.6.2
+lxml==4.6.3
     # via flattentool
 numpy==1.19.5
     # via
     #   -r requirements.in
     #   pandas
-ocdsextensionregistry==0.0.22
+ocdsextensionregistry==0.1.4
     # via ocdskit
-ocdskit==0.2.11
+ocdskit==0.2.21
     # via -r requirements.in
-ocdsmerge==0.6.4
+ocdsmerge==0.6.6
     # via ocdskit
 odfpy==1.4.1
     # via flattentool
@@ -175,12 +184,18 @@ openpyxl==2.6.4
     # via
     #   -r requirements.in
     #   flattentool
-packaging==20.4
+packaging==20.9
     # via bleach
 pandas==1.1.5
     # via -r requirements.in
-psycopg2-binary==2.8.5
+persistent==4.7.0
+    # via
+    #   btrees
+    #   zodb
+psycopg2-binary==2.8.6
     # via -r requirements.in
+pycparser==2.20
+    # via cffi
 pyparsing==2.4.7
     # via packaging
 pyrsistent==0.17.3
@@ -194,7 +209,7 @@ python-dateutil==2.8.1
     #   faker
     #   libcoveweb
     #   pandas
-pytz==2020.4
+pytz==2021.1
     # via
     #   dateparser
     #   django
@@ -203,11 +218,11 @@ pytz==2020.4
     #   tzlocal
 rangedict==0.1.6
     # via -r requirements.in
-regex==2020.7.14
+regex==2021.4.4
     # via dateparser
-requests-cache==0.5.2
+requests-cache==0.6.2
     # via ocdsextensionregistry
-requests==2.24.0
+requests==2.25.1
     # via
     #   -r requirements.in
     #   libcove
@@ -217,7 +232,6 @@ requests==2.24.0
     #   ocdskit
     #   ocdsmerge
     #   requests-cache
-    #   smart-open
 rfc3987==1.3.8
     # via
     #   -r requirements.in
@@ -226,11 +240,11 @@ rfc3987==1.3.8
     #   ocdskit
 rfc6266==0.0.4
     # via -r requirements.in
-s3transfer==0.3.3
+s3transfer==0.4.0
     # via boto3
-schema==0.7.2
+schema==0.7.4
     # via flattentool
-sentry-sdk==0.19.2
+sentry-sdk==1.0.0
     # via
     #   -r requirements.in
     #   libcoveweb
@@ -240,13 +254,14 @@ six==1.15.0
     #   elasticsearch-dsl
     #   jsonschema
     #   libsass
-    #   packaging
     #   python-dateutil
-smart-open==2.1.0
+    #   url-normalize
+    #   zodb
+smart-open==5.0.0
     # via -r requirements.in
-soupsieve==2.0.1
+soupsieve==2.2.1
     # via beautifulsoup4
-sqlalchemy==1.3.18
+sqlalchemy==1.4.9
     # via ocdskit
 sqlparse==0.4.1
     # via
@@ -260,33 +275,56 @@ strict-rfc3339==0.7
     #   ocdskit
 text-unidecode==1.3
     # via faker
+transaction==3.0.1
+    # via zodb
 tzlocal==2.1
     # via dateparser
 uc-rfc6266-parser==0.1.0
     # via libcoveweb
-urllib3==1.25.11
+url-normalize==1.4.3
+    # via requests-cache
+urllib3==1.26.4
     # via
     #   botocore
     #   elasticsearch
     #   requests
     #   sentry-sdk
-waitress==1.4.3
+waitress==2.0.0
     # via -r requirements.in
 webencodings==0.5.1
     # via bleach
 werkzeug==1.0.1
     # via uc-rfc6266-parser
-whitenoise==5.0.1
+whitenoise==5.2.0
     # via -r requirements.in
 xmltodict==0.12.0
     # via
     #   -r requirements.in
     #   flattentool
     #   libcoveweb
+zc.lockfile==2.0
+    # via zodb
+zc.zlibstorage==1.2.0
+    # via flattentool
+zconfig==3.5.0
+    # via zodb
 zipp==1.2.0
     # via
     #   importlib-metadata
     #   libcoveweb
+zodb==5.6.0
+    # via
+    #   flattentool
+    #   zc.zlibstorage
+zodbpickle==2.0.0
+    # via zodb
+zope.interface==5.4.0
+    # via
+    #   btrees
+    #   persistent
+    #   transaction
+    #   zc.zlibstorage
+    #   zodb
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
