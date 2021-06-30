@@ -296,7 +296,7 @@ PIPELINE = {
         },
     },
 
-    'CSS_COMPRESSOR': 'django_pipeline_csscompressor.CssCompressor',
+    'CSS_COMPRESSOR': 'silvereye.helpers.CssCompressor',
     'DISABLE_WRAPPER': True,
     'COMPILERS': (
         'pipeline.compilers.sass.SASSCompiler',

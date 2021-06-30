@@ -15,6 +15,9 @@ from django.db.models import Sum, Avg
 from django.db.models.functions import Coalesce
 from django.utils.safestring import mark_safe
 
+from csscompressor import compress
+from pipeline.compressors import CompressorBase
+
 import silvereye
 from silvereye.lib.converters import convert_csv
 from silvereye.models import FileSubmission, FieldCoverage
@@ -435,3 +438,8 @@ def prepare_simple_csv_submission_base_json(base_json_path, publisher):
     }
     with open(base_json_path, "w") as writer:
         json.dump(base_json, writer, indent=2)
+
+
+class CssCompressor(CompressorBase):
+    def compress_css(self, css):
+        return compress(css)
