@@ -11,7 +11,7 @@ class OCDSPackageDataJSON(models.Model):
     Model to store OCDS JSON package data.
     """
     package_data = JSONField(null=True)
-    supplied_data = models.ForeignKey(FileSubmission, on_delete=None, null=True)
+    supplied_data = models.ForeignKey(FileSubmission, on_delete=models.CASCADE, null=True)
 
     class Meta:
         app_label = 'bluetail'
@@ -23,7 +23,7 @@ class OCDSPackageData(pgviews.View):
     Model to store OCDS JSON package data.
     """
     package_data = JSONField()
-    supplied_data = models.ForeignKey(FileSubmission, on_delete=None)
+    supplied_data = models.ForeignKey(FileSubmission, on_delete=models.DO_NOTHING)
     uri = models.TextField()
     published_date = models.DateTimeField()
     publisher = JSONField()
@@ -65,7 +65,7 @@ class OCDSRecordJSON(models.Model):
     """
     ocid = models.TextField(primary_key=True)
     record_json = JSONField()
-    package_data = models.ForeignKey(OCDSPackageDataJSON, on_delete=None, null=True)
+    package_data = models.ForeignKey(OCDSPackageDataJSON, on_delete=models.CASCADE, null=True)
 
     class Meta:
         app_label = 'bluetail'
@@ -79,7 +79,7 @@ class OCDSReleaseJSON(models.Model):
     ocid = models.TextField()
     release_id = models.TextField()
     release_json = JSONField()
-    package_data = models.ForeignKey(OCDSPackageDataJSON, on_delete=None, null=True)
+    package_data = models.ForeignKey(OCDSPackageDataJSON, on_delete=models.CASCADE, null=True)
 
     class Meta:
         app_label = 'bluetail'
@@ -99,7 +99,7 @@ class OCDSReleaseView(pgviews.View):
     release_id = models.TextField()
     release_tag = JSONField()
     release_json = JSONField()
-    package_data = models.ForeignKey(OCDSPackageData, on_delete=None, null=True)
+    package_data = models.ForeignKey(OCDSPackageData, on_delete=models.DO_NOTHING, null=True)
 
     sql = """
         SELECT
