@@ -322,7 +322,7 @@ def get_coverage_metrics_context(queryset=None, period_option='1_month', compari
 
 
 def get_metric_options(request):
-    period_option = request.GET.get('period', '1_month') or '1_month'
+    period_option = request.GET.get('period', 'current') or 'current'
     comparison_option = request.GET.get('comparison', 'preceding') or 'preceding'
     return (period_option, comparison_option)
 
