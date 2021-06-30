@@ -1,8 +1,7 @@
-Django>2.2<2.3
 flattentool<1
+libcove<1
+Django==2.2.24
 libcoveocds==0.7.4
-libcove==0.17.0
-libcoveweb<1
 django-bootstrap4
 django-debug-toolbar
 requests
