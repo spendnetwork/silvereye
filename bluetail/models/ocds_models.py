@@ -1,6 +1,12 @@
+from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django_pgviews import view as pgviews
+
+OCDSReleaseJSONBase = models.Model
+if settings.USE_PSQL_EXTRA:
+    from psqlextra.models import PostgresModel
+    OCDSReleaseJSONBase = PostgresModel
 
 from silvereye.models import FileSubmission
 from .bluetail_models import Flag
@@ -72,7 +78,7 @@ class OCDSRecordJSON(models.Model):
         db_table = 'bluetail_ocds_record_json'
 
 
-class OCDSReleaseJSON(models.Model):
+class OCDSReleaseJSON(OCDSReleaseJSONBase):
     """
     Model to store OCDS JSON releases.
     """

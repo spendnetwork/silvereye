@@ -2,6 +2,8 @@ import os
 from collections import OrderedDict
 
 import environ
+from environ.compat import DJANGO_POSTGRES
+
 from cove import settings
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -110,9 +112,14 @@ WSGI_APPLICATION = "cove_project.wsgi.application"
 # We can't take DATABASES from cove settings,
 # ... otherwise the files appear under the BASE_DIR that is the Cove library install.
 # That could get messy. We want them to appear in our directory.
-DATABASES = {
-    'default': env.db()
-}
+
+DATABASES = {'default': env.db()}
+
+# Automatically use psqlextra if postgres is detected.
+USE_PSQL_EXTRA = DATABASES['default']['ENGINE'] == DJANGO_POSTGRES
+if USE_PSQL_EXTRA:
+    DATABASES['default']['ENGINE'] = 'psqlextra.backend'
+    INSTALLED_APPS += ['psqlextra']
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
