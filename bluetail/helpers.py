@@ -287,7 +287,13 @@ class UpsertDataHelpers:
         Takes a path to an OCDS Package or a string containing OCDS JSON data
         Upserts all data to the Bluetail database
         """
-        if os.path.exists(ocds_json_path_or_string):
+        is_path = False
+        try:
+            is_path = os.path.exists(ocds_json_path_or_string)
+        except ValueError:
+            pass
+
+        if is_path:
             ocds_json = json.load(open(ocds_json_path_or_string))
             filename = os.path.split(ocds_json_path_or_string)[1]
         else:
