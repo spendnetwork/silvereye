@@ -363,7 +363,7 @@ def prepare_simple_csv_validation_errors(validation_errors, mapper, required_fie
                     'Incorrect date format. Use a standard date format such as ISO 8601: YYYY-MM-DDT00:00:00Z.')
             for i, value in enumerate(values):
                 values[i]["header"] = simple_csv_header
-                values[i]["row_number"] -= 1
+                values[i]["row_number"] = values[i].get("row_number", 1) - 1
             simple_csv_errors.append([error_json_dict, values])
         elif error_json_dict["validator"] != "required":
             ocds_validation_errors.append([error_json, values])
