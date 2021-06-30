@@ -83,12 +83,13 @@ def explore_data_context(request, pk, get_file_type=None):
                 data = FileSubmission.objects.get(pk=pk)
         except (FileSubmission.DoesNotExist, ValidationError):  # Catches primary key does not exist and badly formed UUID
             logger.exception("Couldn't get data from S3: %s", pk)
-            return {}, None, render(request, 'error.html', {
-                'sub_title': _('Sorry, the page you are looking for is not available'),
-                'link': 'index',
-                'link_text': _('Go to Home page'),
-                'msg': _("We don't seem to be able to find the data you requested.")
-            }, status=404)
+    if data is None:
+        return {}, None, render(request, 'error.html', {
+            'sub_title': _('Sorry, the page you are looking for is not available'),
+            'link': 'index',
+            'link_text': _('Go to Home page'),
+            'msg': _("We don't seem to be able to find the data you requested.")
+        }, status=404)
 
 
     file_type = get_file_type(data.original_file)
