@@ -71,6 +71,7 @@ def explore_data_context(request, pk, get_file_type=None):
     if get_file_type is None:
         get_file_type = _get_file_type
 
+    data = None
     try:
         data = FileSubmission.objects.get(pk=pk)
         # Updated code to sync local storage to/from S3 storage
@@ -284,27 +285,36 @@ def explore_ocds(request, pk):
             schema_ocds.create_extended_release_schema_file(upload_dir, upload_url)
         schema_url = schema_ocds.extended_schema_file or schema_ocds.schema_url
         pkg_url = schema_ocds.pkg_schema_url
+        try:
+            if file_type != "csv":
+                # ORIGINAL UNFLATTEN
+                conversion_context = convert_spreadsheet(
+                        upload_dir,
+                        upload_url,
+                        file_name,
+                        file_type,
+                        lib_cove_ocds_config,
+                        schema_url=schema_url,
+                        pkg_schema_url=pkg_url,
+                        replace=replace,
+                )
+            else:
+                # Convert Simple CSV to flat OCDS and return context
 
-        if file_type != "csv":
-            # ORIGINAL UNFLATTEN
-            conversion_context = convert_spreadsheet(
-                    upload_dir,
-                    upload_url,
-                    file_name,
-                    file_type,
+                conversion_context = convert_simple_csv_submission(
+                    db_data,
                     lib_cove_ocds_config,
-                    schema_url=schema_url,
-                    pkg_schema_url=pkg_url,
+                    schema_url,
                     replace=replace,
-            )
-        else:
-            # Convert Simple CSV to flat OCDS and return context
-
-            conversion_context = convert_simple_csv_submission(
-                db_data,
-                lib_cove_ocds_config,
-                schema_url,
-                replace=replace,
+                )
+        except CoveInputDataError:
+            raise CoveInputDataError(
+                context={
+                    "sub_title": _("Sorry, we can't process that data"),
+                    "link": "index",
+                    "link_text": _("Try Again"),
+                    "msg": _(format_html("Data Unavailable")),
+                }
             )
 
         context.update(conversion_context)
@@ -378,7 +388,7 @@ def explore_ocds(request, pk):
                     trans_date = release["contracts"][0]["implementation"]["transactions"][0]["date"]
                     parsed_trans_date = parser.parse(trans_date)
                     release["contracts"][0]["implementation"]["transactions"][0]["date"] = parsed_trans_date
-                except KeyError:
+                except (KeyError, ValueError):
                     pass
 
             if context.get("releases_aggregates"):
