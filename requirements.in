@@ -1,9 +1,11 @@
-Django>2.2<2.3
 flattentool<1
-libcoveocds==0.7.4
-libcove==0.17.0
-libcoveweb<1
+libcove<1
+Django==2.2.24
+libcove>=0.18.0
+libcoveweb==0.18.0
+libcoveocds>=0.9.0
 django-bootstrap4
+django-bootstrap3
 django-debug-toolbar
 requests
 cached-property
@@ -23,15 +25,15 @@ rangedict
 openpyxl<3.0
 waitress
 whitenoise
-psycopg2-binary
+psycopg2-binary>=2.8,<2.9 # https://stackoverflow.com/a/68034786
 
 # Silvereye
 django-storages
 boto3
 smart-open
 dj-database-url==0.5.0
-django-pipeline==1.6.14
-django_pipeline_csscompressor
+django-pipeline<1.7
+csscompressor>=0.9.4
 libsass==0.12.3
 django-pgviews-redux
 ocdskit
@@ -42,3 +44,4 @@ elasticsearch-dsl
 faker
 django-mathfilters
 dateparser
+django-postgres-extra

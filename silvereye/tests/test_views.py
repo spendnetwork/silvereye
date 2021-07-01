@@ -10,10 +10,10 @@ class HomeViewTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create some test data
-        publisher_counts = [['Borsetshire', '2020-07-01', 5, 3, 0],
-                            ['Borsetshire', '2020-06-01', 6, 2, 0],
-                            ['Setborshire', '2020-07-01', 5, 22, 0],
-                            ['Setborshire', '2020-06-01', 4, 21, 0]
+        publisher_counts = [['Borsetshire', '2020-08-01', 5, 3, 0],
+                            ['Borsetshire', '2020-07-01', 6, 2, 0],
+                            ['Setborshire', '2020-08-01', 5, 22, 0],
+                            ['Setborshire', '2020-07-01', 4, 21, 0]
 
         ]
         for publisher_name, date, count_tenders, count_awards, count_spend in publisher_counts:
@@ -39,7 +39,7 @@ class HomeViewTest(TestCase):
                                         'counts': {'tenders': 10, 'awards': 23, 'spend': 0 },
                                         'change': {'tenders': 0, 'awards': 2, 'spend': 0 },
                                 },
-                             'period_option': 'last month',
+                             'period_option': 'this month',
                              'comparison_option': 'preceding period'
                             }
         self.assertDictEqual(response.context['publisher_metrics'], expected_metrics)

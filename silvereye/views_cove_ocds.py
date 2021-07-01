@@ -71,6 +71,7 @@ def explore_data_context(request, pk, get_file_type=None):
     if get_file_type is None:
         get_file_type = _get_file_type
 
+    data = None
     try:
         data = FileSubmission.objects.get(pk=pk)
         # Updated code to sync local storage to/from S3 storage
@@ -83,12 +84,13 @@ def explore_data_context(request, pk, get_file_type=None):
                 data = FileSubmission.objects.get(pk=pk)
         except (FileSubmission.DoesNotExist, ValidationError):  # Catches primary key does not exist and badly formed UUID
             logger.exception("Couldn't get data from S3: %s", pk)
-            return {}, None, render(request, 'error.html', {
-                'sub_title': _('Sorry, the page you are looking for is not available'),
-                'link': 'index',
-                'link_text': _('Go to Home page'),
-                'msg': _("We don't seem to be able to find the data you requested.")
-            }, status=404)
+    if data is None:
+        return {}, None, render(request, 'error.html', {
+            'sub_title': _('Sorry, the page you are looking for is not available'),
+            'link': 'index',
+            'link_text': _('Go to Home page'),
+            'msg': _("We don't seem to be able to find the data you requested.")
+        }, status=404)
 
 
     file_type = get_file_type(data.original_file)
@@ -219,7 +221,7 @@ def explore_ocds(request, pk):
                 replace = True
             if schema_ocds.extensions:
                 schema_ocds.create_extended_release_schema_file(upload_dir, upload_url)
-            schema_url = schema_ocds.extended_schema_file or schema_ocds.release_schema_url
+            schema_url = schema_ocds.extended_schema_file or schema_ocds.schema_url
 
             if "records" in json_data:
                 context["conversion"] = None
@@ -248,7 +250,7 @@ def explore_ocds(request, pk):
         # Use the lowest release pkg schema version accepting 'version' field
         metatab_schema_url = SchemaOCDS(
             select_version="1.1", lib_cove_ocds_config=lib_cove_ocds_config
-        ).release_pkg_schema_url
+        ).pkg_schema_url
         metatab_data = get_spreadsheet_meta_data(
             upload_dir, file_name, metatab_schema_url, file_type
         )
@@ -281,29 +283,38 @@ def explore_ocds(request, pk):
 
         if schema_ocds.extensions:
             schema_ocds.create_extended_release_schema_file(upload_dir, upload_url)
-        schema_url = schema_ocds.extended_schema_file or schema_ocds.release_schema_url
-        pkg_url = schema_ocds.release_pkg_schema_url
+        schema_url = schema_ocds.extended_schema_file or schema_ocds.schema_url
+        pkg_url = schema_ocds.pkg_schema_url
+        try:
+            if file_type != "csv":
+                # ORIGINAL UNFLATTEN
+                conversion_context = convert_spreadsheet(
+                        upload_dir,
+                        upload_url,
+                        file_name,
+                        file_type,
+                        lib_cove_ocds_config,
+                        schema_url=schema_url,
+                        pkg_schema_url=pkg_url,
+                        replace=replace,
+                )
+            else:
+                # Convert Simple CSV to flat OCDS and return context
 
-        if file_type != "csv":
-            # ORIGINAL UNFLATTEN
-            conversion_context = convert_spreadsheet(
-                    upload_dir,
-                    upload_url,
-                    file_name,
-                    file_type,
+                conversion_context = convert_simple_csv_submission(
+                    db_data,
                     lib_cove_ocds_config,
-                    schema_url=schema_url,
-                    pkg_schema_url=pkg_url,
+                    schema_url,
                     replace=replace,
-            )
-        else:
-            # Convert Simple CSV to flat OCDS and return context
-
-            conversion_context = convert_simple_csv_submission(
-                db_data,
-                lib_cove_ocds_config,
-                schema_url,
-                replace=replace,
+                )
+        except CoveInputDataError:
+            raise CoveInputDataError(
+                context={
+                    "sub_title": _("Sorry, we can't process that data"),
+                    "link": "index",
+                    "link_text": _("Try Again"),
+                    "msg": _(format_html("Data Unavailable")),
+                }
             )
 
         context.update(conversion_context)
@@ -341,7 +352,7 @@ def explore_ocds(request, pk):
     )
 
     ocds_show_schema = SchemaOCDS()
-    ocds_show_deref_schema = ocds_show_schema.get_release_schema_obj(deref=True)
+    ocds_show_deref_schema = ocds_show_schema.get_schema_obj(deref=True)
 
     if "records" in json_data:
         template = "cove_ocds/explore_record.html"
@@ -377,7 +388,7 @@ def explore_ocds(request, pk):
                     trans_date = release["contracts"][0]["implementation"]["transactions"][0]["date"]
                     parsed_trans_date = parser.parse(trans_date)
                     release["contracts"][0]["implementation"]["transactions"][0]["date"] = parsed_trans_date
-                except KeyError:
+                except (KeyError, ValueError):
                     pass
 
             if context.get("releases_aggregates"):

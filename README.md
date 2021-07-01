@@ -315,3 +315,42 @@ Default login credentials are
 
 - Username: admin
 - Password: admin
+
+## Developing Silvereye
+
+### Restricting urls
+
+The `cove_project/urls.py` is the root url file for the Silvereye application.
+If you want to change what pages are available to users by, for example, deactivating certain urls or adding authorization criteria you will need to make your changes here.
+
+### Implementing Authentication
+
+Because Silvereye uses the Django Admin authentication is already partially implemented.
+Leveraging the Django authentication and/ or authorization to cover pages other than the admin can be achieved by applying decorators (detailed in the Django Auth [documentation](https://docs.djangoproject.com/en/3.2/topics/auth/default/)) to the urls in `cove_project/urls.py`
+
+This method has the benefit of allowing you to encapsulate your auth logic in the single `urls.py` file rather than spread therough `views.py` files.
+
+#### Magiclink login
+
+A branch of Silvereye was successfully developed using both the Django
+[ModelBackend](https://docs.djangoproject.com/en/3.2/topics/auth/default/#using-the-django-authentication-system) and [magiclink](https://pypi.org/project/django-magiclink/).
+
+To use both types of authentication at once the steps were roughly:
+
+* Implement the appropriate dependencies
+* Implement the appropriate settings
+* Run a migrations
+* Add the urls for each type of authentication (in cove_project/urls.py)
+* Create a partial for each type of login you have implemented
+
+```
+    from django.contrib.auth.decorators import login_required
+
+    username_password_login = partial(login_required, login_url='/review/admin/login')
+    magic_link_login = partial(login_required, login_url='/auth/login')
+```
+
+* Use the partials to decorate views (in cove_project/urls.py)
+```
+    url(r"^data/(.+)$", magic_link_login(views_cove_ocds.explore_ocds), name="explore"),
+```

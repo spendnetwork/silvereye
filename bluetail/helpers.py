@@ -6,7 +6,8 @@ from copy import deepcopy
 from django.core.files.base import ContentFile
 from django.conf import settings
 from django.db.models import Q
-from ocdskit.combine import merge
+
+from psqlextra.query import ConflictAction
 
 from bluetail import models
 from bluetail.models import FlagAttachment, Flag, BODSEntityStatement, BODSOwnershipStatement, BODSPersonStatement, \
@@ -259,7 +260,6 @@ class UpsertDataHelpers:
             supplied_data.save()
 
         package_data = deepcopy(package_json)
-        releases = package_data.pop("releases")
         package, created = OCDSPackageDataJSON.objects.update_or_create(
             supplied_data=supplied_data,
             defaults={
@@ -268,26 +268,42 @@ class UpsertDataHelpers:
 
             }
         )
+        releases = package_data.pop("releases")
 
-        for release in releases:
-            ocid = release.get("ocid")
-            release_id = release.get("id")
-            release_json, created = OCDSReleaseJSON.objects.update_or_create(
-                ocid=ocid,
-                release_id=release_id,
-                defaults={
-                    "release_json": release,
-                    "package_data": package,
+        if not settings.USE_PSQL_EXTRA:
+            # Less efficient O^n, this gets _very_ slow with larger datasets
+            for release in releases:
+                ocid = release.get("ocid")
+                release_id = release.get("id")
+                release_json, created = OCDSReleaseJSON.objects.update_or_create(
+                    ocid=ocid,
+                    release_id=release_id,
+                    defaults={
+                        "release_json": release,
+                        "package_data": package,
 
-                }
+                    }
+                )
+        else:
+            # O^1 using a full upsert functionality in postgres
+            update_data = (
+                {'ocid': rel.get("ocid"), 'release_id': rel.get("id"), 'release_json': rel, 'package_data': package}
+                for rel in releases
             )
+            OCDSReleaseJSON.objects.on_conflict(['release_id', 'ocid'], ConflictAction.UPDATE).bulk_insert(update_data)
 
     def upsert_ocds_data(self, ocds_json_path_or_string, supplied_data=None, process_json=None):
         """
         Takes a path to an OCDS Package or a string containing OCDS JSON data
         Upserts all data to the Bluetail database
         """
-        if os.path.exists(ocds_json_path_or_string):
+        is_path = False
+        try:
+            is_path = os.path.exists(ocds_json_path_or_string)
+        except ValueError:
+            pass
+
+        if is_path:
             ocds_json = json.load(open(ocds_json_path_or_string))
             filename = os.path.split(ocds_json_path_or_string)[1]
         else:

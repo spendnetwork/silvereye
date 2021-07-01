@@ -15,6 +15,9 @@ from django.db.models import Sum, Avg
 from django.db.models.functions import Coalesce
 from django.utils.safestring import mark_safe
 
+from csscompressor import compress
+from pipeline.compressors import CompressorBase
+
 import silvereye
 from silvereye.lib.converters import convert_csv
 from silvereye.models import FileSubmission, FieldCoverage
@@ -319,7 +322,7 @@ def get_coverage_metrics_context(queryset=None, period_option='1_month', compari
 
 
 def get_metric_options(request):
-    period_option = request.GET.get('period', '1_month') or '1_month'
+    period_option = request.GET.get('period', 'current') or 'current'
     comparison_option = request.GET.get('comparison', 'preceding') or 'preceding'
     return (period_option, comparison_option)
 
@@ -360,7 +363,7 @@ def prepare_simple_csv_validation_errors(validation_errors, mapper, required_fie
                     'Incorrect date format. Use a standard date format such as ISO 8601: YYYY-MM-DDT00:00:00Z.')
             for i, value in enumerate(values):
                 values[i]["header"] = simple_csv_header
-                values[i]["row_number"] -= 1
+                values[i]["row_number"] = values[i].get("row_number", 1) - 1
             simple_csv_errors.append([error_json_dict, values])
         elif error_json_dict["validator"] != "required":
             ocds_validation_errors.append([error_json, values])
@@ -435,3 +438,8 @@ def prepare_simple_csv_submission_base_json(base_json_path, publisher):
     }
     with open(base_json_path, "w") as writer:
         json.dump(base_json, writer, indent=2)
+
+
+class CssCompressor(CompressorBase):
+    def compress_css(self, css):
+        return compress(css)
