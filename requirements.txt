@@ -81,7 +81,7 @@ django-pipeline==1.6.14
     #   django-pipeline-csscompressor
 django-storages==1.11.1
     # via -r requirements.in
-django==2.2.20
+django==2.2.24
     # via
     #   -r requirements.in
     #   django-bootstrap3
